@@ -16,6 +16,11 @@ const themeScript = `
 try {
   var t = localStorage.getItem("tt-theme-v1") || "dark";
   document.documentElement.setAttribute("data-theme", t);
+  var fx = JSON.parse(localStorage.getItem("tt-fx-v1") || "{}");
+  if (fx.cardfx)  document.documentElement.setAttribute("data-tt-cardfx",  fx.cardfx);
+  if (fx.linkfx)  document.documentElement.setAttribute("data-tt-linkfx",  fx.linkfx);
+  if (fx.scrollfx)document.documentElement.setAttribute("data-tt-scrollfx",fx.scrollfx);
+  if (fx.btnfx)   document.documentElement.setAttribute("data-tt-btnfx",   fx.btnfx);
 } catch(e) {}
 `;
 
@@ -23,15 +28,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       data-theme="dark"
-      data-tt-cardfx="socket"
+      data-tt-cardfx="peel"
       data-tt-linkfx="caret"
       data-tt-scrollfx="swing"
       data-tt-btnfx="sweep"
     >
       <head>
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* suppressHydrationWarning: Exodus wallet extension injects into this tag after it executes */}
+        <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
         <CartProvider>
