@@ -232,7 +232,7 @@ function ShopContent() {
     if (cat !== "all") list = list.filter((p) => p.cat === cat);
     if (query.trim()) {
       const q = query.toLowerCase();
-      list = list.filter((p) => p.name.toLowerCase().includes(q) || p.blurb.toLowerCase().includes(q) || p.tags.some((t) => t.includes(q)));
+      list = list.filter((p) => p.name.toLowerCase().includes(q) || p.blurb.toLowerCase().includes(q) || p.tags.some((t) => t.toLowerCase().includes(q)));
     }
     list = list.filter((p) => p.price <= priceMax);
     if (activeTags.length) list = list.filter((p) => activeTags.every((t) => p.tags.includes(t)));

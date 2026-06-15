@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useReducer, useState } from "react";
+import { createContext, useContext, useEffect, useReducer } from "react";
 import type { CartItem } from "./types";
 
 const STORAGE_KEY = "tt-cart-v1";
@@ -61,14 +61,18 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [], isOpen: false });
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) dispatch({ type: "HYDRATE", items: JSON.parse(raw) });
-    } catch {}
-  }, []);
+  const [state, dispatch] = useReducer(
+    cartReducer,
+    { items: [], isOpen: false },
+    (init) => {
+      if (typeof window === "undefined") return init;
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return { ...init, items: JSON.parse(raw) as CartItem[] };
+      } catch {}
+      return init;
+    },
+  );
 
   useEffect(() => {
     try {
