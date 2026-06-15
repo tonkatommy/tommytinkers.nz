@@ -26,11 +26,17 @@ export default function SiteFxDriver() {
 
     sweepCards();
     window.addEventListener("scroll", sweepCards, { passive: true });
-    const mo = new MutationObserver(() => sweepCards());
+
+    let moTimer: number | null = null;
+    const mo = new MutationObserver(() => {
+      if (moTimer) window.clearTimeout(moTimer);
+      moTimer = window.setTimeout(sweepCards, 60);
+    });
     mo.observe(document.body, { childList: true, subtree: true });
 
     return () => {
       window.removeEventListener("scroll", sweepCards);
+      if (moTimer) window.clearTimeout(moTimer);
       mo.disconnect();
     };
   }, []);
