@@ -290,11 +290,18 @@ function Step4({ state, set, rec }: { state: WizardState; set: (p: Partial<Wizar
     `Features: ${state.features.length ? state.features.join(", ") : "(none picked yet)"}\n` +
     `Timeline: ${TIMELINES.find((t) => t.id === state.timeline)?.name}\n` +
     `Budget: ${BUDGETS.find((b) => b.id === state.budget)?.name}\n` +
+    `Name: ${extra.name || "(not provided)"}\n` +
+    `Email: ${extra.email || "(not provided)"}\n` +
     `Note: ${extra.note || "(no note)"}`;
 
   const mailto = `mailto:tommy@tommytinkers.nz?subject=${encodeURIComponent("Codebench brief — " + rec.headline)}&body=${encodeURIComponent(briefSummary)}`;
 
-  function submit(e: React.FormEvent) { e.preventDefault(); setSent(true); setTimeout(() => setSent(false), 6000); }
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    window.location.href = mailto;
+    setSent(true);
+    setTimeout(() => setSent(false), 6000);
+  }
 
   return (
     <div>
@@ -380,7 +387,7 @@ function Step4({ state, set, rec }: { state: WizardState; set: (p: Partial<Wizar
             </div>
             {sent && (
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--color-success)", background: "rgba(76,175,46,0.08)", border: "1px solid rgba(76,175,46,0.3)", padding: "10px 14px", borderRadius: 8 }}>
-                ✓ Sent. Brief saved on this device — I&apos;ll be in touch within a working day.
+                ✓ Draft opened in your email app — I&apos;ll be in touch within a working day.
               </div>
             )}
           </form>

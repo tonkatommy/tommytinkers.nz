@@ -10,6 +10,23 @@ export default function CartDrawer() {
     const p = getById(item.id);
     return sum + (p ? p.price * item.qty : 0);
   }, 0);
+  const checkoutHref = (() => {
+    const lines = items
+      .map((item) => {
+        const product = getById(item.id);
+        return product ? `${item.qty} x ${product.name} ($${product.price.toFixed(2)} ea)` : null;
+      })
+      .filter((line): line is string => Boolean(line));
+    const body = [
+      "Hi Tommy,",
+      "",
+      "I'd like to place this order:",
+      ...lines,
+      "",
+      `Total: $${total.toFixed(2)}`,
+    ].join("\n");
+    return `mailto:tommy@tommytinkers.nz?subject=${encodeURIComponent("Tommy Tinkers NZ cart checkout")}&body=${encodeURIComponent(body)}`;
+  })();
 
   return (
     <>
@@ -100,11 +117,16 @@ export default function CartDrawer() {
                 ${total.toFixed(2)}
               </span>
             </div>
-            <button className="tt-btn tt-btn-warm" style={{ width: "100%", justifyContent: "center" }}>
+            <button
+              type="button"
+              className="tt-btn tt-btn-warm"
+              style={{ width: "100%", justifyContent: "center" }}
+              onClick={() => { window.location.href = checkoutHref; }}
+            >
               Checkout <ArrowRight size={16} />
             </button>
             <p style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--color-text-muted)", textAlign: "center", marginTop: 10 }}>
-              NZ shipping · Secure checkout
+              NZ shipping · Checkout opens your email app
             </p>
           </div>
         )}

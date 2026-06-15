@@ -65,7 +65,24 @@ function timeAgo(ts: number) {
 }
 
 function loadFeed(): Post[] { try { const v = JSON.parse(localStorage.getItem(FEED_KEY) ?? "null"); return v?.length ? v : SEED_POSTS; } catch { return SEED_POSTS; } }
-function saveFeed(p: Post[]) { try { localStorage.setItem(FEED_KEY, JSON.stringify(p)); } catch {} }
+function saveFeed(p: Post[]) {
+  try { localStorage.setItem(FEED_KEY, JSON.stringify(p)); } catch {}
+  void fetch("/api/pinboard", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ posts: p }),
+  }).catch(() => {});
+}
+async function pullFeed(): Promise<Post[] | null> {
+  try {
+    const res = await fetch("/api/pinboard", { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data.posts) ? data.posts : null;
+  } catch {
+    return null;
+  }
+}
 function loadMyReacts(): Record<string, string> { try { return JSON.parse(localStorage.getItem(MY_REACTS_KEY) ?? "{}") ?? {}; } catch { return {}; } }
 function saveMyReacts(m: Record<string, string>) { try { localStorage.setItem(MY_REACTS_KEY, JSON.stringify(m)); } catch {} }
 function loadUser(): User | null { try { return JSON.parse(localStorage.getItem(AUTH_KEY) ?? "null"); } catch { return null; } }
@@ -361,9 +378,19 @@ function Pinboard() {
   const [defaultName, setDefaultName] = useState("");
 
   useEffect(() => {
-    setPosts(loadFeed());
+    const localFeed = loadFeed();
+    setPosts(localFeed);
     setMyReacts(loadMyReacts());
     setDefaultName(localStorage.getItem(FEED_NAME_KEY) ?? "");
+    void (async () => {
+      const remoteFeed = await pullFeed();
+      if (remoteFeed && remoteFeed.length > 0) {
+        setPosts(remoteFeed);
+        try { localStorage.setItem(FEED_KEY, JSON.stringify(remoteFeed)); } catch {}
+      } else {
+        saveFeed(localFeed);
+      }
+    })();
   }, []);
 
   function onPost(p: Post) {

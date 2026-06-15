@@ -81,7 +81,7 @@ function Sidebar({
   allTags: string[]; activeTags: string[]; onToggleTag: (t: string) => void;
 }) {
   return (
-    <aside style={{ position: "sticky", top: 80, display: "flex", flexDirection: "column", gap: 28, alignSelf: "start" }}>
+    <aside className="shop-sidebar" style={{ position: "sticky", top: 80, display: "flex", flexDirection: "column", gap: 28, alignSelf: "start" }}>
       <div>
         <label htmlFor="q" className="tt-field-label" style={{ marginBottom: 8 }}>Search</label>
         <div style={{ position: "relative" }}>
@@ -314,7 +314,7 @@ function ShopContent() {
       <style>{`
         @media (max-width: 860px) {
           .tt-container > div[style*="260px"] { grid-template-columns: 1fr !important; }
-          aside { position: static !important; }
+          .shop-sidebar { position: static !important; }
         }
       `}</style>
     </>

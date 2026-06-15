@@ -365,6 +365,14 @@ function HomeContact() {
   const [sent, setSent] = useState(false);
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    const subject = `${form.name.trim() ? `${form.name.trim()} - ` : ""}Website enquiry`;
+    const body = [
+      `Name: ${form.name.trim() || "(not provided)"}`,
+      `Email: ${form.email.trim() || "(not provided)"}`,
+      "",
+      form.message.trim() || "(no message)",
+    ].join("\n");
+    window.location.href = `mailto:tommy@tommytinkers.nz?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setSent(true);
     setTimeout(() => setSent(false), 4000);
   }
@@ -400,7 +408,7 @@ function HomeContact() {
               <button type="submit" className="tt-btn tt-btn-primary">
                 <Send size={14} /> Send message
               </button>
-              {sent && <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--color-accent)" }}>✓ Sent. I&apos;ll be in touch.</span>}
+              {sent && <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--color-accent)" }}>✓ Draft opened in your email app. I&apos;ll be in touch.</span>}
             </div>
           </form>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
