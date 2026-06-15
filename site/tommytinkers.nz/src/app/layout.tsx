@@ -36,7 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-tt-btnfx="sweep"
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* suppressHydrationWarning: Exodus wallet extension injects into this tag after it executes */}
+        <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
         <CartProvider>
