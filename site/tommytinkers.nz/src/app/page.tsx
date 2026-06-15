@@ -8,7 +8,7 @@ import {
   Globe, Wrench, CreditCard, Hammer, Scissors, Car, Home, Plus, Mail, AtSign, Clock,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
-import { getFeatured, TT_PRODUCTS } from "@/lib/products";
+import { getFeatured } from "@/lib/products";
 import type { Product } from "@/lib/types";
 import { Blocks } from "lucide-react";
 
