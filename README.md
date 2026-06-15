@@ -10,20 +10,33 @@ Website for the tommytinkers.nz side hustle. Built with Next.js and deployed at 
 
 - **Framework:** Next.js (App Router)
 - **Language:** TypeScript
-- **Hosting:** TBD
+- **Styling:** Tailwind CSS v4
+- **Package Manager:** pnpm
+- **Hosting:** tommytinkers.nz
 
 ## Repository Structure
 
 ```
 ├── assets/
-│   └── images/
-│       └── logos/
-│           └── tommytinkers/   # Logo assets (PNG variants)
+│   ├── documents/
+│   ├── images/
+│   │   └── logos/
+│   │       └── tommytinkers/   # Logo assets (PNG variants)
+│   └── tommytinkers-nz/
+│       └── project/            # Original design project archive
+└── site/
+    └── tommytinkers.nz/        # Next.js site — see site README
 ```
 
 ## Getting Started
 
-> Setup instructions will be added once the Next.js project is scaffolded.
+```bash
+cd site/tommytinkers.nz
+pnpm install
+pnpm dev
+```
+
+See [site/tommytinkers.nz/README.md](./site/tommytinkers.nz/README.md) for full setup details.
 
 ## License
 
