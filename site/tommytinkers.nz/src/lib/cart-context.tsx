@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useReducer, useState } from "react";
+import { createContext, useContext, useEffect, useReducer } from "react";
 import type { CartItem } from "./types";
 
 const STORAGE_KEY = "tt-cart-v1";
