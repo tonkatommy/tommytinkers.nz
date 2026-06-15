@@ -1,35 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# tommytinkers.nz — Site
 
-## Getting Started
+Next.js website for the Tommy Tinkers NZ freelance web & software development business.
 
-First, run the development server:
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Runtime:** React 19
+- **Language:** TypeScript 5
+- **Styling:** Tailwind CSS v4 + custom CSS design tokens
+- **Icons:** Lucide React
+- **Package Manager:** pnpm
+
+## Pages
+
+| Route | Description |
+|---|---|
+| `/` | Home / landing |
+| `/shop` | E-commerce shop with shopping cart |
+| `/shed` | About & contact (with email) |
+| `/codebench` | Code demos |
+
+## Key Features
+
+- **Shopping cart** — React Context state with a slide-out CartDrawer
+- **Email** — Server-side contact form and cart checkout email
+- **Pinboard feed API** — `GET /api/pinboard` and `PUT /api/pinboard`; JSON file-based storage at `data/pinboard-feed.json`
+- **Design system** — CSS custom properties and `@font-face` declarations in `src/app/globals.css`
+- **Theme** — Light/dark mode toggled via localStorage
+
+## Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Build & Production
 
-You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm build
+pnpm start
+```
 
-Typography and design tokens live in `src/app/globals.css` (custom `@font-face` + CSS variables).
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── api/
+│   │   └── pinboard/   # Pinboard feed API route
+│   ├── codebench/      # Code demos page
+│   ├── shed/           # About & contact page
+│   ├── shop/           # Shop page
+│   ├── globals.css     # Design tokens, fonts, Tailwind
+│   ├── layout.tsx      # Root layout (theme + cart provider)
+│   └── page.tsx        # Home page
+├── components/
+│   ├── CartDrawer.tsx
+│   ├── Footer.tsx
+│   ├── Nav.tsx
+│   └── SiteFxDriver.tsx
+└── lib/
+    ├── cart-context.tsx
+    ├── products.ts
+    └── types.ts
+```
