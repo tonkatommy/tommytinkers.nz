@@ -593,10 +593,13 @@ export default function AdminPage() {
     setHydrated(true);
   }, []);
 
-  const flash = useCallback((msg: string) => {
-    setToast(msg);
-    const t = setTimeout(() => setToast(null), 2200);
-    return () => clearTimeout(t);
+  const flash = useMemo(() => {
+    let t: ReturnType<typeof setTimeout> | null = null;
+    return (msg: string) => {
+      setToast(msg);
+      if (t) clearTimeout(t);
+      t = setTimeout(() => setToast(null), 2200);
+    };
   }, []);
 
   const commit = useCallback((list: InvProduct[], msg?: string) => {
