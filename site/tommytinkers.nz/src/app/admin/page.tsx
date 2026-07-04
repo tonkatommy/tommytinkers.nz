@@ -7,7 +7,7 @@ import {
   Package, Layers, Wallet, TrendingDown, CircleSlash, Archive,
   Search, Table2, LayoutGrid, Plus, Pencil, ArchiveRestore, X,
   Minus, Check, ExternalLink, Sun, Moon, Boxes, Receipt,
-  Sliders, ArrowUpDown,
+  Sliders,
 } from "lucide-react";
 import { TT_PRODUCTS, TT_CATEGORIES } from "@/lib/products";
 import type { Product } from "@/lib/types";
