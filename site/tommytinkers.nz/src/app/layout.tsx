@@ -6,6 +6,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import SiteFxDriver from "@/components/SiteFxDriver";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
   title: "Tommy Tinkers NZ — websites, stickers & 3D printed stuff",
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-theme="dark"
+      suppressHydrationWarning
       data-tt-cardfx="socket"
       data-tt-linkfx="caret"
       data-tt-scrollfx="swing"
@@ -38,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main>{children}</main>
           <Footer />
           <CartDrawer />
+          <ScrollToTop />
         </CartProvider>
       </body>
     </html>
