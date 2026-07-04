@@ -1,0 +1,158 @@
+{
+  "posts": [
+    {
+      "id": "p0",
+      "pinned": true,
+      "isStaff": true,
+      "name": "Tommy",
+      "avatarSeed": 0,
+      "cat": "show",
+      "body": "Welcome to the feed. Post anything you've tinkered with, broken, fixed, or want made. Photos welcome. Be kind, keep it on-topic, that's it.\n\n· No sign-in needed to post or react\n· Custom requests with a few +1s usually become a batch\n· I read everything, even at 11pm",
+      "time": 1781423449690,
+      "photo": null,
+      "reactions": {
+        "wrench": 28,
+        "heart": 41,
+        "lightbulb": 12
+      },
+      "comments": []
+    },
+    {
+      "id": "p1",
+      "name": "Aroha S.",
+      "avatarSeed": 1,
+      "cat": "show",
+      "body": "Stuck the new vinyl decals on the chilly bin this morning. Survived an hour at the beach and a sandy dog. Sealed, sealed, sealed.",
+      "time": 1781528629690,
+      "photo": {
+        "swatch": [
+          "#fb923c",
+          "#fcd34d"
+        ],
+        "label": "chilly bin / sand"
+      },
+      "reactions": {
+        "wrench": 4,
+        "heart": 19,
+        "lightbulb": 1
+      },
+      "comments": [
+        {
+          "id": "c1",
+          "name": "Tommy",
+          "avatarSeed": 0,
+          "isStaff": true,
+          "body": "Beach-tested certification unlocked.",
+          "time": 1781529049690
+        },
+        {
+          "id": "c2",
+          "name": "Marko",
+          "avatarSeed": 3,
+          "body": "Need the same set for my pataka. Where do I sign up?",
+          "time": 1781530369690
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "Pip L.",
+      "avatarSeed": 2,
+      "cat": "idea",
+      "body": "Idea: a phone stand that hooks over a kitchen cupboard handle so I can follow a recipe without smearing flour on the screen. Anyone else want one?",
+      "time": 1781520649690,
+      "photo": null,
+      "reactions": {
+        "wrench": 11,
+        "heart": 8,
+        "lightbulb": 24
+      },
+      "comments": [
+        {
+          "id": "c3",
+          "name": "Tommy",
+          "avatarSeed": 0,
+          "isStaff": true,
+          "body": "Already sketching. Measure your handle width and reply with it.",
+          "time": 1781524249690
+        },
+        {
+          "id": "c4",
+          "name": "Jules",
+          "avatarSeed": 4,
+          "body": "+1, my partner does pasta from scratch and my phone has paid the price.",
+          "time": 1781526049690
+        }
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "Ben K.",
+      "avatarSeed": 5,
+      "cat": "show",
+      "body": "Cutlery drawer organiser — install no. 3 this month. Two more drawers to go, then I'm coming for the linen cupboard.",
+      "time": 1781502649690,
+      "photo": {
+        "swatch": [
+          "#4caf2e",
+          "#a8e88f"
+        ],
+        "label": "drawer / order achieved"
+      },
+      "reactions": {
+        "wrench": 7,
+        "heart": 22,
+        "lightbulb": 2
+      },
+      "comments": []
+    },
+    {
+      "id": "p4",
+      "name": "Marina",
+      "avatarSeed": 6,
+      "cat": "ask",
+      "body": "Quick one: PETG or PLA for an outdoor letterbox flag in Auckland weather? Have heard mixed things.",
+      "time": 1781491849690,
+      "photo": null,
+      "reactions": {
+        "wrench": 1,
+        "heart": 3,
+        "lightbulb": 0
+      },
+      "comments": [
+        {
+          "id": "c5",
+          "name": "Tommy",
+          "avatarSeed": 0,
+          "isStaff": true,
+          "body": "PETG, every time, if it sees the sun. PLA goes soft on a hot west-facing wall.",
+          "time": 1781495449690
+        }
+      ]
+    },
+    {
+      "id": "p5",
+      "name": "Hēmi",
+      "avatarSeed": 7,
+      "cat": "local",
+      "body": "Helensville crew — anyone want to do a pickup run on Saturday? Save us all on shipping.",
+      "time": 1781459449690,
+      "photo": null,
+      "reactions": {
+        "wrench": 0,
+        "heart": 9,
+        "lightbulb": 6
+      },
+      "comments": [
+        {
+          "id": "c6",
+          "name": "Tommy",
+          "avatarSeed": 0,
+          "isStaff": true,
+          "body": "Saturday 9-1 the workshop's open. Flick me your order numbers and I'll bundle them.",
+          "time": 1781463049690
+        }
+      ]
+    }
+  ]
+}
