@@ -529,7 +529,7 @@ code, kbd, pre, samp { font-family: var(--font-mono); font-size: 0.95em; }
 /* ============================================================
    ADMIN PAGE
    ============================================================ */
-.adm-bar { position: sticky; top: 0; z-index: var(--z-nav); background: var(--color-bg-overlay); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--color-border-subtle); }
+.adm-bar { position: sticky; top: var(--nav-height); z-index: var(--z-nav); background: var(--color-bg-overlay); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--color-border-subtle); }
 .adm-bar-inner { height: var(--nav-height); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .adm-brand { display: flex; align-items: center; gap: 10px; }
 .adm-brand img { width: 34px; height: 34px; border-radius: 50%; }
