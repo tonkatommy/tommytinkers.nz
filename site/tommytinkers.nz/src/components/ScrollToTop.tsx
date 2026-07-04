@@ -10,7 +10,9 @@ export default function ScrollToTop() {
     function onScroll() {
       setVisible(window.scrollY > 400);
     }
-    window.addEventListener("scroll", onScroll);
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
