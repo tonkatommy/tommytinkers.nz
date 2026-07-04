@@ -417,7 +417,7 @@ export default function CodebenchPage() {
     return next;
   });
 
-  const rec = useMemo(() => buildRecommendation(state), [state]);
+  const rec = useMemo(() => buildRecommendation(state), [state.type, state.features, state.timeline, state.budget]);
 
   return (
     <>
