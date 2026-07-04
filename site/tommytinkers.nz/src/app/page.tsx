@@ -109,7 +109,7 @@ function HomeHero() {
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
           <div style={{ position: "relative", width: 380, height: 380, maxWidth: "100%" }}>
             <div style={{ position: "absolute", inset: -40, background: "radial-gradient(circle, rgba(255,255,255,0.55) 0%, transparent 60%)", filter: "blur(20px)" }} />
-            <Image src="/assets/logo.png" alt="" fill style={{ position: "relative", borderRadius: "50%", boxShadow: "0 30px 60px rgba(26,24,22,0.35)", objectFit: "cover" }} priority />
+            <Image src="/assets/logo.png" alt="" fill style={{ borderRadius: "50%", boxShadow: "0 30px 60px rgba(26,24,22,0.35)", objectFit: "cover" }} priority />
           </div>
         </div>
       </div>
