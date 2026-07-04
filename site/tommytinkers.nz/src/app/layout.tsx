@@ -21,6 +21,7 @@ try {
   if (fx.linkfx)  document.documentElement.setAttribute("data-tt-linkfx",  fx.linkfx);
   if (fx.scrollfx)document.documentElement.setAttribute("data-tt-scrollfx",fx.scrollfx);
   if (fx.btnfx)   document.documentElement.setAttribute("data-tt-btnfx",   fx.btnfx);
+  if (fx.scale != null) document.documentElement.style.setProperty("--ttfx-scale", String(fx.scale));
 } catch(e) {}
 `;
 
