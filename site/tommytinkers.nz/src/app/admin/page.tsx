@@ -811,8 +811,9 @@ export default function AdminPage() {
               const blob = new Blob([data], { type: "application/json" });
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a");
-              a.href = url; a.download = "inventory.json"; a.click();
-              URL.revokeObjectURL(url);
+              a.href = url; a.download = "inventory.json";
+              document.body.appendChild(a); a.click(); a.remove();
+              setTimeout(() => URL.revokeObjectURL(url), 0);
             }}>↓ export JSON</button>
           </div>
         </div>
