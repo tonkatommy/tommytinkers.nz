@@ -409,8 +409,8 @@ function ProductDrawer({ open, mode, product, onClose, onSave }: {
 
   return (
     <>
-      <div className={"tt-drawer-overlay" + (open ? " open" : "")} onClick={onClose} />
-      <aside className={"tt-drawer" + (open ? " open" : "")} aria-hidden={!open} style={{ width: "min(460px, 100vw)" }}>
+      <div className={"tt-drawer-overlay" + (open ? " open" : "")} onClick={onClose} aria-hidden="true" />
+      <aside className={"tt-drawer" + (open ? " open" : "")} role="dialog" aria-modal="true" aria-label={mode === "add" ? "Add product" : "Edit product"} aria-hidden={!open} style={{ width: "min(460px, 100vw)" }}>
         <div className="tt-drawer-head">
           <div>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--color-mono)", letterSpacing: "0.05em" }}>
