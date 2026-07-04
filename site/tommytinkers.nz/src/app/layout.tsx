@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 import Nav from "@/components/Nav";
@@ -29,11 +30,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-tt-scrollfx="swing"
       data-tt-btnfx="sweep"
     >
-      <head>
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
       <body>
+        <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeScript }} />
         <CartProvider>
           <SiteFxDriver />
           <Nav />
