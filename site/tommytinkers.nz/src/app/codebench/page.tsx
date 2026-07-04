@@ -40,8 +40,8 @@ const TIMELINES = [
 
 const BUDGETS = [
   { id: "small",  name: "Under $1.5k", blurb: "Light-touch, focused scope." },
-  { id: "mid",    name: "$1.5k – $5k", blurb: "Most marketing sites and small tools." },
-  { id: "large",  name: "$5k – $15k",  blurb: "Web apps, custom shops, full builds." },
+  { id: "mid",    name: "$1.5k - $5k", blurb: "Most marketing sites and small tools." },
+  { id: "large",  name: "$5k - $15k",  blurb: "Web apps, custom shops, full builds." },
   { id: "xl",     name: "$15k+",       blurb: "Bigger systems, multiple phases." },
   { id: "unsure", name: "Not sure",    blurb: "Tell me the problem, I'll scope it." },
 ];
@@ -205,7 +205,7 @@ function Step1({ state, set }: { state: WizardState; set: (p: Partial<WizardStat
     <div>
       <StepProgress step={1} total={4} />
       <h3 className="cb-step-q">What are you trying to build?</h3>
-      <p className="cb-step-sub">Pick the closest match. If nothing fits, pick "not sure yet" — we'll work it out on a call.</p>
+      <p className="cb-step-sub">Pick the closest match. If nothing fits, pick &quot;not sure yet&quot; — we&apos;ll work it out on a call.</p>
       <div className="cb-choices">
         {PROJECT_TYPES.map((p) => (
           <ChoiceCard key={p.id} choice={p} selected={state.type === p.id} onClick={() => set({ type: p.id, features: [] })} />

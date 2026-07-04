@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import SiteFxDriver from "@/components/SiteFxDriver";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
   title: "Tommy Tinkers NZ — websites, stickers & 3D printed stuff",
@@ -41,12 +43,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
+        <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeScript }} />
         <CartProvider>
           <SiteFxDriver />
           <Nav />
           <main>{children}</main>
           <Footer />
           <CartDrawer />
+          <ScrollToTop />
         </CartProvider>
       </body>
     </html>

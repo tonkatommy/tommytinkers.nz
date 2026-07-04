@@ -287,6 +287,33 @@ code, kbd, pre, samp { font-family: var(--font-mono); font-size: 0.95em; }
 .tt-textarea { resize: vertical; min-height: 90px; }
 
 /* ============================================================
+   SCROLL TO TOP
+   ============================================================ */
+.tt-scroll-top {
+  position: fixed;
+  right: var(--space-6);
+  bottom: var(--space-6);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  z-index: var(--z-nav);
+  opacity: 0;
+  transform: translateY(8px) scale(0.9);
+  pointer-events: none;
+  transition: opacity var(--motion-base), transform var(--motion-base), border-color var(--motion-base), color var(--motion-base), background var(--motion-base);
+}
+.tt-scroll-top.visible { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+.tt-scroll-top:hover { color: var(--color-text-primary); border-color: var(--color-accent); background: var(--color-accent-subtle); }
+
+/* ============================================================
    CART DRAWER
    ============================================================ */
 .tt-drawer-overlay { position: fixed; inset: 0; z-index: var(--z-modal); background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity var(--motion-base); }
