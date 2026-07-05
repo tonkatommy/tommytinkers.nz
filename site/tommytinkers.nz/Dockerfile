@@ -20,8 +20,8 @@ COPY . .
 # (every route in this app is dynamic/server-rendered on demand), but Auth.js and Prisma
 # config validation both expect these env vars to at least be present at build time.
 # Exported once and reused for both commands below, rather than declared via ENV, for the
-# same lint reason as the deps stage — this also means the value never appears as image
-# layer metadata in any stage.
+# same lint reason as the deps stage — this avoids persisting the vars as ENV metadata in
+# the resulting image config (the command itself still appears in layer history).
 RUN export DATABASE_URL="postgresql://user:pass@localhost:5432/db" \
       AUTH_SECRET="build-time-placeholder-not-used-at-runtime" && \
     pnpm prisma generate && \
