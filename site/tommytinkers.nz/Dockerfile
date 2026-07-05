@@ -7,9 +7,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml prisma.config.ts ./
 COPY prisma ./prisma
 # `prisma generate` (run via postinstall) resolves DATABASE_URL eagerly even though it
 # never connects — this placeholder only needs to exist, the real value is supplied at
-# container runtime via .env / docker-compose env_file.
-ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db"
-RUN pnpm install --frozen-lockfile
+# container runtime via .env / docker-compose env_file. Passed as a shell-scoped var on
+# the RUN line (not a persisted ENV instruction) so Dockerfile secret-name linters don't
+# flag this non-secret placeholder.
+RUN DATABASE_URL="postgresql://user:pass@localhost:5432/db" pnpm install --frozen-lockfile
 
 FROM base AS builder
 WORKDIR /app
@@ -18,10 +19,13 @@ COPY . .
 # Same placeholder rationale as the deps stage — `next build` never connects to Postgres
 # (every route in this app is dynamic/server-rendered on demand), but Auth.js and Prisma
 # config validation both expect these env vars to at least be present at build time.
-ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db"
-ENV AUTH_SECRET="build-time-placeholder-not-used-at-runtime"
-RUN pnpm prisma generate
-RUN pnpm build
+# Exported once and reused for both commands below, rather than declared via ENV, for the
+# same lint reason as the deps stage — this also means the value never appears as image
+# layer metadata in any stage.
+RUN export DATABASE_URL="postgresql://user:pass@localhost:5432/db" \
+      AUTH_SECRET="build-time-placeholder-not-used-at-runtime" && \
+    pnpm prisma generate && \
+    pnpm build
 
 # pnpm's node_modules is a tree of symlinks into a content-addressable .pnpm store.
 # Cherry-picking individual package folders (as the standalone runner would otherwise
@@ -32,8 +36,8 @@ FROM base AS prod-deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml prisma.config.ts ./
 COPY prisma ./prisma
-ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db"
-RUN pnpm install --prod --frozen-lockfile
+# See deps stage above for why this is a RUN-scoped var rather than ENV.
+RUN DATABASE_URL="postgresql://user:pass@localhost:5432/db" pnpm install --prod --frozen-lockfile
 
 FROM base AS runner
 WORKDIR /app
