@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Globe2, LayoutDashboard, Wrench, Zap, HelpCircle, ShoppingBag,
@@ -417,6 +417,7 @@ export default function CodebenchPage() {
     return next;
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const rec = useMemo(() => buildRecommendation(state), [state.type, state.features, state.timeline, state.budget]);
 
   return (
