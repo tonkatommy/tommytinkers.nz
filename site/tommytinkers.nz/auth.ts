@@ -8,9 +8,26 @@ import authConfig from "./auth.config";
 
 const FAILED_LOGIN_LIMIT = 5;
 const LOCKOUT_MS = 15 * 60 * 1000;
+const adapter = PrismaAdapter(prisma);
+
+adapter.createUser = async (data) => {
+  const userRole = await prisma.role.findUniqueOrThrow({ where: { name: "USER" } });
+  const user = await prisma.user.create({ data: { ...data, roleId: userRole.id } });
+  return { ...user, roleName: userRole.name, permissions: userRole.permissions };
+};
+
+adapter.getUserByAccount = async ({ provider, providerAccountId }) => {
+  const account = await prisma.account.findUnique({
+    where: { provider_providerAccountId: { provider, providerAccountId } },
+    include: { user: { include: { role: true } } },
+  });
+  if (!account) return null;
+  const { role, ...user } = account.user;
+  return { ...user, roleName: role.name, permissions: role.permissions };
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter,
   ...authConfig,
   providers: [
     Google,
