@@ -13,7 +13,7 @@ const adapter = PrismaAdapter(prisma);
 adapter.createUser = async (data) => {
   const userRole = await prisma.role.findUniqueOrThrow({ where: { name: "USER" } });
   const user = await prisma.user.create({ data: { ...data, roleId: userRole.id } });
-  return { ...user, roleName: userRole.name, permissions: userRole.permissions };
+  return { ...user, email: user.email ?? "", roleName: userRole.name, permissions: userRole.permissions };
 };
 
 adapter.getUserByAccount = async ({ provider, providerAccountId }) => {
@@ -23,7 +23,7 @@ adapter.getUserByAccount = async ({ provider, providerAccountId }) => {
   });
   if (!account) return null;
   const { role, ...user } = account.user;
-  return { ...user, roleName: role.name, permissions: role.permissions };
+  return { ...user, email: user.email ?? "", roleName: role.name, permissions: role.permissions };
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
