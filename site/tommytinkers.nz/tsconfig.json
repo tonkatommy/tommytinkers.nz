@@ -22,7 +22,7 @@
         "name": "next"
       }
     ],
-    "ignoreDeprecations": "6.0", // # Ignore deprecation warnings from TypeScript 6.0 and above
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
       "@/*": [
