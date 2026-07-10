@@ -1,6 +1,8 @@
+# Docker Compose configuration for Tommy Tinkers
+name: tommytinkers
+
 services:
   db:
-    container_name: postgres
     image: postgres:16-alpine
     restart: unless-stopped
     env_file: .env
@@ -13,7 +15,6 @@ services:
       retries: 5
 
   app:
-    container_name: tommytinkers
     build: .
     restart: unless-stopped
     env_file: .env
@@ -22,7 +23,6 @@ services:
         condition: service_healthy
 
   cloudflared:
-    container_name: cloudflared
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
     command: tunnel run
