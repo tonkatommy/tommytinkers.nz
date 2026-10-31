@@ -1,0 +1,234 @@
+/* tommytinkers.nz — site-wide motion layer (used on every page)
+   Effects are switched via data attributes on <html>:
+     data-tt-cardfx   = classic | tilt | socket | peel | glow
+     data-tt-linkfx   = underline | caret | bracket | swipe
+     data-tt-scrollfx = none | rise | assemble | blur | swing
+     data-tt-btnfx    = glow | sweep | press
+   Speed multiplier: --ttfx-scale (1 = normal, >1 slower, <1 faster).
+   Reveal animations use the independent translate/scale/rotate/filter
+   properties so they compose with (never clobber) the hover transform. */
+
+:root { --ttfx-scale: 1; }
+
+/* ============================================================
+   CARD HOVER
+   ============================================================ */
+[data-tt-cardfx] .tt-card { will-change: transform; }
+
+/* classic — the original subtle lift */
+[data-tt-cardfx="classic"] .tt-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* tilt — card leans toward the cursor (JS sets --ttrx / --ttry) */
+[data-tt-cardfx="tilt"] .tt-card {
+  transition: transform calc(.14s * var(--ttfx-scale)) ease,
+              box-shadow calc(.25s * var(--ttfx-scale)) ease,
+              border-color var(--motion-base);
+}
+[data-tt-cardfx="tilt"] .tt-card:hover {
+  transform: perspective(720px)
+             rotateX(var(--ttry, 0deg))
+             rotateY(var(--ttrx, 0deg))
+             scale(1.03);
+  box-shadow: var(--shadow-lg);
+}
+
+/* socket — press the part down into its seat (mechanical) */
+[data-tt-cardfx="socket"] .tt-card {
+  transition: transform calc(.18s * var(--ttfx-scale)) var(--motion-spring),
+              box-shadow calc(.22s * var(--ttfx-scale)) ease,
+              border-color var(--motion-base);
+}
+[data-tt-cardfx="socket"] .tt-card:hover {
+  transform: translateY(2px) scale(.985);
+  box-shadow: inset 0 2px 12px rgba(0,0,0,.24), 0 1px 0 var(--color-border-strong);
+  border-color: var(--color-accent-muted);
+}
+[data-tt-cardfx="socket"] .tt-card:hover::before { opacity: 1; }
+
+/* peel — lift like a sticker off its backing (bottom edge anchored) */
+[data-tt-cardfx="peel"] .tt-card {
+  transform-origin: center bottom;
+  transition: transform calc(.3s * var(--ttfx-scale)) var(--motion-spring),
+              box-shadow calc(.3s * var(--ttfx-scale)) ease;
+}
+[data-tt-cardfx="peel"] .tt-card:hover {
+  transform: perspective(900px) rotateX(7deg) translateY(-2px);
+  box-shadow: 0 20px 36px rgba(0,0,0,.34);
+}
+[data-tt-cardfx="peel"] .tt-card:hover::before { opacity: 1; }
+
+/* glow — no lift; the brand bar wipes across and the edge lights up */
+[data-tt-cardfx="glow"] .tt-card {
+  transition: box-shadow calc(.35s * var(--ttfx-scale)) ease,
+              border-color calc(.35s * var(--ttfx-scale)) ease;
+}
+[data-tt-cardfx="glow"] .tt-card::before {
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform calc(.45s * var(--ttfx-scale)) ease, opacity .2s ease;
+}
+[data-tt-cardfx="glow"] .tt-card:hover {
+  transform: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-glow);
+}
+[data-tt-cardfx="glow"] .tt-card:hover::before { opacity: 1; transform: scaleX(1); }
+
+/* ============================================================
+   NAV LINK HOVER
+   ============================================================ */
+
+/* underline — wipes in from the left instead of snapping on */
+[data-tt-linkfx="underline"] .tt-nav-link::after {
+  content: ""; position: absolute; left: 12px; right: 12px; bottom: 2px;
+  height: 2px; background: var(--color-accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform calc(.28s * var(--ttfx-scale)) ease;
+}
+[data-tt-linkfx="underline"] .tt-nav-link:hover::after,
+[data-tt-linkfx="underline"] .tt-nav-link.active::after { transform: scaleX(1); }
+
+/* caret — a terminal '>' slides in (workshop motif) */
+[data-tt-linkfx="caret"] .tt-nav-link { padding-left: 20px; }
+[data-tt-linkfx="caret"] .tt-nav-link::after { display: none; }
+[data-tt-linkfx="caret"] .tt-nav-link::before {
+  content: ">"; position: absolute; left: 8px; top: 50%;
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--color-accent);
+  opacity: 0; transform: translate(-4px, -50%);
+  transition: opacity calc(.2s * var(--ttfx-scale)) ease,
+              transform calc(.2s * var(--ttfx-scale)) ease;
+}
+[data-tt-linkfx="caret"] .tt-nav-link:hover::before,
+[data-tt-linkfx="caret"] .tt-nav-link.active::before {
+  opacity: 1; transform: translate(0, -50%);
+}
+
+/* bracket — text gets wrapped in monospace [ … ] */
+[data-tt-linkfx="bracket"] .tt-nav-link::after,
+[data-tt-linkfx="bracket"] .tt-nav-link::before {
+  font-family: var(--font-mono); color: var(--color-accent);
+  position: static; height: auto; background: none; left: auto; right: auto;
+  display: inline-block; opacity: 0;
+  transition: opacity calc(.18s * var(--ttfx-scale)) ease,
+              transform calc(.18s * var(--ttfx-scale)) ease;
+}
+[data-tt-linkfx="bracket"] .tt-nav-link::before { content: "["; margin-right: 5px; transform: translateX(5px); }
+[data-tt-linkfx="bracket"] .tt-nav-link::after  { content: "]"; margin-left: 5px;  transform: translateX(-5px); }
+[data-tt-linkfx="bracket"] .tt-nav-link:hover::before,
+[data-tt-linkfx="bracket"] .tt-nav-link.active::before,
+[data-tt-linkfx="bracket"] .tt-nav-link:hover::after,
+[data-tt-linkfx="bracket"] .tt-nav-link.active::after { opacity: 1; transform: translateX(0); }
+
+/* swipe — a highlighter marker fills behind the label */
+[data-tt-linkfx="swipe"] .tt-nav-link {
+  background-image: linear-gradient(var(--color-accent-subtle), var(--color-accent-subtle));
+  background-repeat: no-repeat; background-position: 0 100%; background-size: 0% 72%;
+  border-radius: 6px;
+  transition: background-size calc(.3s * var(--ttfx-scale)) ease, color var(--motion-base);
+}
+[data-tt-linkfx="swipe"] .tt-nav-link::after { display: none; }
+[data-tt-linkfx="swipe"] .tt-nav-link:hover,
+[data-tt-linkfx="swipe"] .tt-nav-link.active {
+  background-size: 100% 72%; color: var(--color-text-primary);
+}
+
+/* ============================================================
+   SCROLL REVEAL  (cards animate in as they enter the viewport)
+   Hidden state only exists when motion is allowed; print / reduced
+   motion / no-JS show fully-visible cards.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  /* Hidden start-state is gated behind html.tt-fx-on, which the JS driver adds
+     on load. If the driver never runs, the gate is absent and cards stay
+     visible — content can never be stranded invisible. */
+  .tt-fx-on[data-tt-scrollfx="rise"] main .tt-card:not(.tt-inview)     { opacity: 0; translate: 0 18px; }
+  .tt-fx-on[data-tt-scrollfx="assemble"] main .tt-card:not(.tt-inview) { opacity: 0; scale: .92; }
+  .tt-fx-on[data-tt-scrollfx="blur"] main .tt-card:not(.tt-inview)     { opacity: 0; filter: blur(10px); }
+  .tt-fx-on[data-tt-scrollfx="swing"] main .tt-card:not(.tt-inview)    { opacity: 0; translate: 0 16px; rotate: -3deg; }
+
+  [data-tt-scrollfx="rise"] main .tt-card.tt-inview {
+    animation: ttRise calc(.6s * var(--ttfx-scale)) cubic-bezier(.2,.7,.3,1) both;
+    animation-delay: calc(var(--i, 0) * 55ms * var(--ttfx-scale));
+  }
+  [data-tt-scrollfx="assemble"] main .tt-card.tt-inview {
+    animation: ttAssemble calc(.55s * var(--ttfx-scale)) cubic-bezier(.2,.8,.25,1) both;
+    animation-delay: calc(var(--i, 0) * 60ms * var(--ttfx-scale));
+  }
+  [data-tt-scrollfx="blur"] main .tt-card.tt-inview {
+    animation: ttBlurIn calc(.6s * var(--ttfx-scale)) ease both;
+    animation-delay: calc(var(--i, 0) * 55ms * var(--ttfx-scale));
+  }
+  [data-tt-scrollfx="swing"] main .tt-card.tt-inview {
+    transform-origin: top left;
+    animation: ttSwing calc(.62s * var(--ttfx-scale)) var(--motion-spring) both;
+    animation-delay: calc(var(--i, 0) * 58ms * var(--ttfx-scale));
+  }
+}
+
+@keyframes ttRise {
+  from { opacity: 0; translate: 0 18px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+@keyframes ttAssemble {
+  from { opacity: 0; scale: .92; clip-path: inset(0 0 100% 0); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; scale: 1; clip-path: inset(0 0 0 0); }
+}
+@keyframes ttBlurIn {
+  from { opacity: 0; filter: blur(10px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+@keyframes ttSwing {
+  from { opacity: 0; translate: 0 16px; rotate: -3deg; }
+  to   { opacity: 1; translate: 0 0;   rotate: 0deg; }
+}
+
+/* Safety net: once a card's animation window has elapsed, JS adds .tt-fx-done
+   to lock the visible resting state. Guarantees cards never get stuck on the
+   hidden keyframe if a frame is throttled or animations are disabled. Touches
+   only the reveal (independent) properties, never `transform`, so hover keeps
+   working. */
+[data-tt-scrollfx] main .tt-card.tt-fx-done {
+  animation: none !important;
+  opacity: 1 !important;
+  translate: none !important;
+  scale: none !important;
+  rotate: none !important;
+  filter: none !important;
+  clip-path: none !important;
+}
+
+/* ============================================================
+   BUTTON FEEL  (primary / warm / CTA pill)
+   ============================================================ */
+
+/* press — firm tactile push, drops the glow */
+[data-tt-btnfx="press"] .tt-btn-primary:hover,
+[data-tt-btnfx="press"] .tt-btn-warm:hover,
+[data-tt-btnfx="press"] .tt-cta-pill:hover { box-shadow: none; }
+[data-tt-btnfx="press"] .tt-btn-primary:active,
+[data-tt-btnfx="press"] .tt-btn-warm:active,
+[data-tt-btnfx="press"] .tt-cta-pill:active {
+  transform: scale(.93);
+  box-shadow: inset 0 2px 7px rgba(0,0,0,.32);
+}
+
+/* sweep — a shine passes across the face on hover */
+[data-tt-btnfx="sweep"] .tt-btn-primary,
+[data-tt-btnfx="sweep"] .tt-btn-warm,
+[data-tt-btnfx="sweep"] .tt-cta-pill { position: relative; overflow: hidden; }
+[data-tt-btnfx="sweep"] .tt-btn-primary::after,
+[data-tt-btnfx="sweep"] .tt-btn-warm::after,
+[data-tt-btnfx="sweep"] .tt-cta-pill::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 32%, rgba(255,255,255,.4) 50%, transparent 68%);
+  transform: translateX(-130%);
+  transition: transform calc(.6s * var(--ttfx-scale)) ease;
+}
+[data-tt-btnfx="sweep"] .tt-btn-primary:hover::after,
+[data-tt-btnfx="sweep"] .tt-btn-warm:hover::after,
+[data-tt-btnfx="sweep"] .tt-cta-pill:hover::after { transform: translateX(130%); }

@@ -1,0 +1,323 @@
+/**
+ * Tommy Tinkers NZ — Design Tokens
+ * CSS Custom Properties
+ *
+ * Strategy: dark mode is the default (:root). Light mode applied via
+ * [data-theme="light"] on <html>.
+ *
+ * Brand: Orange/yellow gradient circle (logo) with green wordmark.
+ * Adapted from sister-site thomasgoodman.me (which uses earthy green).
+ * Where thomasgoodman.me is "skilled craftsman's workshop", Tommy Tinkers
+ * NZ is "freelance maker's bench" — same shape, brighter colours.
+ *
+ * Usage: var(--token-name)
+ * Never hardcode hex values in components — always reference these tokens.
+ */
+
+/* ============================================================
+   FONT FACES (local TTFs — see fonts/)
+   ============================================================ */
+
+@font-face {
+  font-family: "Exo 2";
+  src: url("./fonts/Exo2-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Jura";
+  src: url("./fonts/Jura-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Agave Nerd";
+  src: url("./fonts/AgaveNerdFont-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   LIGHT MODE (DEFAULT — cheerful, gradient-led)
+   Cream canvas with the brand gradient as the primary
+   decorative surface.
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* ── Backgrounds ─────────────────────────────────── */
+  --color-bg-base:      #fdf8ee;   /* warm cream — never pure white */
+  --color-bg-surface:   #ffffff;   /* cards on cream */
+  --color-bg-raised:    #fff3df;   /* soft yellow tint */
+  --color-bg-overlay:   rgba(253, 248, 238, 0.9);
+
+  /* ── Borders ─────────────────────────────────────── */
+  --color-border-subtle:  #f0e2c8;
+  --color-border-default: #e0c79a;
+  --color-border-strong:  #c9a560;
+
+  /* ── Accent — deeper green for AA contrast on cream ── */
+  --color-accent:         #2e7a1d;   /* primary CTA */
+  --color-accent-hover:   #246414;   /* darker on hover */
+  --color-accent-muted:   #4caf2e;   /* lighter — secondary fills */
+  --color-accent-subtle:  #e6f4dc;   /* very muted bg */
+
+  /* ── Warm gradient stops (logo halo) ──────────────
+     Use these for hero washes, button gradients, badges,
+     decorative ring highlights — anything that should
+     "feel like the logo". Always pair with dark text. */
+  --color-warm-yellow:    #fcd34d;   /* logo gradient start */
+  --color-warm-orange:    #fb923c;   /* mid */
+  --color-warm-orange-deep:#f97316;  /* end */
+  --gradient-brand:       linear-gradient(135deg, var(--color-warm-yellow) 0%, var(--color-warm-orange) 55%, var(--color-warm-orange-deep) 100%);
+  --gradient-brand-radial:radial-gradient(circle at 30% 30%, var(--color-warm-yellow) 0%, var(--color-warm-orange) 50%, var(--color-warm-orange-deep) 100%);
+
+  /* ── Text ────────────────────────────────────────── */
+  --color-text-primary:   #1a1816;   /* inky charcoal — body */
+  --color-text-secondary: #564a32;   /* warm brown */
+  --color-text-muted:     #8a7a5a;   /* placeholder, disabled, helper */
+  --color-text-inverse:   #fdf8ee;   /* on accent / on warm */
+
+  /* ── Mono / Terminal accent ──────────────────────── */
+  --color-mono:           #2e7a1d;   /* deep green — for prompts, tags */
+
+  /* ── Semantic ────────────────────────────────────── */
+  --color-error:          #e57373;
+  --color-success:        var(--color-accent);
+  --color-info:           var(--color-warm-orange);
+  --color-warning:        var(--color-warm-yellow);
+
+  /* ── Shadows (warm cream-friendly drops) ─────────── */
+  --shadow-sm:   0 1px 3px rgba(120, 70, 0, 0.08);
+  --shadow-md:   0 4px 12px rgba(120, 70, 0, 0.12), 0 0 0 1px rgba(251, 146, 60, 0.06);
+  --shadow-lg:   0 8px 24px rgba(120, 70, 0, 0.18), 0 0 0 1px rgba(251, 146, 60, 0.08);
+  --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.30);
+  --shadow-glow-green: 0 0 20px rgba(46, 122, 29, 0.25);
+
+  /* ── Typography ──────────────────────────────────── */
+  --font-heading: "Exo 2", system-ui, sans-serif;
+  --font-display: "Jura", "Exo 2", system-ui, sans-serif;   /* "MAKER OF THINGS" tagline vibe */
+  --font-body:    "Exo 2", system-ui, sans-serif;            /* same family, lighter weights */
+  --font-mono:    "Agave Nerd", "JetBrains Mono", "Fira Code", monospace;
+
+  /* ── Type scale ──────────────────────────────────── */
+  --text-xs:    0.75rem;     /* 12px */
+  --text-sm:    0.875rem;    /* 14px */
+  --text-base:  1rem;        /* 16px */
+  --text-lg:    1.125rem;    /* 18px */
+  --text-xl:    1.25rem;     /* 20px */
+  --text-2xl:   1.5rem;      /* 24px */
+  --text-3xl:   1.875rem;    /* 30px */
+  --text-4xl:   2.25rem;     /* 36px */
+  --text-5xl:   3rem;        /* 48px */
+  --text-6xl:   3.75rem;     /* 60px */
+  --text-7xl:   4.5rem;      /* 72px */
+
+  /* ── Line heights ────────────────────────────────── */
+  --leading-tight:   1.15;
+  --leading-snug:    1.35;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  /* ── Letter spacing ──────────────────────────────── */
+  --tracking-tight:  -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide:   0.05em;
+  --tracking-wider:  0.1em;
+  --tracking-widest: 0.18em;   /* "MAKER OF THINGS" caps treatment */
+
+  /* ── Spacing (8px base grid) ─────────────────────── */
+  --space-1:   0.25rem;   /* 4px  */
+  --space-2:   0.5rem;    /* 8px  */
+  --space-3:   0.75rem;   /* 12px */
+  --space-4:   1rem;      /* 16px */
+  --space-5:   1.25rem;   /* 20px */
+  --space-6:   1.5rem;    /* 24px */
+  --space-8:   2rem;      /* 32px */
+  --space-10:  2.5rem;    /* 40px */
+  --space-12:  3rem;      /* 48px */
+  --space-16:  4rem;      /* 64px */
+  --space-20:  5rem;      /* 80px */
+  --space-24:  6rem;      /* 96px */
+  --space-32:  8rem;      /* 128px */
+
+  /* ── Border radius ───────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   10px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ── Motion ──────────────────────────────────────── */
+  --motion-fast:   150ms ease;
+  --motion-base:   250ms ease;
+  --motion-slow:   400ms ease;
+  --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Z-index scale ───────────────────────────────── */
+  --z-base:    0;
+  --z-raised:  10;
+  --z-overlay: 50;
+  --z-nav:     100;
+  --z-modal:   200;
+  --z-toast:   300;
+
+  /* ── Layout ──────────────────────────────────────── */
+  --container-max:    1200px;
+  --container-px:     var(--space-6);
+  --container-px-lg:  var(--space-12);
+  --section-py:       var(--space-24);
+  --section-py-md:    var(--space-16);
+  --section-py-sm:    var(--space-12);
+  --nav-height:       64px;
+
+  /* ── Semantic typography role tokens ─────────────── */
+  /* Headings */
+  --type-h1-font:   var(--font-heading);
+  --type-h1-size:   var(--text-7xl);
+  --type-h1-weight: 700;
+  --type-h1-leading:var(--leading-tight);
+  --type-h1-tracking:var(--tracking-tight);
+
+  --type-h2-font:   var(--font-heading);
+  --type-h2-size:   var(--text-4xl);
+  --type-h2-weight: 600;
+  --type-h2-leading:var(--leading-tight);
+  --type-h2-tracking:var(--tracking-tight);
+
+  --type-h3-font:   var(--font-heading);
+  --type-h3-size:   var(--text-2xl);
+  --type-h3-weight: 600;
+
+  --type-h4-font:   var(--font-heading);
+  --type-h4-size:   var(--text-xl);
+  --type-h4-weight: 500;
+
+  /* Body */
+  --type-body-font:    var(--font-body);
+  --type-body-size:    var(--text-base);
+  --type-body-weight:  400;
+  --type-body-leading: var(--leading-relaxed);
+
+  --type-lead-size:    var(--text-lg);
+  --type-small-size:   var(--text-sm);
+
+  /* Mono / labels */
+  --type-mono-font:    var(--font-mono);
+  --type-mono-size:    var(--text-sm);
+  --type-mono-weight:  500;
+  --type-mono-tracking:var(--tracking-wide);
+
+  --type-eyebrow-font:    var(--font-display);
+  --type-eyebrow-size:    var(--text-xs);
+  --type-eyebrow-weight:  600;
+  --type-eyebrow-tracking:var(--tracking-widest);
+}
+
+/* ============================================================
+   DARK MODE OVERRIDES (opt-in via [data-theme="dark"])
+   Same warm-charcoal palette, for users who toggle.
+   ============================================================ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg-base:      #1a1816;
+  --color-bg-surface:   #232017;
+  --color-bg-raised:    #2c2820;
+  --color-bg-overlay:   rgba(26, 24, 22, 0.85);
+
+  --color-border-subtle:  #2e2a22;
+  --color-border-default: #443d31;
+  --color-border-strong:  #6a5e48;
+
+  --color-accent:         #4caf2e;
+  --color-accent-hover:   #5fc63f;
+  --color-accent-muted:   #2e7a1d;
+  --color-accent-subtle:  #1a2a14;
+
+  --color-text-primary:   #f0e9d8;
+  --color-text-secondary: #b8a986;
+  --color-text-muted:     #6f6650;
+  --color-text-inverse:   #1a1816;
+
+  --color-mono:           #a8e88f;
+
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(251, 146, 60, 0.06);
+  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(251, 146, 60, 0.08);
+  --shadow-glow: 0 0 20px rgba(251, 146, 60, 0.22);
+}
+
+/* ============================================================
+   ELEMENT DEFAULTS
+   Lightweight resets so any HTML inside this design system
+   inherits brand defaults without per-page restating.
+   ============================================================ */
+
+html, body {
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-leading);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+h1 { font-size: var(--type-h1-size); font-weight: var(--type-h1-weight); }
+h2 { font-size: var(--type-h2-size); font-weight: var(--type-h2-weight); }
+h3 { font-size: var(--type-h3-size); font-weight: var(--type-h3-weight); }
+h4 { font-size: var(--type-h4-size); font-weight: var(--type-h4-weight); }
+
+p { margin: 0; }
+
+code, kbd, pre, samp {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+}
+
+/* Reusable utility classes for consistent role usage */
+.eyebrow {
+  font-family: var(--type-eyebrow-font);
+  font-size: var(--type-eyebrow-size);
+  font-weight: var(--type-eyebrow-weight);
+  letter-spacing: var(--type-eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--color-warm-orange);
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-mono);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto   !important;
+  }
+}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-tt-cardfx="socket" data-tt-linkfx="caret" data-tt-scrollfx="swing" data-tt-btnfx="sweep">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Shed — tommy tinkers NZ</title>
+  <link rel="icon" type="image/png" href="assets/logo-favicon.png">
+  <script>
+    try {
+      const t = localStorage.getItem("tt-theme-v1") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="colors_and_type.css">
+  <link rel="stylesheet" href="site.css">
+  <link rel="stylesheet" href="site-fx.css">
+  <style>
+    /* Hide the shed-mark svg on narrow viewports */
+    @media (max-width: 760px) {
+      .tt-shed-mark { display: none !important; }
+    }
+    @media (max-width: 640px) {
+      .tt-shed-tabs { grid-template-columns: 1fr !important; }
+    }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@0.395.0"></script>
+  <script src="shared/products.js"></script>
+  <script src="shared/site-fx.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react" src="shared/components.jsx"></script>
+  <script type="text/babel" data-presets="react" src="pages/feed.jsx"></script>
+  <script type="text/babel" data-presets="react" src="pages/achievements.jsx"></script>
+  <script type="text/babel" data-presets="react" src="pages/community.jsx"></script>
+  <script type="text/babel" data-presets="react" src="pages/shed.jsx"></script>
+</body>
+</html>
