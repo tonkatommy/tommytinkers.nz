@@ -1,0 +1,10 @@
+# Store all text with LF in the repo and check it out as LF, whatever the
+# client's core.autocrlf says. Stops CRLF/LF churn between Windows and the
+# Linux Docker/CI builds.
+* text=auto eol=lf
+
+# Binary files: never touch line endings or try to diff them
+*.png binary
+*.ttf binary
+*.ico binary
+*.zip binary
