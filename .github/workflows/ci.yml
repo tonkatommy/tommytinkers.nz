@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site/tommytinkers.nz
+    env:
+      # Placeholders only, never real secrets. They mirror the build-time
+      # placeholders in the Dockerfile. Nothing here connects to a database.
+      #
+      # prisma.config.ts resolves env("DATABASE_URL") eagerly, so both the
+      # postinstall `prisma generate` and `next build` fail if it is unset.
+      DATABASE_URL: postgresql://user:pass@localhost:5432/db
+      # Auth.js checks that a secret exists when auth.ts is loaded during
+      # `next build`. The value is never used to sign anything in CI.
+      AUTH_SECRET: ci-placeholder-not-a-real-secret
+    steps:
+      - uses: actions/checkout@v7
+
+      # No `version` input: the action reads "packageManager" from
+      # package.json, which is the same pin corepack uses in the Dockerfile.
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: site/tommytinkers.nz/package.json
+
+      # Node major matches the Dockerfile base image (node:22-alpine).
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: site/tommytinkers.nz/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm build
