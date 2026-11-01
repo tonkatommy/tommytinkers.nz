@@ -1,5 +1,5 @@
 # Root-level ignores. The app keeps its own, more specific rules in
-# site/tommytinkers.nz/.gitignore (Next build output, Prisma client, etc.).
+# site/tommytinkers.nz.old/.gitignore (Next build output, Prisma client, etc.).
 
 # Dependencies
 node_modules/
