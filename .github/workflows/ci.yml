@@ -17,9 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        # v2 is being prototyped in site/tommytinkers.nz (no build yet), so CI
-        # keeps guarding the current Next.js app until v2 replaces it.
-        working-directory: site/tommytinkers.nz.old
+        working-directory: site/tommytinkers.nz
     env:
       # Placeholders only, never real secrets. They mirror the build-time
       # placeholders in the Dockerfile. Nothing here connects to a database.
@@ -37,14 +35,14 @@ jobs:
       # package.json, which is the same pin corepack uses in the Dockerfile.
       - uses: pnpm/action-setup@v6
         with:
-          package_json_file: site/tommytinkers.nz.old/package.json
+          package_json_file: site/tommytinkers.nz/package.json
 
       # Node major matches the Dockerfile base image (node:22-alpine).
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: site/tommytinkers.nz.old/pnpm-lock.yaml
+          cache-dependency-path: site/tommytinkers.nz/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
