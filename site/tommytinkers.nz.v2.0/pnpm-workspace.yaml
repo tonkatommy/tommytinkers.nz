@@ -1,0 +1,5 @@
+# pnpm only runs install scripts for packages listed here. Prisma needs its
+# engines downloaded; everything else is blocked by default.
+allowBuilds:
+  '@prisma/engines': true
+  prisma: true

@@ -1,0 +1,19 @@
+// v2 schema. Phase 0 only holds what the app shell needs; Better Auth tables
+// arrive in Phase 2 and the catalogue in Phase 3.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Site-wide settings an admin can change without a deploy (e.g. FX defaults).
+// Keyed rows rather than one wide table, so adding a setting needs no migration.
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

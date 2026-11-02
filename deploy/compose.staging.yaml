@@ -1,0 +1,19 @@
+# Staging override. Run as its own project so containers, networks and
+# volumes never touch production:
+#   docker compose -p tt-staging -f deploy/compose.yaml -f deploy/compose.staging.yaml up -d --build
+# Put staging values (its own TUNNEL_TOKEN, Stripe test keys) in deploy/.env.staging.
+services:
+  app:
+    env_file:
+      - path: .env.staging
+        required: false
+  cloudflared:
+    environment:
+      TUNNEL_TOKEN: ${STAGING_TUNNEL_TOKEN:?Set STAGING_TUNNEL_TOKEN in deploy/.env}
+  # Staging holds seed data only, so it gets no backups.
+  backup:
+    profiles: [never]
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.staging.txt
