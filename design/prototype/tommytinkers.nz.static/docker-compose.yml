@@ -1,0 +1,17 @@
+# Docker Compose configuration for Tommy Tinkers
+name: tommytinkers
+
+services:
+  # v2 is static (nginx on :3000), so there is no database yet. The old
+  # pgdata volume is left untouched on the host.
+  app:
+    build: .
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.7
+    restart: unless-stopped
+    command: tunnel run
+    env_file: .env
+    depends_on:
+      - app

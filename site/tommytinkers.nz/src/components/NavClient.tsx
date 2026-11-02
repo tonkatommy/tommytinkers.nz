@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, Sun, Moon, Menu, X, ArrowRight, UserRound, LogOut } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import Image from "next/image";
 import { logout } from "@/lib/auth/logout-action";
+import { useTheme, setTheme } from "@/lib/client-hooks";
 
 const BASE_NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -18,21 +19,13 @@ const BASE_NAV_LINKS = [
 export default function NavClient({ isAdmin, isAuthed }: { isAdmin: boolean; isAuthed: boolean }) {
   const pathname = usePathname();
   const { count, openCart } = useCart();
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const theme = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = isAdmin ? [...BASE_NAV_LINKS, { href: "/admin", label: "Admin" }] : BASE_NAV_LINKS;
 
-  useEffect(() => {
-    const stored = localStorage.getItem("tt-theme-v1") as "dark" | "light" | null;
-    if (stored) setTheme(stored);
-  }, []);
-
   function toggleTheme() {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    document.documentElement.setAttribute("data-theme", next);
-    try { localStorage.setItem("tt-theme-v1", next); } catch {}
+    setTheme(theme === "dark" ? "light" : "dark");
   }
 
   return (

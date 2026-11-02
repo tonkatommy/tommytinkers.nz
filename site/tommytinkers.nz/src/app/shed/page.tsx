@@ -6,6 +6,7 @@ import {
   Heart, MessageCircle, Send, Check, ArrowRight, LogOut, Settings,
   Bell, MessagesSquare, Car, X, Plus, Image, ImagePlus, Pencil,
 } from "lucide-react";
+import { useHydrated } from "@/lib/client-hooks";
 
 /* =========================================================================
    CONSTANTS & STORAGE
@@ -252,7 +253,7 @@ function FComposer({ onPost, defaultName }: { onPost: (p: Post) => void; default
         {focus && (
           <>
             {photo && (
-              <div style={{ position: "relative", height: 120, borderRadius: 10, overflow: "hidden", background: photo.dataURL ? undefined : `linear-gradient(135deg, ${(photo as any).swatch?.[0] ?? "#fcd34d"}, ${(photo as any).swatch?.[1] ?? "#fb923c"})` }}>
+              <div style={{ position: "relative", height: 120, borderRadius: 10, overflow: "hidden", background: photo.dataURL ? undefined : `linear-gradient(135deg, ${photo.swatch?.[0] ?? "#fcd34d"}, ${photo.swatch?.[1] ?? "#fb923c"})` }}>
                 {photo.dataURL && <img src={photo.dataURL} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
                 <button type="button" onClick={() => setPhoto(null)} style={{ position: "absolute", top: 8, right: 8, background: "rgba(26,24,22,0.7)", border: "none", borderRadius: 6, color: "#fdf8ee", width: 24, height: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><X size={13} /></button>
               </div>
@@ -372,16 +373,14 @@ function FPost({ post, myReacts, onReact, onComment }: { post: Post; myReacts: R
   );
 }
 
-function Pinboard() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [myReacts, setMyReacts] = useState<Record<string, string>>({});
-  const [defaultName, setDefaultName] = useState("");
+function Pinboard({ hydrated }: { hydrated: boolean }) {
+  const [posts, setPosts] = useState<Post[]>(() => hydrated ? loadFeed() : []);
+  const [myReacts, setMyReacts] = useState<Record<string, string>>(() => hydrated ? loadMyReacts() : {});
+  const [defaultName] = useState(() => hydrated ? localStorage.getItem(FEED_NAME_KEY) ?? "" : "");
 
   useEffect(() => {
+    if (!hydrated) return;
     const localFeed = loadFeed();
-    setPosts(localFeed);
-    setMyReacts(loadMyReacts());
-    setDefaultName(localStorage.getItem(FEED_NAME_KEY) ?? "");
     void (async () => {
       const remoteFeed = await pullFeed();
       if (remoteFeed && remoteFeed.length > 0) {
@@ -391,7 +390,7 @@ function Pinboard() {
         saveFeed(localFeed);
       }
     })();
-  }, []);
+  }, [hydrated]);
 
   function onPost(p: Post) {
     const next = [p, ...posts];
@@ -528,15 +527,15 @@ const FORUM_CATS = [
 ];
 
 function Workshop({ user, onLogout }: { user: User; onLogout: () => void }) {
-  const [threads, setThreads] = useState<Thread[]>([]);
+  // Workshop only renders for a signed-in user, which ShedView only loads once
+  // hydrated, so reading localStorage here never runs on the server.
+  const [threads, setThreads] = useState<Thread[]>(loadForum);
   const [forumCat, setForumCat] = useState("all");
   const [openThread, setOpenThread] = useState<Thread | null>(null);
   const [replyBody, setReplyBody] = useState("");
   const [activeTab, setActiveTab] = useState<"forum" | "orders" | "settings">("forum");
   const [editUser, setEditUser] = useState(user);
   const [saved, setSaved] = useState(false);
-
-  useEffect(() => { setThreads(loadForum()); }, []);
 
   const filtered = useMemo(() => forumCat === "all" ? threads : threads.filter((t) => t.cat === forumCat), [threads, forumCat]);
 
@@ -709,32 +708,41 @@ function Workshop({ user, onLogout }: { user: User; onLogout: () => void }) {
    PAGE ROOT
    ========================================================================= */
 
+function storedFeedCount() {
+  try { const f = JSON.parse(localStorage.getItem(FEED_KEY) ?? "null"); if (f?.length) return f.length as number; } catch {}
+  return 6;
+}
+
+// The server renders the logged-out pinboard; once hydrated, ShedView remounts
+// and its lazy initialisers read the hash, user and feed from the browser.
 export default function ShedPage() {
-  const [tab, setTab] = useState<"pinboard" | "workshop">("pinboard");
-  const [user, setUser] = useState<User | null>(null);
-  const [pinboardCount, setPinboardCount] = useState(6);
+  const hydrated = useHydrated();
+  return <ShedView key={hydrated ? "client" : "server"} hydrated={hydrated} />;
+}
+
+function ShedView({ hydrated }: { hydrated: boolean }) {
+  const [tab, setTab] = useState<"pinboard" | "workshop">(() => hydrated && window.location.hash === "#workshop" ? "workshop" : "pinboard");
+  const [user, setUser] = useState<User | null>(() => hydrated ? loadUser() : null);
+  const [pinboardCount] = useState(() => hydrated ? storedFeedCount() : 6);
 
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "");
-    if (hash === "workshop") setTab("workshop");
-    setUser(loadUser());
-    try { const f = JSON.parse(localStorage.getItem(FEED_KEY) ?? "null"); if (f?.length) setPinboardCount(f.length); } catch {}
-  }, []);
-
-  useEffect(() => {
+    if (!hydrated) return;
     const h = "#" + tab;
     if (window.location.hash !== h) window.history.replaceState(null, "", h);
-    if (tab === "workshop") setUser(loadUser());
-  }, [tab]);
+  }, [hydrated, tab]);
 
+  function selectTab(t: "pinboard" | "workshop") {
+    setTab(t);
+    if (t === "workshop") setUser(loadUser());
+  }
   function handleLogin(u: User) { setUser(u); }
   function handleLogout() { clearUser(); setUser(null); }
 
   return (
     <>
-      <ShedHero tab={tab} setTab={(t) => setTab(t as "pinboard" | "workshop")} pinboardCount={pinboardCount} isMember={!!user} />
+      <ShedHero tab={tab} setTab={(t) => selectTab(t as "pinboard" | "workshop")} pinboardCount={pinboardCount} isMember={!!user} />
       <div style={{ background: "var(--color-bg-base)" }}>
-        {tab === "pinboard" && <Pinboard />}
+        {tab === "pinboard" && <Pinboard hydrated={hydrated} />}
         {tab === "workshop" && (!user ? <AuthPanel onLogin={handleLogin} /> : <Workshop user={user} onLogout={handleLogout} />)}
       </div>
     </>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { TT_PRODUCTS, TT_CATEGORIES } from "@/lib/products";
 import type { Product } from "@/lib/types";
+import { useHydrated, useTheme, setTheme } from "@/lib/client-hooks";
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                           */
@@ -131,7 +132,12 @@ function AdmThumb({ p, size = 40 }: { p: InvProduct; size?: number }) {
 
 function AdmStepper({ value, onSet }: { value: number; onSet: (n: number) => void }) {
   const [draft, setDraft] = useState(String(value));
-  useEffect(() => setDraft(String(value)), [value]);
+  // Resync the draft when the stock changes from outside (+/- buttons, bulk edits).
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setDraft(String(value));
+  }
   const commit = () => { const n = Math.max(0, Math.round(+draft || 0)); onSet(n); setDraft(String(n)); };
   return (
     <div className="adm-stepper" onClick={(e) => e.stopPropagation()}>
@@ -153,16 +159,8 @@ function Toast({ msg }: { msg: string }) {
 /* ------------------------------------------------------------------ */
 
 function AdmBar() {
-  const [theme, setTheme] = useState<string>("dark");
-  useEffect(() => {
-    setTheme(document.documentElement.getAttribute("data-theme") || "dark");
-  }, []);
-  const toggle = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    try { localStorage.setItem("tt-theme-v1", next); } catch {}
-    setTheme(next);
-  };
+  const theme = useTheme();
+  const toggle = () => setTheme(theme === "dark" ? "light" : "dark");
   return (
     <header className="adm-bar">
       <div className="tt-container adm-bar-inner">
@@ -221,6 +219,18 @@ function Dashboard({ inv, threshold }: { inv: InvProduct[]; threshold: number })
 /*  Table view                                                          */
 /* ------------------------------------------------------------------ */
 
+function SortTh({ id, sort, onSort, align, children }: {
+  id: SortKey; sort: { key: SortKey; dir: "asc" | "desc" }; onSort: (k: SortKey) => void;
+  align?: string; children: React.ReactNode;
+}) {
+  return (
+    <th style={align ? { textAlign: align as "right" } : undefined} onClick={() => onSort(id)}>
+      {children}
+      {sort.key === id && <span className="arrow">{sort.dir === "asc" ? "↑" : "↓"}</span>}
+    </th>
+  );
+}
+
 function TableView({ rows, threshold, density, showThumbs, sort, onSort, selected, onToggle, onToggleAll, onStock, onEdit, onArchive }: {
   rows: InvProduct[]; threshold: number; density: string; showThumbs: boolean;
   sort: { key: SortKey; dir: "asc" | "desc" }; onSort: (k: SortKey) => void;
@@ -229,15 +239,7 @@ function TableView({ rows, threshold, density, showThumbs, sort, onSort, selecte
 }) {
   const allOn = rows.length > 0 && rows.every((p) => selected.includes(p.id));
   const someOn = rows.some((p) => selected.includes(p.id));
-
-  function Th({ id, children, align }: { id: SortKey; children: React.ReactNode; align?: string }) {
-    return (
-      <th style={align ? { textAlign: align as "right" } : undefined} onClick={() => onSort(id)}>
-        {children}
-        {sort.key === id && <span className="arrow">{sort.dir === "asc" ? "↑" : "↓"}</span>}
-      </th>
-    );
-  }
+  const thProps = { sort, onSort };
 
   return (
     <div className="adm-table-wrap" data-density={density}>
@@ -247,11 +249,11 @@ function TableView({ rows, threshold, density, showThumbs, sort, onSort, selecte
             <th style={{ width: 40 }} onClick={onToggleAll}>
               <AdmCheck on={allOn} indeterminate={!allOn && someOn} onChange={onToggleAll} label="Select all" />
             </th>
-            <Th id="name">Product</Th>
-            <Th id="cat">Category</Th>
-            <Th id="price" align="right">Price</Th>
+            <SortTh id="name" {...thProps}>Product</SortTh>
+            <SortTh id="cat" {...thProps}>Category</SortTh>
+            <SortTh id="price" align="right" {...thProps}>Price</SortTh>
             <th style={{ width: 150 }}>Stock</th>
-            <Th id="stock">Status</Th>
+            <SortTh id="stock" {...thProps}>Status</SortTh>
             <th style={{ width: 90, textAlign: "right" }}>Actions</th>
           </tr>
         </thead>
@@ -375,8 +377,10 @@ function ProductDrawer({ open, mode, product, onClose, onSave }: {
   const [f, setF] = useState<Omit<InvProduct, "id"> & { id?: string }>(blankProduct());
   const [tagText, setTagText] = useState("");
 
-  useEffect(() => {
-    if (!open) return;
+  // Reset the form whenever the drawer opens, or switches product while open.
+  const [shown, setShown] = useState<{ mode: DrawerMode; product: InvProduct | null } | null>(null);
+  if (open && (shown?.mode !== mode || shown?.product !== product)) {
+    setShown({ mode, product });
     if (mode === "edit" && product) {
       setF({ ...product });
       setTagText((product.tags || []).join(", "));
@@ -384,7 +388,9 @@ function ProductDrawer({ open, mode, product, onClose, onSave }: {
       setF(blankProduct());
       setTagText("");
     }
-  }, [open, mode, product]);
+  } else if (!open && shown) {
+    setShown(null);
+  }
 
   const set = <K extends keyof InvProduct>(k: K, v: InvProduct[K]) => setF((p) => ({ ...p, [k]: v }));
   const cats = TT_CATEGORIES;
@@ -506,24 +512,28 @@ function ProductDrawer({ open, mode, product, onClose, onSave }: {
 /*  Site FX tab                                                         */
 /* ------------------------------------------------------------------ */
 
+function FxCard({ label, desc, optKey, opts, fx, onSet }: {
+  label: string; desc: string; optKey: keyof FxSettings; opts: readonly string[];
+  fx: FxSettings; onSet: (k: keyof FxSettings, v: string) => void;
+}) {
+  return (
+    <div className="adm-fx-card">
+      <div>
+        <div className="adm-fx-label">{label}</div>
+        <div className="adm-fx-desc">{desc}</div>
+      </div>
+      <div className="adm-fx-opts">
+        {opts.map((o) => (
+          <button key={o} className={"adm-fx-opt" + (fx[optKey] === o ? " on" : "")} onClick={() => onSet(optKey, o)}>{o}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SiteFxTab({ fx, onChange }: { fx: FxSettings; onChange: (next: FxSettings) => void }) {
   const set = (k: keyof FxSettings, v: string | number) => onChange({ ...fx, [k]: v });
-
-  function FxCard({ label, desc, optKey, opts }: { label: string; desc: string; optKey: keyof FxSettings; opts: readonly string[] }) {
-    return (
-      <div className="adm-fx-card">
-        <div>
-          <div className="adm-fx-label">{label}</div>
-          <div className="adm-fx-desc">{desc}</div>
-        </div>
-        <div className="adm-fx-opts">
-          {opts.map((o) => (
-            <button key={o} className={"adm-fx-opt" + (fx[optKey] === o ? " on" : "")} onClick={() => set(optKey, o)}>{o}</button>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const cardProps = { fx, onSet: set };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -533,13 +543,13 @@ function SiteFxTab({ fx, onChange }: { fx: FxSettings; onChange: (next: FxSettin
 
       <div className="adm-fx-grid">
         <FxCard label="Card hover" desc="How cards respond when you hover over them."
-          optKey="cardfx" opts={CARDFX_OPTS} />
+          optKey="cardfx" opts={CARDFX_OPTS} {...cardProps} />
         <FxCard label="Nav links" desc="The hover animation on navigation links."
-          optKey="linkfx" opts={LINKFX_OPTS} />
+          optKey="linkfx" opts={LINKFX_OPTS} {...cardProps} />
         <FxCard label="Scroll reveal" desc="How cards animate in as you scroll down."
-          optKey="scrollfx" opts={SCROLLFX_OPTS} />
+          optKey="scrollfx" opts={SCROLLFX_OPTS} {...cardProps} />
         <FxCard label="Button feel" desc="The interaction style on primary buttons."
-          optKey="btnfx" opts={BTNFX_OPTS} />
+          optKey="btnfx" opts={BTNFX_OPTS} {...cardProps} />
       </div>
 
       <div className="adm-fx-card" style={{ maxWidth: 480 }}>
@@ -567,10 +577,15 @@ function SiteFxTab({ fx, onChange }: { fx: FxSettings; onChange: (next: FxSettin
 /*  Main admin page                                                     */
 /* ------------------------------------------------------------------ */
 
+// Inventory and FX live in localStorage, so render nothing on the server and
+// mount the real page only once hydrated, where it can read them directly.
 export default function AdminPage() {
-  const [inv, setInv] = useState<InvProduct[]>([]);
-  const [fx, setFxState] = useState<FxSettings>(FX_DEFAULTS);
-  const [hydrated, setHydrated] = useState(false);
+  return useHydrated() ? <AdminScreen /> : null;
+}
+
+function AdminScreen() {
+  const [inv, setInv] = useState<InvProduct[]>(loadInv);
+  const [fx, setFxState] = useState<FxSettings>(loadFx);
 
   const [tab, setTab] = useState<"inventory" | "orders" | "sitefx">("inventory");
   const [view, setView] = useState<View>("table");
@@ -585,21 +600,13 @@ export default function AdminPage() {
   const [drawer, setDrawer] = useState<{ open: boolean; mode: DrawerMode; id: string | null }>({ open: false, mode: "add", id: null });
   const [toast, setToast] = useState<string | null>(null);
 
-  useEffect(() => {
-    setInv(loadInv());
-    const savedFx = loadFx();
-    setFxState(savedFx);
-    applyFx(savedFx);
-    setHydrated(true);
-  }, []);
+  useEffect(() => applyFx(fx), [fx]);
 
-  const flash = useMemo(() => {
-    let t: ReturnType<typeof setTimeout> | null = null;
-    return (msg: string) => {
-      setToast(msg);
-      if (t) clearTimeout(t);
-      t = setTimeout(() => setToast(null), 2200);
-    };
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flash = useCallback((msg: string) => {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 2200);
   }, []);
 
   const commit = useCallback((list: InvProduct[], msg?: string) => {
@@ -611,7 +618,6 @@ export default function AdminPage() {
   const setFx = useCallback((next: FxSettings) => {
     setFxState(next);
     saveFx(next);
-    applyFx(next);
   }, []);
 
   /* mutations */
@@ -681,8 +687,6 @@ export default function AdminPage() {
     { id: "archived" as FilterStatus, label: "Archived", n: counts.archived },
     { id: "all" as FilterStatus, label: "All", n: counts.all },
   ];
-
-  if (!hydrated) return null;
 
   return (
     <>
