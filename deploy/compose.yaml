@@ -1,0 +1,109 @@
+# tommytinkers.nz v2 production stack.
+#   docker compose -f deploy/compose.yaml up -d --build
+# Staging is the same file run as a second project with an override:
+#   docker compose -p tt-staging -f deploy/compose.yaml -f deploy/compose.staging.yaml up -d --build
+#
+# No service publishes a host port. The only way in is the Cloudflare Tunnel,
+# which cloudflared opens as an outbound connection.
+name: tommytinkers-v2
+
+x-db-env: &db-env
+  POSTGRES_USER: ${POSTGRES_USER:-tommytinkers}
+  POSTGRES_DB: ${POSTGRES_DB:-tommytinkers}
+
+services:
+  db:
+    image: postgres:18.6-alpine
+    restart: unless-stopped
+    environment:
+      <<: *db-env
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    # Postgres 18 moved its data dir to /var/lib/postgresql/18/docker, so the
+    # volume mounts the parent directory (not .../data as in v1).
+    volumes: [pgdata:/var/lib/postgresql]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [backend]
+
+  migrate:
+    build:
+      context: ../site/tommytinkers.nz.v2.0
+      target: migrate
+    environment: *db-env
+    secrets: [db_password]
+    depends_on:
+      db: { condition: service_healthy }
+    restart: "no"
+    networks: [backend]
+
+  app:
+    build:
+      context: ../site/tommytinkers.nz.v2.0
+      target: runner
+    restart: unless-stopped
+    environment: *db-env
+    env_file:
+      - path: .env
+        required: false
+    secrets: [db_password]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    volumes: [uploads:/app/uploads]
+    # The container filesystem is read-only; only these paths can be written.
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache:uid=1000,gid=1000
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # backend reaches the database; edge reaches the internet (Stripe, Resend,
+    # Google sign-in) and is where cloudflared finds the app.
+    networks: [backend, edge]
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.7
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in deploy/.env}
+    depends_on:
+      app: { condition: service_healthy }
+    networks: [edge]
+
+  backup:
+    image: postgres:18.6-alpine
+    restart: unless-stopped
+    environment:
+      <<: *db-env
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+    secrets: [db_password]
+    volumes:
+      - backups:/backups
+      - ./backup/backup.sh:/usr/local/bin/backup.sh:ro
+    entrypoint: ["sh", "/usr/local/bin/backup.sh"]
+    depends_on:
+      db: { condition: service_healthy }
+    networks: [backend]
+
+volumes:
+  pgdata:
+  uploads:
+  backups:
+
+networks:
+  # internal: true means no route to the internet at all.
+  backend:
+    internal: true
+  edge:
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
