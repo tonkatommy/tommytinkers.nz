@@ -84,7 +84,7 @@ docker compose -p tt-staging -f deploy/compose.yaml -f deploy/compose.staging.ya
 
 - v2 starts with an **empty database**. No v1 users or data migrate; members sign up again.
 - **Pinboard** is public to read; posting and reacting need a free account. A new account's first 3 posts go to moderation.
-- **Shipping** is priced by total parcel weight using NZ Post bands entered in admin. Every product has a weight in grams. No free-shipping threshold, and the "Free ship club" badge is gone (19 badges remain).
+- **Shipping** (changed 02/11/2026) is free anywhere in New Zealand, with no minimum spend, NZ addresses only. Admin has a toggle to turn free shipping off; when it's off, a single flat rate set in admin applies to every order. Weight-band pricing is dropped. Every product still has a weight in grams, but it's admin only (packing and postage) and never shown to customers. The "Free ship club" badge stays gone (19 badges remain).
 - **RBAC**: `Role.permissions` is a string array. Keys: `access_admin`, `manage_inventory`, `manage_orders`, `manage_users`, `moderate_community`, `manage_content`. New permission = new string, no migration. Permissions are read from the database per request, so changes apply immediately.
 - **Staging** is a second Compose project (`tt-staging`) on the same host, behind its own tunnel and Cloudflare Access, with Stripe test keys and seed data only.
 - **Product photos** aren't ready. Build with the placeholder (brand gradient, logo icon centred); photos get added through admin later.
