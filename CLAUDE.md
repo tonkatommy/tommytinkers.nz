@@ -1,10 +1,14 @@
 # tommytinkers.nz
 
-Side-hustle site for Tommy Goodman ("Maker of Things", Helensville NZ). It has two halves: freelance web and software work (the Codebench page), and a maker shop selling vinyl stickers and decals, 3D printed 1/10 RC car parts, kids' toys and household bits. Around both sits a community area, The Shed.
+Side-hustle site for Tommy Goodman ("Maker of Things", Helensville NZ). It has two halves: freelance web and software work (the Codebench page), and a maker shop. The shop's real range is personalised RC name window stickers, race-club grid sticker sets and custom sticker sheets; RC parts, kids' toys and household bits show as "coming soon" (see Shop decisions). Around both sits a community area, The Shed.
+
+This file is the single source of project guidance for every coding agent. `AGENTS.md` only points here, so edit this file and nothing else.
 
 **Active work is v2.0**, a ground-up rebuild in `site/tommytinkers.nz.v2.0`. v1 (`site/tommytinkers.nz`) is live in production and is reference only: don't add features to it.
 
 The v2 plan, with every decision and its reasoning: https://claude.ai/artifact/XUjDd7kyNkr9fNoFxoF7CQ
+
+The v2 UI design, every page and state in both themes at desktop and mobile sizes: https://claude.ai/artifact/9uCGiFfBAyfo1yeKShipHw. If the design and this file disagree on a fact (a rate, a price, a rule), this file wins and the design gets fixed.
 
 ## Repo layout
 
@@ -83,16 +87,16 @@ docker compose -p tt-staging -f deploy/compose.yaml -f deploy/compose.staging.ya
 ## Decisions already made (don't reopen without asking)
 
 - v2 starts with an **empty database**. No v1 users or data migrate; members sign up again.
-- **Pinboard** is public to read; posting and reacting need a free account. A new account's first 3 posts go to moderation.
+- **Pinboard** is public to read; posting and reacting need a free account. A new account's first 3 posts go to moderation. Limits: 500 characters and one image of up to 5 MB per post, 5 posts an hour per account, and Cloudflare Turnstile on sign-up.
 - **Shipping** (changed 02/11/2026) is free anywhere in New Zealand, with no minimum spend, NZ addresses only. Admin has a toggle to turn free shipping off; when it's off, a single flat rate set in admin applies to every order. Weight-band pricing is dropped. Every product still has a weight in grams, but it's admin only (packing and postage) and never shown to customers. The "Free ship club" badge stays gone (19 badges remain).
 - **RBAC**: `Role.permissions` is a string array. Keys: `access_admin`, `manage_inventory`, `manage_orders`, `manage_discounts`, `manage_users`, `moderate_community`, `manage_content`. The Shopkeeper role has `manage_discounts`. New permission = new string, no migration. Permissions are read from the database per request, so changes apply immediately.
-- **Staging** is a second Compose project (`tt-staging`) on the same host, behind its own tunnel and Cloudflare Access, with Stripe test keys and seed data only.
+- **Staging** is a second Compose project (`tt-staging`) on the same host at `staging.tommytinkers.nz`, behind its own tunnel and Cloudflare Access, with Stripe test keys and seed data only. Every merge to `feature/new-site-v2.0` deploys to staging; production deploys only from a tagged release.
 - **Product photos** aren't ready. Build with the placeholder (brand gradient, logo icon centred); photos get added through admin later.
 - **Codebench case studies**: the prototype's examples (e.g. "Bookkit") are filler. Never present them as real client work. Ask Tommy for real ones.
 
 ## Shop decisions (07/11/2026, from the Shopify export and the v2 UI design)
 
-The v2 UI design lives on the claude.ai Design canvas (`tommy tinkers NZ v2`). The schema in `prisma/schema.prisma` already models everything below, ahead of Phases 3 and 5.
+The v2 UI design lives on the claude.ai Design canvas `tommy tinkers NZ v2` (link at the top). The schema in `prisma/schema.prisma` already models everything below, ahead of Phases 3 and 5.
 
 - **Launch range is stickers only.** The Stickers and decals category is live. RC parts, kids' toys and household show as "coming soon" (`Category.status = COMING_SOON`) until Tommy adds products.
 - **Real products** (prices NZD): RC name window stickers `rcws` $20.00, Custom sticker sheet A4 `ss-a4` $35.00, Waikato Champs grid stickers `wcgs` $15.00 (all made to order), Astro Masters grid stickers `amgs` $20.00 (tracked, 0 in stock, so sold out). `rcws-2` is a hidden draft. Weights and unit costs are still to come from Tommy, so both columns are nullable. The stockroom drawer has fields for both, and a "Needs cost or weight" filter lists the products still missing either.

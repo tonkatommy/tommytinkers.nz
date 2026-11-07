@@ -1,5 +1,6 @@
-# Root-level ignores. The app keeps its own, more specific rules in
-# site/tommytinkers.nz.old/.gitignore (Next build output, Prisma client, etc.).
+# Root-level ignores. Each app keeps its own, more specific rules in
+# site/tommytinkers.nz/.gitignore and site/tommytinkers.nz.v2.0/.gitignore
+# (Next build output, Prisma client, etc.).
 
 # Dependencies
 node_modules/
@@ -23,3 +24,6 @@ logs/
 
 # Local Claude Code settings
 .claude
+
+# Files Claude saves to the desktop app's output folder (scratch, not project source)
+Claude outputs/
