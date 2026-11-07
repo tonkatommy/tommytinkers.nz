@@ -85,16 +85,36 @@ docker compose -p tt-staging -f deploy/compose.yaml -f deploy/compose.staging.ya
 - v2 starts with an **empty database**. No v1 users or data migrate; members sign up again.
 - **Pinboard** is public to read; posting and reacting need a free account. A new account's first 3 posts go to moderation.
 - **Shipping** (changed 02/11/2026) is free anywhere in New Zealand, with no minimum spend, NZ addresses only. Admin has a toggle to turn free shipping off; when it's off, a single flat rate set in admin applies to every order. Weight-band pricing is dropped. Every product still has a weight in grams, but it's admin only (packing and postage) and never shown to customers. The "Free ship club" badge stays gone (19 badges remain).
-- **RBAC**: `Role.permissions` is a string array. Keys: `access_admin`, `manage_inventory`, `manage_orders`, `manage_users`, `moderate_community`, `manage_content`. New permission = new string, no migration. Permissions are read from the database per request, so changes apply immediately.
+- **RBAC**: `Role.permissions` is a string array. Keys: `access_admin`, `manage_inventory`, `manage_orders`, `manage_discounts`, `manage_users`, `moderate_community`, `manage_content`. The Shopkeeper role has `manage_discounts`. New permission = new string, no migration. Permissions are read from the database per request, so changes apply immediately.
 - **Staging** is a second Compose project (`tt-staging`) on the same host, behind its own tunnel and Cloudflare Access, with Stripe test keys and seed data only.
 - **Product photos** aren't ready. Build with the placeholder (brand gradient, logo icon centred); photos get added through admin later.
 - **Codebench case studies**: the prototype's examples (e.g. "Bookkit") are filler. Never present them as real client work. Ask Tommy for real ones.
+
+## Shop decisions (07/11/2026, from the Shopify export and the v2 UI design)
+
+The v2 UI design lives on the claude.ai Design canvas (`tommy tinkers NZ v2`). The schema in `prisma/schema.prisma` already models everything below, ahead of Phases 3 and 5.
+
+- **Launch range is stickers only.** The Stickers and decals category is live. RC parts, kids' toys and household show as "coming soon" (`Category.status = COMING_SOON`) until Tommy adds products.
+- **Real products** (prices NZD): RC name window stickers `rcws` $20.00, Custom sticker sheet A4 `ss-a4` $35.00, Waikato Champs grid stickers `wcgs` $15.00 (all made to order), Astro Masters grid stickers `amgs` $20.00 (tracked, 0 in stock, so sold out). `rcws-2` is a hidden draft. Weights and unit costs are still to come from Tommy, so both columns are nullable.
+- **Stock mode.** Each product is either `TRACKED` (counted, sells out at 0, low-stock warning at the `stock.lowThreshold` setting) or `MADE_TO_ORDER` (never sells out). Bulk restock in the stockroom only touches tracked products.
+- **Variants and personalisation.** A product has variants (name, SKU, price adjustment in cents, on/off, order) and personalisation questions (short text, long text, choice or file; required; character limit or choices; order). At checkout the customer's answers are copied onto the order line as JSON, and artwork uploads become `OrderUpload` rows in the private uploads volume. Editing a product later never changes an old order.
+- **Discounts are their own admin section** (`manage_discounts`). Automatic or code; percent or fixed (fixed can be per item); whole order, one category or listed products; minimum items and minimum spend; start and end dates in NZ time; usage limit (1 = single use) and one per customer; combine with other discounts or not. Scheduled, live and ended are worked out from the dates, not stored. The one real discount today is the automatic multi-buy "2+ name sticker sheets": $5 off once per order when the cart has 2 or more `rcws`. Codes are checked by a server action at checkout and again when the payment session is created; redemptions are written when the payment is confirmed.
+- **Order numbers** look like `TT1026NZ`. `Order.number` is a sequence that restarts at 1026, carrying on from the last Shopify order (TT1025NZ).
+- **Customer names** in admin lists show first name plus last initial (e.g. "David S."). No emails or phone numbers in lists.
+- **Services live on Codebench only**, as rates: NZ$85/hr development, NZ$95/hr on-site, NZ$40/hr remote support. They are not shop products.
+- **Shipping settings** and the low-stock threshold are `SiteSetting` keys (`shipping.freeEnabled`, `shipping.flatRateCents`, `stock.lowThreshold`), not their own tables.
+
+Also modelled: `StockMovement` (every stock change, tracked products only), `AuditLog` (every admin write, append only) and `Enquiry` (Codebench questionnaire and contact form, saved before the email goes out).
+
+Not modelled yet, because they aren't decided: race-day pickup (orders collected at AIRCCC), and club quotes and invoices for grid sticker sets. **Shopify or Stripe is still open.** The design and schema assume Stripe Checkout, as the stack table does; if v2 keeps Shopify for checkout, the order, redemption and stock-sale paths change. Settle it before Phase 3 or any checkout work.
+
+Open questions for Tommy: whether the old Shopify orders get imported (the schema allows it with `Order.source = SHOPIFY`, read only, no refunds), product weights and unit costs, Codebench ballpark ranges, and whether NZ$40/hr remote is still right.
 
 ## Phase status
 
 | Phase | Status |
 |---|---|
-| 0. Foundations | In progress: scaffold, Dockerfile and Compose done. Still to do: run the Docker stack and confirm `/api/health`, add a v2 CI job. |
+| 0. Foundations | In progress: scaffold, Dockerfile and Compose done. Catalogue, order, discount, stock history, audit and enquiry schema added (migration `20261107090000_catalogue_orders_discounts`); Better Auth tables come in Phase 2. Still to do: run the Docker stack and confirm `/api/health`, add a v2 CI job. |
 | 1. Design system and shell | Next |
 | 2. Accounts (Better Auth) | |
 | 3. Catalogue and stockroom | |
