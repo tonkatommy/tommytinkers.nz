@@ -195,8 +195,9 @@ model Order {
   // Shopify order number so the two never clash.
   number                  Int                  @unique @default(autoincrement())
   source                  OrderSource          @default(SITE)
-  // Link back to the order in Shopify for imported rows.
-  externalUrl             String?
+  // The name Shopify gave an imported order, e.g. "TT-1001-NZ". Kept as text
+  // because the old store mixed two formats and no longer exists to link to.
+  externalRef             String?
   status                  OrderStatus          @default(PENDING)
   userId                  String? // null for guest checkout
   email                   String
