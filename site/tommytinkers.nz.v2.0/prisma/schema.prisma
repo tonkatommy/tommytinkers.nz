@@ -1,5 +1,14 @@
-// v2 schema. Phase 0 only holds what the app shell needs; Better Auth tables
-// arrive in Phase 2 and the catalogue in Phase 3.
+// v2 schema.
+//
+// Better Auth owns the User, Session, Account and Verification tables. They are
+// generated in Phase 2 with the Better Auth CLI, so until then any "userId"
+// column below is a plain string with no relation. Phase 2 adds the relations.
+//
+// Conventions:
+// - Money is integer cents (NZD). Never store a float price.
+// - Dates are UTC. The UI shows them as DD/MM/YYYY in NZ time.
+// - Order lines copy names, SKUs and prices at the moment of purchase, so
+//   editing or deleting a product later never rewrites an old order.
 
 generator client {
   provider = "prisma-client"
@@ -10,10 +19,403 @@ datasource db {
   provider = "postgresql"
 }
 
-// Site-wide settings an admin can change without a deploy (e.g. FX defaults).
+// ---------------------------------------------------------------------------
+// Settings
+// ---------------------------------------------------------------------------
+
+// Site-wide settings an admin can change without a deploy.
 // Keyed rows rather than one wide table, so adding a setting needs no migration.
+// Known keys (validated with zod in src/server/settings.ts):
+//   fx.defaults              { cardfx, linkfx, scrollfx, btnfx, scale }
+//   shipping.freeEnabled     boolean, default true (free anywhere in NZ)
+//   shipping.flatRateCents   integer, used only when free shipping is off
+//   stock.lowThreshold       integer, default 3 (tracked products only)
 model SiteSetting {
   key       String   @id
   value     Json
   updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Access control
+// ---------------------------------------------------------------------------
+
+// Permissions are plain strings so a new one needs no migration:
+//   access_admin, manage_inventory, manage_orders, manage_discounts,
+//   manage_users, moderate_community, manage_content
+// They are read per request, so a change applies on the member's next click.
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique // "owner", "shopkeeper", "moderator", "member"
+  description String?
+  permissions String[]
+  // The owner role can't be edited or deleted from admin, so nobody locks
+  // themselves out.
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Catalogue
+// ---------------------------------------------------------------------------
+
+enum CategoryStatus {
+  LIVE // on sale
+  COMING_SOON // shown in the shop with a "coming soon" card, nothing to buy
+}
+
+model Category {
+  id        String         @id @default(cuid())
+  slug      String         @unique // "stickers", "rc-parts", "toys", "household"
+  name      String
+  status    CategoryStatus @default(COMING_SOON)
+  sortOrder Int            @default(0)
+  products  Product[]
+  discounts Discount[]
+}
+
+enum ProductStatus {
+  DRAFT // being set up, never shown
+  ACTIVE // on sale
+  HIDDEN // was on sale, taken down without deleting (old orders still link to it)
+}
+
+enum StockMode {
+  TRACKED // counted units; sells out at 0
+  MADE_TO_ORDER // printed or cut after the order, never sells out
+}
+
+model Product {
+  id            String                 @id @default(cuid())
+  slug          String                 @unique
+  sku           String                 @unique // base SKU, e.g. "rcws"
+  name          String
+  // The short line under the name on shop cards.
+  blurb         String
+  description   String
+  priceCents    Int
+  status        ProductStatus          @default(DRAFT)
+  stockMode     StockMode              @default(MADE_TO_ORDER)
+  // Only meaningful when stockMode is TRACKED. Null for made to order.
+  stockOnHand   Int?
+  // Admin only, never shown to customers. Nullable until Tommy fills them in.
+  weightGrams   Int?
+  unitCostCents Int?
+  categoryId    String
+  category      Category               @relation(fields: [categoryId], references: [id])
+  variants      ProductVariant[]
+  fields        PersonalisationField[]
+  images        ProductImage[]
+  orderLines    OrderLine[]
+  discounts     DiscountProduct[]
+  stockMoves    StockMovement[]
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  @@index([categoryId, status])
+}
+
+// No photos yet: the UI falls back to the brand placeholder when a product
+// has no images.
+model ProductImage {
+  id         String  @id @default(cuid())
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  storageKey String // path in the uploads volume, not a public URL
+  alt        String
+  sortOrder  Int     @default(0)
+
+  @@index([productId, sortOrder])
+}
+
+// A choice the customer picks, e.g. the sheet on "RC name window stickers".
+// The final price is product.priceCents + priceAdjustCents.
+model ProductVariant {
+  id               String      @id @default(cuid())
+  productId        String
+  product          Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name             String // "Mixed sheet"
+  sku              String      @unique // "rcws-mixed"
+  priceAdjustCents Int         @default(0)
+  // Switched off hides it from the picker without breaking old orders.
+  active           Boolean     @default(true)
+  sortOrder        Int         @default(0)
+  orderLines       OrderLine[]
+
+  @@index([productId, sortOrder])
+}
+
+enum FieldType {
+  SHORT_TEXT // a name, a number
+  LONG_TEXT // a custom brief
+  CHOICE // pick one of `choices` (flag, colour, font)
+  FILE // artwork upload, stored as an OrderUpload
+}
+
+// A question asked on the product page, e.g. "Name on the sticker".
+model PersonalisationField {
+  id        String    @id @default(cuid())
+  productId String
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label     String
+  helpText  String?
+  type      FieldType
+  required  Boolean   @default(false)
+  // Character limit for SHORT_TEXT and LONG_TEXT. Ignored for other types.
+  maxLength Int?
+  // Options for CHOICE. Empty for other types.
+  choices   String[]
+  sortOrder Int       @default(0)
+
+  @@index([productId, sortOrder])
+}
+
+// ---------------------------------------------------------------------------
+// Orders
+// ---------------------------------------------------------------------------
+
+enum OrderStatus {
+  PENDING // Stripe session created, not paid yet
+  TO_PACK // paid (set by the Stripe webhook, never by the browser)
+  PACKING
+  POSTED
+  CANCELLED
+  REFUNDED
+}
+
+enum OrderSource {
+  SITE // placed on tommytinkers.nz
+  SHOPIFY // imported history from the old Shopify store (read only, no refunds here)
+}
+
+model Order {
+  id                      String               @id @default(cuid())
+  // Shown as TT{number}NZ, e.g. TT1027NZ. The sequence starts above the last
+  // Shopify order number so the two never clash.
+  number                  Int                  @unique @default(autoincrement())
+  source                  OrderSource          @default(SITE)
+  // Link back to the order in Shopify for imported rows.
+  externalUrl             String?
+  status                  OrderStatus          @default(PENDING)
+  userId                  String? // null for guest checkout
+  email                   String
+  // Stored as given; admin lists show first name plus last initial.
+  customerName            String
+  // Snapshot from Stripe Checkout: { line1, line2, suburb, city, postcode, country: "NZ" }
+  shippingAddress         Json?
+  subtotalCents           Int
+  discountCents           Int                  @default(0)
+  shippingCents           Int                  @default(0)
+  totalCents              Int
+  currency                String               @default("NZD")
+  stripeCheckoutSessionId String?              @unique
+  stripePaymentIntentId   String?              @unique
+  trackingNumber          String?
+  note                    String? // private packing note, admin only
+  paidAt                  DateTime?
+  postedAt                DateTime?
+  lines                   OrderLine[]
+  redemptions             DiscountRedemption[]
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId])
+}
+
+model OrderLine {
+  id              String          @id @default(cuid())
+  orderId         String
+  order           Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  // SetNull so deleting a product later keeps the order intact.
+  productId       String?
+  product         Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variantId       String?
+  variant         ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  // Snapshots at the time of purchase.
+  productName     String
+  variantName     String?
+  sku             String
+  unitPriceCents  Int // base price plus variant adjustment, re-priced by the server
+  quantity        Int
+  lineTotalCents  Int
+  // The customer's answers, copied so later field edits don't change them:
+  // [{ "label": "Name", "type": "SHORT_TEXT", "value": "Jacob" }, ...]
+  // FILE answers point at an OrderUpload id instead of holding the file.
+  personalisation Json?
+  uploads         OrderUpload[]
+
+  @@index([orderId])
+}
+
+// Artwork a customer attached for a FILE field.
+model OrderUpload {
+  id          String    @id @default(cuid())
+  orderLineId String
+  orderLine   OrderLine @relation(fields: [orderLineId], references: [id], onDelete: Cascade)
+  fieldLabel  String
+  storageKey  String // private uploads volume, served only to manage_orders
+  fileName    String
+  contentType String
+  sizeBytes   Int
+  createdAt   DateTime  @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Discounts
+// ---------------------------------------------------------------------------
+
+enum DiscountMethod {
+  AUTOMATIC // applies itself when the cart qualifies (e.g. the multi-buy)
+  CODE // customer types a code at checkout
+}
+
+enum DiscountValueType {
+  PERCENT
+  FIXED
+}
+
+enum DiscountScope {
+  ORDER // the whole order (store-wide)
+  CATEGORY // every product in one category
+  PRODUCTS // the products listed in DiscountProduct
+}
+
+enum DiscountStatus {
+  DRAFT
+  ACTIVE // "scheduled", "live" and "ended" are worked out from startsAt/endsAt
+  PAUSED
+}
+
+model Discount {
+  id              String               @id @default(cuid())
+  name            String // shown to customers, e.g. "2+ name sticker sheets"
+  method          DiscountMethod
+  // Stored upper case; codes are matched case-insensitively by upper-casing input.
+  code            String?              @unique
+  valueType       DiscountValueType
+  percentOff      Int? // whole percent, 1 to 100, when PERCENT
+  amountOffCents  Int? // when FIXED
+  // FIXED only: true takes the amount off each qualifying item, false once per order.
+  perItem         Boolean              @default(false)
+  scope           DiscountScope        @default(ORDER)
+  categoryId      String?
+  category        Category?            @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  products        DiscountProduct[]
+  // Conditions. Null means no condition.
+  minQuantity     Int? // qualifying items in the cart
+  minSpendCents   Int?
+  startsAt        DateTime? // entered in NZ time, stored UTC
+  endsAt          DateTime?
+  // Whether it can stack with other discounts on the same order.
+  combinable      Boolean              @default(false)
+  status          DiscountStatus       @default(DRAFT)
+  // Total uses across all customers. 1 makes a single-use code. Null is unlimited.
+  usageLimit      Int?
+  oncePerCustomer Boolean              @default(false)
+  // Counter for fast list views. The redemption rows are the source of truth.
+  timesUsed       Int                  @default(0)
+  redemptions     DiscountRedemption[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([status, method])
+}
+
+model DiscountProduct {
+  discountId String
+  discount   Discount @relation(fields: [discountId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([discountId, productId])
+}
+
+// Written by the Stripe webhook when an order is paid, in the same
+// transaction that bumps Discount.timesUsed, so a limit can't be overshot.
+model DiscountRedemption {
+  id          String   @id @default(cuid())
+  discountId  String
+  discount    Discount @relation(fields: [discountId], references: [id], onDelete: Cascade)
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId      String?
+  // Lower-cased; used for "one per customer" on guest orders.
+  email       String
+  amountCents Int
+  createdAt   DateTime @default(now())
+
+  @@unique([discountId, orderId])
+  @@index([discountId, email])
+}
+
+// ---------------------------------------------------------------------------
+// Stock history
+// ---------------------------------------------------------------------------
+
+enum StockReason {
+  RESTOCK // admin added units (single or bulk "add 10")
+  SALE // paid order, written by the Stripe webhook
+  ADJUSTMENT // admin corrected a miscount
+  RETURN // refunded order put back on the shelf
+}
+
+// Every change to Product.stockOnHand writes one of these in the same
+// transaction, so the count can always be explained. Tracked products only.
+model StockMovement {
+  id        String      @id @default(cuid())
+  productId String
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  change    Int // +10 for a restock, -2 for a sale
+  reason    StockReason
+  orderId   String? // set for SALE and RETURN
+  actorId   String? // admin user id, null for the webhook
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([productId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Audit and enquiries
+// ---------------------------------------------------------------------------
+
+// Every admin write (product, order, discount, role, moderation, settings)
+// records who did what. Append only: nothing in the app updates or deletes rows.
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String // admin user id
+  action     String // "discount.create", "order.post", "role.update"
+  targetType String // "Discount", "Order", "Role"
+  targetId   String
+  // Small before/after snapshot of the fields that changed.
+  detail     Json?
+  createdAt  DateTime @default(now())
+
+  @@index([targetType, targetId])
+  @@index([actorId, createdAt])
+}
+
+enum EnquiryStatus {
+  NEW
+  REPLIED
+  CLOSED
+}
+
+// Saved from the Codebench questionnaire and the contact form, then emailed
+// to Tommy through Resend. Saving first means a failed email loses nothing.
+model Enquiry {
+  id        String        @id @default(cuid())
+  source    String // "codebench" or "contact"
+  name      String
+  email     String
+  topic     String? // contact form "What's it about?"
+  message   String
+  // Questionnaire answers for Codebench enquiries.
+  answers   Json?
+  status    EnquiryStatus @default(NEW)
+  createdAt DateTime      @default(now())
+
+  @@index([status, createdAt])
 }
