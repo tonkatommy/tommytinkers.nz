@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Admin, stockroom - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="AdminBar" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-admpage">
+<div class="tt-adm">
+<dc-import name="AdminSide" theme="{{theme}}" active="stock" orders="1" queue="5" hint-size="100%,720px"></dc-import>
+
+<main id="main" class="tt-admmain">
+  <header class="tt-admhead">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; admin / stockroom</span>
+      <h1 class="tt-h2">The stockroom</h1>
+      <p class="tt-admnote">products from the old Shopify store. Unit costs and weights still need filling in: the Needs cost or weight filter lists them.</p>
+    </div>
+    <button type="button" class="tt-btn tt-btn--primary" onClick="{{openAdd}}"><i class="ph ph-plus" aria-hidden="true"></i>Add product</button>
+  </header>
+
+  <!-- LOADING -->
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+    <div aria-busy="true" style="display: flex; flex-direction: column; gap: 24px;">
+      <div class="tt-stats"><div class="tt-skel" style="height: 104px; border-radius: 12px;"></div><div class="tt-skel" style="height: 104px; border-radius: 12px;"></div><div class="tt-skel" style="height: 104px; border-radius: 12px;"></div><div class="tt-skel" style="height: 104px; border-radius: 12px;"></div><div class="tt-skel" style="height: 104px; border-radius: 12px;"></div><div class="tt-skel" style="height: 104px; border-radius: 12px;"></div></div>
+      <div class="tt-skel" style="height: 44px; width: 100%;"></div>
+      <div class="tt-tablewrap" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <div class="tt-skel" style="height: 20px; width: 100%;"></div><div class="tt-skel" style="height: 48px; width: 100%;"></div><div class="tt-skel" style="height: 48px; width: 100%;"></div><div class="tt-skel" style="height: 48px; width: 100%;"></div><div class="tt-skel" style="height: 48px; width: 100%;"></div><div class="tt-skel" style="height: 48px; width: 100%;"></div>
+      </div>
+    </div>
+    <p class="sr-only" role="status">Loading the stockroom</p>
+  </sc-if>
+
+  <!-- ERROR -->
+  <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+    <div class="tt-card" role="alert" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px;">
+      <span class="tt-icon-hero" style="color: var(--error);"><i class="ph ph-warning-circle ph-24" aria-hidden="true"></i></span>
+      <h2 class="tt-h3">I couldn't load the stockroom</h2>
+      <p class="tt-small" style="max-width: 440px;">The database didn't answer. Nothing has changed. Try again, and if it keeps happening check the db container on the homelab.</p>
+      <button type="button" class="tt-btn tt-btn--secondary" onClick="{{retry}}"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Try again</button>
+    </div>
+  </sc-if>
+
+  <!-- EMPTY (no products at all) -->
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div class="tt-card tt-ph-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px;">
+      <span class="tt-icon-hero"><i class="ph ph-package ph-24" aria-hidden="true"></i></span>
+      <h2 class="tt-h3">The shelves are empty</h2>
+      <p class="tt-small" style="max-width: 440px;">v2 starts with a clean database. Add your first made thing and it shows in the shop as soon as it's visible and in stock.</p>
+      <button type="button" class="tt-btn tt-btn--primary" onClick="{{openAdd}}"><i class="ph ph-plus" aria-hidden="true"></i>Add your first product</button>
+    </div>
+  </sc-if>
+
+  <!-- READY -->
+  <sc-if value="{{isReady}}" hint-placeholder-val="{{true}}">
+    <section aria-label="Stock at a glance" class="tt-stats">
+      <sc-for list="{{stats}}" as="st" hint-placeholder-count="6">
+        <div class="{{st.cls}}"><i class="{{st.icon}}" aria-hidden="true"></i><span class="v">{{st.v}}</span><span class="k">{{st.k}}</span></div>
+      </sc-for>
+    </section>
+
+    <div class="tt-toolbar">
+      <div class="tt-search"><label for="q" class="sr-only">Search products</label><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="q" class="tt-input" type="search" placeholder="Search name, SKU or tag" value="{{query}}" onChange="{{onQuery}}"></div>
+      <div class="tt-selectwrap" style="flex: 0 1 220px;"><label for="cat" class="sr-only">Category</label><select id="cat" class="tt-input" value="{{cat}}" onChange="{{onCat}}"><option value="all">All categories</option><option value="stickers">Stickers and decals</option><option value="rc-parts">RC car parts</option><option value="toys">Kids' toys</option><option value="household">Household</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div>
+      <div class="tt-seg" role="group" aria-label="Layout">
+        <button type="button" aria-pressed="{{tablePressed}}" onClick="{{showTable}}"><i class="ph ph-table ph-16" aria-hidden="true"></i>Table</button>
+        <button type="button" aria-pressed="{{cardsPressed}}" onClick="{{showCards}}"><i class="ph ph-squares-four ph-16" aria-hidden="true"></i>Cards</button>
+      </div>
+    </div>
+
+    <div class="tt-chips" role="group" aria-label="Filter by status">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="6">
+        <button type="button" class="tt-chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}">{{c.label}}<span class="n">{{c.n}}</span></button>
+      </sc-for>
+    </div>
+
+    <p class="sr-only" role="status" aria-live="polite">{{resultText}}</p>
+
+    <!-- no match -->
+    <sc-if value="{{noMatch}}" hint-placeholder-val="{{false}}">
+      <div class="tt-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 48px 32px;">
+        <span class="tt-icon-hero"><i class="ph ph-magnifying-glass ph-24" aria-hidden="true"></i></span>
+        <h2 class="tt-h4" style="font-weight: 600;">Nothing matches that</h2>
+        <p class="tt-small">Try a different word or filter.</p>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{clearFilters}}">Clear filters</button>
+      </div>
+    </sc-if>
+
+    <!-- table -->
+    <sc-if value="{{showTableView}}" hint-placeholder-val="{{true}}">
+      <div class="tt-tablewrap">
+        <div class="tt-table" role="table" aria-label="Products. Select rows for bulk actions, or open a row to edit it." style="--cols: 48px minmax(220px, 2fr) minmax(130px, 1fr) 90px 148px 132px 72px 100px;">
+          
+          <div class="tt-thead" role="rowgroup">
+            <div class="tt-tr" role="row">
+              <div role="columnheader" class="tt-th"><input type="checkbox" class="tt-cb" aria-label="Select all shown" checked="{{allOn}}" onChange="{{toggleAll}}"></div>
+              <div role="columnheader" class="tt-th" aria-sort="{{sortName}}"><button type="button" onClick="{{sortByName}}">Product<i class="ph ph-caret-up-down" aria-hidden="true"></i></button></div>
+              <div role="columnheader" class="tt-th">Category</div>
+              <div role="columnheader" class="tt-th num" aria-sort="{{sortPrice}}"><button type="button" onClick="{{sortByPrice}}">Price<i class="ph ph-caret-up-down" aria-hidden="true"></i></button></div>
+              <div role="columnheader" class="tt-th" aria-sort="{{sortStock}}"><button type="button" onClick="{{sortByStock}}">Stock<i class="ph ph-caret-up-down" aria-hidden="true"></i></button></div>
+              <div role="columnheader" class="tt-th">Status</div>
+              <div role="columnheader" class="tt-th num">Weight</div>
+              <div role="columnheader" class="tt-th act"><span class="sr-only">Actions</span></div>
+            </div>
+          </div>
+          <div class="tt-tbody" role="rowgroup">
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+              <div class="{{r.rowCls}}" role="row" data-sel="{{r.sel}}">
+                <div role="cell" class="tt-td"><input type="checkbox" class="tt-cb" aria-label="{{r.selLabel}}" checked="{{r.selOn}}" onChange="{{r.toggle}}"></div>
+                <div role="cell" class="tt-td"><div class="tt-prodcell"><span class="{{r.phCls}}" aria-hidden="true"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></span><div style="min-width: 0;"><p class="nm">{{r.name}}</p><p class="mono">{{r.sku}}</p></div></div></div>
+                <div role="cell" class="tt-td" style="color: var(--text-secondary);">{{r.catLabel}}</div>
+                <div role="cell" class="tt-td num" style="font-weight: 600;">{{r.price}}</div>
+                <div role="cell" class="tt-td">
+                  <sc-if value="{{r.tracked}}" hint-placeholder-val="{{true}}"><div class="tt-step-in">
+                    <button type="button" aria-label="{{r.decLabel}}" onClick="{{r.dec}}"><i class="ph ph-minus" aria-hidden="true"></i></button>
+                    <input type="number" min="0" inputmode="numeric" aria-label="{{r.stockLabel}}" value="{{r.stock}}" onChange="{{r.setStock}}">
+                    <button type="button" aria-label="{{r.incLabel}}" onClick="{{r.inc}}"><i class="ph ph-plus" aria-hidden="true"></i></button>
+                  </div></sc-if>
+                  <sc-if value="{{r.mto}}" hint-placeholder-val="{{false}}"><span class="tt-mono" style="font-size: 12px; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;"><i class="ph ph-printer ph-16" aria-hidden="true"></i>made to order</span></sc-if>
+                </div>
+                <div role="cell" class="tt-td"><span class="{{r.pillCls}}">{{r.pill}}</span></div>
+                <div role="cell" class="tt-td num mono">{{r.weight}}</div>
+                <div role="cell" class="tt-td act">
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{r.editLabel}}" title="Edit" onClick="{{r.edit}}"><i class="ph ph-pencil-simple" aria-hidden="true"></i></button>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{r.archLabel}}" title="{{r.archTitle}}" onClick="{{r.archive}}"><i class="{{r.archIcon}}" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- cards -->
+    <sc-if value="{{showCardView}}" hint-placeholder-val="{{false}}">
+      <div class="tt-admcards">
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+          <article class="{{r.cardCls}}" data-sel="{{r.sel}}" aria-labelledby="{{r.hid}}">
+            <div class="tt-admcard-top">
+              <span class="{{r.phCls}}" aria-hidden="true"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></span>
+              <span class="tt-admcard-tl"><input type="checkbox" class="tt-cb" aria-label="{{r.selLabel}}" checked="{{r.selOn}}" onChange="{{r.toggle}}"></span>
+              <span class="tt-admcard-tr"><span class="{{r.pillCls}}">{{r.pill}}</span></span>
+            </div>
+            <div class="tt-admcard-body">
+              <div class="tt-row" style="align-items: flex-start;"><div style="min-width: 0;"><h3 id="{{r.hid}}" class="tt-h4" style="font-size: 16px; font-weight: 600;">{{r.name}}</h3><p class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">{{r.sku}} · {{r.catLabel}}</p></div><span style="font-weight: 600; white-space: nowrap;">{{r.price}}</span></div>
+              <div class="tt-row" style="margin-top: auto; align-items: center;">
+                <sc-if value="{{r.tracked}}" hint-placeholder-val="{{true}}"><div class="tt-step-in">
+                  <button type="button" aria-label="{{r.decLabel}}" onClick="{{r.dec}}"><i class="ph ph-minus" aria-hidden="true"></i></button>
+                  <input type="number" min="0" inputmode="numeric" aria-label="{{r.stockLabel}}" value="{{r.stock}}" onChange="{{r.setStock}}">
+                  <button type="button" aria-label="{{r.incLabel}}" onClick="{{r.inc}}"><i class="ph ph-plus" aria-hidden="true"></i></button>
+                </div></sc-if>
+                <sc-if value="{{r.mto}}" hint-placeholder-val="{{false}}"><span class="tt-mono" style="font-size: 12px; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;"><i class="ph ph-printer ph-16" aria-hidden="true"></i>made to order</span></sc-if>
+                <div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{r.editLabel}}" onClick="{{r.edit}}"><i class="ph ph-pencil-simple" aria-hidden="true"></i></button><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{r.archLabel}}" onClick="{{r.archive}}"><i class="{{r.archIcon}}" aria-hidden="true"></i></button></div>
+              </div>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- bulk bar -->
+    <sc-if value="{{hasSel}}" hint-placeholder-val="{{false}}">
+      <div class="tt-bulk" role="region" aria-label="Bulk actions">
+        <span class="cnt">{{selText}}</span>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" disabled="{{restockOff}}" title="{{restockTitle}}" onClick="{{bulkRestock}}"><i class="ph ph-plus" aria-hidden="true"></i>Add 10 to stock</button>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{bulkOut}}"><i class="ph ph-prohibit" aria-hidden="true"></i>Mark out of stock</button>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{bulkHide}}"><i class="ph ph-archive" aria-hidden="true"></i>Hide from shop</button>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{bulkShow}}"><i class="ph ph-eye" aria-hidden="true"></i>Show in shop</button>
+        <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Clear selection" onClick="{{clearSel}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button>
+      </div>
+    </sc-if>
+  </sc-if>
+</main>
+</div>
+</div>
+
+<!-- EDIT / ADD DRAWER -->
+<sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-scrim" onClick="{{closeDrawer}}" aria-hidden="true"></div>
+  <aside class="tt-drawer tt-drawer--wide" role="dialog" aria-modal="true" aria-labelledby="dr-h">
+    <div class="tt-drawer-head">
+      <div><span class="tt-label" style="font-size: 12px;">{{drawerEyebrow}}</span><h2 id="dr-h" class="tt-h4" style="font-weight: 600;">{{drawerTitle}}</h2></div>
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close" onClick="{{closeDrawer}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button>
+    </div>
+    <div class="tt-drawer-body">
+      <form class="tt-form" novalidate onSubmit="{{saveDrawer}}">
+        <sc-if value="{{formErr}}" hint-placeholder-val="{{false}}">
+          <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">A few things to fix</p><p class="tt-small">{{formErrText}}</p></div></div>
+        </sc-if>
+        <sc-if value="{{saveErr}}" hint-placeholder-val="{{false}}">
+          <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">That didn't save</p><p class="tt-small">The server didn't answer. Your changes are still here, so try again.</p></div></div>
+        </sc-if>
+
+        <div class="tt-field"><label for="f-name">Product name</label><input id="f-name" class="{{nameCls}}" value="{{fName}}" onChange="{{onName}}" aria-invalid="{{nameInv}}" aria-describedby="f-name-e" placeholder="e.g. RC name window stickers">
+          <sc-if value="{{nameErr}}" hint-placeholder-val="{{false}}"><p id="f-name-e" class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Give it a name customers will recognise.</p></sc-if>
+        </div>
+
+        <div class="tt-pair">
+          <div class="tt-field"><label for="f-cat">Category</label><div class="tt-selectwrap"><select id="f-cat" class="tt-input" value="{{fCat}}" onChange="{{onFCat}}"><option value="stickers">Stickers and decals</option><option value="rc-parts">RC car parts</option><option value="toys">Kids' toys</option><option value="household">Household</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+          <div class="tt-field"><label for="f-sku">SKU</label><input id="f-sku" class="tt-input" value="{{fSku}}" disabled style="font-family: var(--font-mono); font-size: 14px;"></div>
+        </div>
+
+        <div class="tt-pair">
+          <div class="tt-field"><label for="f-price">Price</label><div class="tt-affix"><span class="pre" aria-hidden="true">$</span><input id="f-price" class="{{priceCls}}" inputmode="decimal" value="{{fPrice}}" onChange="{{onPrice}}" aria-invalid="{{priceInv}}" aria-describedby="f-price-h"></div></div>
+          <div class="tt-field"><label for="f-cost">Unit cost <span class="tt-adminonly">admin only</span></label><div class="tt-affix"><span class="pre" aria-hidden="true">$</span><input id="f-cost" class="tt-input has-pre" inputmode="decimal" value="{{fCost}}" onChange="{{onCost}}"></div></div>
+        </div>
+        <p id="f-price-h" class="tt-help" style="margin-top: -8px;">{{marginText}}</p>
+
+        <div class="tt-pair">
+          <div class="tt-field"><span class="tt-field-label" id="f-mode">Stock</span><div class="tt-seg" role="group" aria-labelledby="f-mode"><button type="button" aria-pressed="{{modeMto}}" onClick="{{setMto}}"><i class="ph ph-printer ph-16" aria-hidden="true"></i>Made to order</button><button type="button" aria-pressed="{{modeTracked}}" onClick="{{setTracked}}"><i class="ph ph-package ph-16" aria-hidden="true"></i>Tracked</button></div>
+            <sc-if value="{{fIsTracked}}" hint-placeholder-val="{{false}}"><label for="f-stock" class="sr-only">Stock on hand</label><input id="f-stock" class="tt-input" type="number" min="0" inputmode="numeric" value="{{fStock}}" onChange="{{onFStock}}" placeholder="On hand"></sc-if>
+            <sc-if value="{{fIsMto}}" hint-placeholder-val="{{true}}"><p class="tt-help">Printed after each order, so it never sells out.</p></sc-if>
+          </div>
+          <div class="tt-field"><label for="f-weight">Weight <span class="tt-adminonly"><i class="ph ph-eye-slash ph-16" aria-hidden="true"></i>admin only</span></label><div class="tt-affix"><input id="f-weight" class="tt-input has-post" type="number" min="0" inputmode="numeric" value="{{fWeight}}" onChange="{{onWeight}}" aria-describedby="f-weight-h"><span class="post" aria-hidden="true">g</span></div></div>
+        </div>
+        <p id="f-weight-h" class="tt-help" style="margin-top: -8px;">{{weightHelp}}</p>
+
+        <div class="tt-field"><label for="f-blurb">Short description</label><textarea id="f-blurb" class="tt-input" style="min-height: 96px;" value="{{fBlurb}}" onChange="{{onBlurb}}" placeholder="What it is, what it's made from, what it fits."></textarea></div>
+
+        <div class="tt-field"><label for="f-tags">Tags</label><input id="f-tags" class="tt-input" value="{{fTags}}" onChange="{{onTags}}" placeholder="petg, 1/10, set" style="font-family: var(--font-mono); font-size: 14px;" aria-describedby="f-tags-h"><p id="f-tags-h" class="tt-help">Separate with commas. They power shop search.</p></div>
+
+        <div class="tt-field">
+          <span class="tt-field-label" id="f-photos">Photos</span>
+          <div class="tt-photos" role="group" aria-labelledby="f-photos">
+            <span class="tt-ph" aria-hidden="true"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></span>
+            <button type="button" class="tt-photo-add" aria-label="Add photos"><span style="display: grid; justify-items: center; gap: 4px;"><i class="ph ph-upload-simple ph-20" aria-hidden="true"></i>Add</span></button>
+          </div>
+          <p class="tt-help">No photos yet, so the shop shows the placeholder. JPG, PNG or WebP, up to 5 MB each. The first photo is the cover.</p>
+        </div>
+
+        <!-- variants -->
+        <fieldset class="tt-edset" aria-describedby="v-help">
+          <legend class="tt-edhead"><span style="font-weight: 600;">Variants</span><span class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">{{varCount}}</span></legend>
+          <p id="v-help" class="tt-help">One row per thing a customer can pick, like a sheet type. Each has its own SKU. Leave the price change at 0 to charge the base price.</p>
+          <sc-if value="{{varErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i>{{varErrText}}</p></sc-if>
+          <div class="tt-edlist" role="list">
+            <sc-for list="{{vars}}" as="v" hint-placeholder-count="4">
+              <div class="tt-varrow" role="listitem" data-off="{{v.offStr}}">
+                <div class="tt-field"><label for="{{v.nid}}" class="tt-mini">Name</label><input id="{{v.nid}}" class="{{v.nameCls}}" value="{{v.name}}" onChange="{{v.onName}}" placeholder="e.g. Mixed" aria-invalid="{{v.nameInv}}"></div>
+                <div class="tt-field"><label for="{{v.sid}}" class="tt-mini">SKU</label><input id="{{v.sid}}" class="tt-input tt-input--mono" value="{{v.sku}}" onChange="{{v.onSku}}" placeholder="Optional"></div>
+                <div class="tt-field"><label for="{{v.pid}}" class="tt-mini">Price change</label><div class="tt-affix"><span class="pre" aria-hidden="true">$</span><input id="{{v.pid}}" class="tt-input has-pre" inputmode="decimal" value="{{v.adj}}" onChange="{{v.onAdj}}"></div></div>
+                <div class="tt-varacts">
+                  <button type="button" class="tt-switch" role="switch" aria-checked="{{v.onStr}}" aria-label="{{v.onLabel}}" title="On sale" onClick="{{v.flip}}"></button>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{v.upLabel}}" disabled="{{v.isFirst}}" onClick="{{v.up}}"><i class="ph ph-arrow-up ph-20" aria-hidden="true"></i></button>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{v.rmLabel}}" disabled="{{v.only}}" onClick="{{v.remove}}"><i class="ph ph-trash ph-20" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" style="align-self: flex-start;" onClick="{{addVar}}"><i class="ph ph-plus" aria-hidden="true"></i>Add a variant</button>
+        </fieldset>
+
+        <!-- personalisation -->
+        <fieldset class="tt-edset" aria-describedby="pz-help">
+          <legend class="tt-edhead"><span style="font-weight: 600;">Personalisation</span><span class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">{{fieldCount}}</span></legend>
+          <p id="pz-help" class="tt-help">Questions the customer answers on the product page before adding to cart. Their answers are saved on the order line, so you know exactly what to print.</p>
+          <sc-if value="{{noFields}}" hint-placeholder-val="{{false}}"><p class="tt-small" style="padding: 12px 16px; border-radius: 12px; background: var(--bg-raised);">No questions. Customers add this straight to their cart.</p></sc-if>
+          <div class="tt-edlist" role="list">
+            <sc-for list="{{fields}}" as="q" hint-placeholder-count="4">
+              <div class="tt-qrow" role="listitem">
+                <div class="tt-field" style="grid-area: label;"><label for="{{q.lid}}" class="tt-mini">Question</label><input id="{{q.lid}}" class="{{q.labelCls}}" value="{{q.label}}" onChange="{{q.onLabel}}" placeholder="e.g. Name on the sticker" aria-invalid="{{q.labelInv}}"></div>
+                <div class="tt-field" style="grid-area: type;"><label for="{{q.tid}}" class="tt-mini">Answer type</label><div class="tt-selectwrap"><select id="{{q.tid}}" class="tt-input" value="{{q.type}}" onChange="{{q.onType}}"><option value="short">Short text</option><option value="long">Long text</option><option value="choice">Pick from a list</option><option value="file">File upload</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+                <sc-if value="{{q.hasMax}}" hint-placeholder-val="{{true}}"><div class="tt-field" style="grid-area: max;"><label for="{{q.mid}}" class="tt-mini">Max characters</label><input id="{{q.mid}}" class="tt-input" type="number" min="1" inputmode="numeric" value="{{q.max}}" onChange="{{q.onMax}}"></div></sc-if>
+                <sc-if value="{{q.isChoice}}" hint-placeholder-val="{{false}}"><div class="tt-field" style="grid-area: max;"><label for="{{q.cid}}" class="tt-mini">Choices, comma separated</label><input id="{{q.cid}}" class="tt-input" value="{{q.choices}}" onChange="{{q.onChoices}}" placeholder="White, Black, Yellow"></div></sc-if>
+                <sc-if value="{{q.isFile}}" hint-placeholder-val="{{false}}"><p class="tt-help" style="grid-area: max; align-self: end;">PNG, JPG, SVG or PDF, up to 10 MB.</p></sc-if>
+                <div class="tt-qacts" style="grid-area: acts;">
+                  <label class="tt-check" style="min-height: 36px; font-size: 14px;"><input type="checkbox" checked="{{q.required}}" onChange="{{q.flipReq}}">Required</label>
+                  <span style="flex: 1;"></span>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{q.upLabel}}" disabled="{{q.isFirst}}" onClick="{{q.up}}"><i class="ph ph-arrow-up ph-20" aria-hidden="true"></i></button>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{q.rmLabel}}" onClick="{{q.remove}}"><i class="ph ph-trash ph-20" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" style="align-self: flex-start;" onClick="{{addField}}"><i class="ph ph-plus" aria-hidden="true"></i>Add a question</button>
+        </fieldset>
+
+        <div class="tt-setrow" style="border-top: 1px solid var(--border-subtle); padding-top: 16px;"><div><p style="font-weight: 600;" id="f-vis">Visible in the shop</p><p class="tt-small">Hidden products keep their order history.</p></div><button type="button" class="tt-switch" role="switch" aria-checked="{{fVisible}}" aria-labelledby="f-vis" onClick="{{flipVisible}}"></button></div>
+        <div class="tt-setrow"><div><p style="font-weight: 600;" id="f-feat">Featured</p><p class="tt-small">Shows first in the shop and on the home page.</p></div><button type="button" class="tt-switch" role="switch" aria-checked="{{fFeatured}}" aria-labelledby="f-feat" onClick="{{flipFeatured}}"></button></div>
+      </form>
+    </div>
+    <div class="tt-drawer-foot" style="flex-direction: row;">
+      <button type="button" class="tt-btn tt-btn--ghost" onClick="{{closeDrawer}}">Cancel</button>
+      <button type="button" class="tt-btn tt-btn--primary" style="flex: 1;" aria-disabled="{{savingStr}}" onClick="{{saveDrawer}}"><sc-if value="{{saving}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</sc-if><sc-if value="{{notSaving}}" hint-placeholder-val="{{true}}"><i class="{{saveIcon}}" aria-hidden="true"></i>{{saveText}}</sc-if></button>
+    </div>
+  </aside>
+</sc-if>
+
+<!-- HIDE CONFIRM -->
+<sc-if value="{{confirmOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-modalwrap">
+    <div class="tt-scrim" onClick="{{closeConfirm}}" aria-hidden="true"></div>
+    <div class="tt-modal" role="alertdialog" aria-modal="true" aria-labelledby="cf-h" aria-describedby="cf-d" style="width: min(440px, 100%);">
+      <span class="tt-icon-hero"><i class="ph ph-archive ph-24" aria-hidden="true"></i></span>
+      <h2 id="cf-h" class="tt-h3">Hide {{confirmName}}?</h2>
+      <p id="cf-d" class="tt-small">It comes off the shop straight away. Past orders keep it, and you can show it again any time.</p>
+      <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px;"><button type="button" class="tt-btn tt-btn--ghost" onClick="{{closeConfirm}}">Keep it on sale</button><button type="button" class="tt-btn tt-btn--primary" onClick="{{doHide}}"><i class="ph ph-archive" aria-hidden="true"></i>Hide from shop</button></div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Done</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","loading","empty","nomatch","error"],"default":"ready"},"view":{"editor":"enum","options":["table","cards"],"default":"table"},"drawer":{"editor":"enum","options":["none","edit","add","invalid","saving","saveError","confirmHide"],"default":"none"},"selected":{"editor":"int","default":0},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    // The real range from the old Shopify store. Money is integer cents. Unit cost and weight weren't in the
+    // export, so they're blank (null) until they're filled in here. "mto" products are printed after each order.
+    this.seed = [
+      { id: 'rcws', sku: 'RCWS', vars: [{ name: 'Mixed', sku: 'RCWS-MXD-01', adj: 0, on: true }, { name: '1/10 only', sku: 'RCWS-10TH-01', adj: 0, on: true }, { name: '1/8 only', sku: 'RCWS-8TH-01', adj: 0, on: true }, { name: 'Pits only', sku: 'RCWS-PITS-01', adj: 0, on: true }], fields: [{ label: 'Name on the sticker', type: 'short', required: true, max: 24 }, { label: 'Flag', type: 'short', required: false, max: 40 }, { label: 'Colours', type: 'short', required: false, max: 60 }, { label: 'Font', type: 'short', required: false, max: 60 }], cat: 'stickers', mode: 'mto', name: 'RC name window stickers', cents: 2000, cost: null, stock: 0, grams: null, visible: true, featured: true, tags: 'custom, name, vinyl, window, 1/10, 1/8',
+        blurb: 'Personalised name stickers for RC car windows, on an A4 sheet of waterproof vinyl. Flags, fonts and colours to order. $5 off 2+ sheets.' },
+      { id: 'ss-a4', sku: 'Not set', vars: [{ name: 'A4 sheet', sku: '', adj: 0, on: true }], fields: [{ label: 'What do you want on the sheet?', type: 'long', required: true, max: 1000 }, { label: 'Artwork', type: 'file', required: false, max: 0 }], cat: 'stickers', mode: 'mto', name: 'Custom sticker sheet A4', cents: 3500, cost: null, stock: 0, grams: null, visible: true, featured: false, tags: 'custom, vinyl, a4',
+        blurb: 'A full A4 sheet of waterproof vinyl stickers in any design.' },
+      { id: 'wcgs', sku: 'WCGS-2025', vars: [{ name: 'Event sheet', sku: 'WCGS-2025', adj: 0, on: true }], fields: [], cat: 'stickers', mode: 'mto', name: 'Waikato Champs grid stickers', cents: 1500, cost: null, stock: 0, grams: null, visible: true, featured: false, tags: 'vinyl, event, grid',
+        blurb: 'Grid number stickers for the Waikato Champs.' },
+      { id: 'amgs', sku: 'AMGS-2025', vars: [{ name: 'Event sheet', sku: 'AMGS-2025', adj: 0, on: true }], fields: [], cat: 'stickers', mode: 'tracked', name: 'Astro Masters grid stickers', cents: 2000, cost: null, stock: 0, grams: null, visible: true, featured: false, tags: 'vinyl, event, grid, 1/10',
+        blurb: 'Grid number stickers for 10th scale indoor buggy racing at the Astro Masters.' },
+      { id: 'rcws-2', sku: 'Not set', vars: [{ name: 'Two sheets', sku: '', adj: 0, on: true }], fields: [{ label: 'Name on the sticker', type: 'short', required: true, max: 24 }], cat: 'stickers', mode: 'mto', name: 'RC name window stickers, 2 sheets', cents: 4000, cost: null, stock: 0, grams: null, visible: false, featured: false, tags: 'custom, name, vinyl, bundle',
+        blurb: 'Draft bundle from Shopify. The $5 off 2+ sheets deal in the cart does the same job.' }
+    ];
+    const st = props.state || 'ready';
+    const dr = props.drawer || 'none';
+    const pre = Math.max(0, Math.min(11, props.selected || 0));
+    this.state = {
+      theme: null,
+      products: st === 'empty' ? [] : this.seed.map((p) => ({ ...p })),
+      status: st === 'nomatch' ? 'ready' : st,
+      view: props.view || 'table',
+      query: st === 'nomatch' ? 'rocket' : '', cat: 'all', filter: 'active',
+      sort: { key: 'name', dir: 1 },
+      sel: this.seed.slice(0, pre).map((p) => p.id),
+      drawer: ['edit', 'invalid', 'saving', 'saveError'].includes(dr) ? 'edit' : dr === 'add' ? 'add' : null,
+      form: null, tried: dr === 'invalid', saving: dr === 'saving', saveErr: dr === 'saveError',
+      confirm: dr === 'confirmHide' ? 'amgs' : null,
+      toast: null
+    };
+    if (this.state.drawer === 'edit') this.state.form = this.toForm(this.seed[0]);
+    if (this.state.drawer === 'add') this.state.form = this.blank();
+    if (dr === 'invalid') this.state.form = { ...this.blank(), price: '0' };
+  }
+  componentWillUnmount() { clearTimeout(this.saveT); clearTimeout(this.toastT); }
+  blank() { return { id: null, name: '', cat: 'stickers', mode: 'mto', price: '', cost: '', stock: '0', weight: '', blurb: '', tags: '', visible: 'true', featured: 'false', vars: [{ name: 'Standard', sku: '', adj: '0', on: true }], fields: [] }; }
+  toForm(p) { return { id: p.id, name: p.name, cat: p.cat, mode: p.mode, price: (p.cents / 100).toFixed(2), cost: p.cost == null ? '' : (p.cost / 100).toFixed(2), stock: String(p.stock), weight: p.grams == null ? '' : String(p.grams), blurb: p.blurb || '', tags: p.tags, visible: p.visible ? 'true' : 'false', featured: p.featured ? 'true' : 'false', vars: p.vars.map((v) => ({ ...v, adj: (v.adj / 100).toFixed(2) })), fields: p.fields.map((f) => ({ ...f, max: String(f.max || ''), choices: f.choices || '' })) }; }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const LOW = 3; // site-wide low stock threshold, set in admin settings
+    const catLabels = { stickers: 'Stickers and decals', 'rc-parts': 'RC car parts', toys: "Kids' toys", household: 'Household' };
+    const money = (c) => '$' + (c / 100).toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const sku = (p) => p.sku;
+    const statusOf = (p) => !p.visible ? 'hidden' : p.mode === 'mto' ? 'mto' : p.stock <= 0 ? 'out' : p.stock <= LOW ? 'low' : 'in';
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    const setP = (id, fn) => this.setState({ products: this.state.products.map((p) => (p.id === id ? fn(p) : p)) });
+    const all = s.products;
+    const active = all.filter((p) => p.visible);
+
+    // filter + sort, the same rules the server query would use
+    let list = all.slice();
+    const f = s.filter;
+    if (f === 'active') list = list.filter((p) => p.visible);
+    if (f === 'low') list = list.filter((p) => statusOf(p) === 'low');
+    if (f === 'out') list = list.filter((p) => statusOf(p) === 'out');
+    if (f === 'hidden') list = list.filter((p) => !p.visible);
+    // Weight and unit cost came over blank from Shopify. This filter is the to-do list for filling them in.
+    if (f === 'details') list = list.filter((p) => p.cost == null || p.grams == null);
+    if (s.cat !== 'all') list = list.filter((p) => p.cat === s.cat);
+    const q = s.query.trim().toLowerCase();
+    if (q) list = list.filter((p) => (p.name + ' ' + sku(p) + ' ' + p.tags).toLowerCase().includes(q));
+    const k = s.sort.key, d = s.sort.dir;
+    list.sort((a, b) => (k === 'price' ? a.cents - b.cents : k === 'stock' ? a.stock - b.stock : a.name.localeCompare(b.name) || a.id.localeCompare(b.id)) * d);
+    const sortBy = (key) => () => this.setState({ sort: s.sort.key === key ? { key, dir: -s.sort.dir } : { key, dir: 1 } });
+    const ariaSort = (key) => (s.sort.key === key ? (s.sort.dir > 0 ? 'ascending' : 'descending') : 'none');
+
+    const pillFor = { mto: ['tt-pill tt-pill--in', 'Made to order'], in: ['tt-pill tt-pill--in', ''], low: ['tt-pill tt-pill--low', 'Low stock'], out: ['tt-pill tt-pill--out', 'Out of stock'], hidden: ['tt-pill tt-pill--out', 'Hidden'] };
+    const rows = list.map((p) => {
+      const stt = statusOf(p);
+      const on = s.sel.includes(p.id);
+      return {
+        name: p.name, sku: p.vars.length > 1 ? sku(p) + ' · ' + p.vars.length + ' variants' : sku(p), catLabel: catLabels[p.cat], price: money(p.cents), stock: p.stock, weight: p.grams == null ? 'not set' : p.grams + ' g',
+        tracked: p.mode === 'tracked', mto: p.mode === 'mto',
+        hid: 'h-' + p.id,
+        sel: on ? 'true' : 'false', selOn: on, selLabel: 'Select ' + p.name + ' ' + sku(p),
+        rowCls: p.visible ? 'tt-tr' : 'tt-tr is-archived',
+        cardCls: p.visible ? 'tt-admcard' : 'tt-admcard is-archived',
+        phCls: stt === 'out' || stt === 'hidden' ? 'tt-ph is-out' : 'tt-ph',
+        pillCls: pillFor[stt][0], pill: stt === 'in' ? p.stock + ' in stock' : pillFor[stt][1],
+        decLabel: 'One less ' + sku(p), incLabel: 'One more ' + sku(p), stockLabel: 'Stock for ' + sku(p),
+        dec: () => setP(p.id, (x) => ({ ...x, stock: Math.max(0, x.stock - 1) })),
+        inc: () => setP(p.id, (x) => ({ ...x, stock: x.stock + 1 })),
+        setStock: (e) => { const n = Math.max(0, Math.round(+e.target.value || 0)); setP(p.id, (x) => ({ ...x, stock: n })); },
+        toggle: () => this.setState({ sel: on ? s.sel.filter((x) => x !== p.id) : [...s.sel, p.id] }),
+        editLabel: 'Edit ' + sku(p),
+        edit: () => this.setState({ drawer: 'edit', form: this.toForm(p), tried: false, saveErr: false }),
+        archLabel: p.visible ? 'Hide ' + sku(p) + ' from the shop' : 'Show ' + sku(p) + ' in the shop',
+        archTitle: p.visible ? 'Hide from shop' : 'Show in shop',
+        archIcon: p.visible ? 'ph ph-archive' : 'ph ph-eye',
+        archive: () => (p.visible ? this.setState({ confirm: p.id }) : (setP(p.id, (x) => ({ ...x, visible: true })), toast(sku(p) + ' is back in the shop.')))
+      };
+    });
+    const ids = list.map((p) => p.id);
+    const allOn = ids.length > 0 && ids.every((id) => s.sel.includes(id));
+    const bulk = (fn, msg) => { const n = s.sel.length; this.setState({ products: all.map((p) => (s.sel.includes(p.id) ? fn(p) : p)) }); toast(msg.replace('#', n)); };
+
+    const tracked = active.filter((p) => p.mode === 'tracked');
+    const units = tracked.reduce((a, p) => a + p.stock, 0);
+    const mtoN = active.filter((p) => p.mode === 'mto').length;
+    const lowN = all.filter((p) => statusOf(p) === 'low').length;
+    const outN = all.filter((p) => statusOf(p) === 'out').length;
+    const hidN = all.filter((p) => !p.visible).length;
+    const detN = all.filter((p) => p.cost == null || p.grams == null).length;
+    const stats = [
+      ['ph ph-package', active.length, 'Products on sale', ''],
+      ['ph ph-printer', mtoN, 'Made to order', ''],
+      ['ph ph-stack', units, 'Tracked units on hand', ''],
+      ['ph ph-trend-down', lowN, 'Low stock (' + LOW + ' or fewer)', lowN ? ' is-warn' : ''],
+      ['ph ph-prohibit', outN, 'Out of stock', outN ? ' is-err' : ''],
+      ['ph ph-archive', hidN, 'Hidden', '']
+    ].map(([icon, v, k2, tone]) => ({ icon, v, k: k2, cls: 'tt-stattile' + tone }));
+    const chips = [['active', 'On sale', active.length], ['low', 'Low stock', lowN], ['out', 'Out of stock', outN], ['hidden', 'Hidden', hidN], ['details', 'Needs cost or weight', detN], ['all', 'All', all.length]]
+      .map(([id, label, n]) => ({ label, n, pressed: s.filter === id ? 'true' : 'false', pick: () => this.setState({ filter: id }) }));
+
+    // drawer
+    const fm = s.form || this.blank();
+    const setF = (key) => (e) => this.setState({ form: { ...this.state.form, [key]: e.target.value } });
+    const priceC = Math.round((parseFloat(fm.price) || 0) * 100);
+    const costC = Math.round((parseFloat(fm.cost) || 0) * 100);
+    const nameErr = s.tried && !fm.name.trim();
+    const priceErr = s.tried && priceC <= 0;
+    const isAdd = s.drawer === 'add';
+    const vars = fm.vars || [];
+    const fields = fm.fields || [];
+    const varBlank = vars.some((v) => !String(v.name).trim());
+    const skus = vars.map((v) => String(v.sku).trim().toUpperCase()).filter(Boolean);
+    const varDupe = skus.length !== new Set(skus).size;
+    const varNoneOn = !vars.some((v) => v.on);
+    const fieldBlank = fields.some((f) => !String(f.label).trim());
+    const varErr = s.tried && (varBlank || varDupe || varNoneOn);
+    const fieldErr = s.tried && fieldBlank;
+    const problems = [];
+    if (s.tried && !fm.name.trim()) problems.push('a name');
+    if (s.tried && priceC <= 0) problems.push('a price above $0');
+    if (varErr) problems.push(varNoneOn ? 'at least one variant on sale' : varDupe ? 'a different SKU on each variant' : 'a name on every variant');
+    if (fieldErr) problems.push('wording on every question');
+    // Small helpers so each row edits its own slot in the draft, then writes the draft back.
+    const setList = (key, i, patch) => { const f = this.state.form; const list = f[key].slice(); list[i] = { ...list[i], ...patch }; this.setState({ form: { ...f, [key]: list } }); };
+    const moveUp = (key, i) => { const f = this.state.form; const list = f[key].slice(); [list[i - 1], list[i]] = [list[i], list[i - 1]]; this.setState({ form: { ...f, [key]: list } }); };
+    const dropAt = (key, i) => { const f = this.state.form; this.setState({ form: { ...f, [key]: f[key].filter((_, n) => n !== i) } }); };
+    const editing = all.find((p) => p.id === fm.id);
+    const save = (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      if (s.saving) return;
+      if (!fm.name.trim() || priceC <= 0 || varBlank || varDupe || varNoneOn || fieldBlank) return this.setState({ tried: true });
+      this.setState({ saving: true, saveErr: false, tried: false });
+      // Stands in for the zod-validated server action, which re-checks manage_inventory.
+      this.saveT = setTimeout(() => {
+        const form = this.state.form;
+        const rec = { cat: form.cat, mode: form.mode, name: form.name.trim(), cents: priceC, cost: form.cost === '' ? null : costC, stock: Math.max(0, Math.round(+form.stock || 0)), grams: form.weight === '' ? null : Math.max(0, Math.round(+form.weight || 0)), blurb: form.blurb, vars: form.vars.map((v) => ({ ...v, name: v.name.trim(), sku: v.sku.trim(), adj: Math.round((parseFloat(v.adj) || 0) * 100) })), fields: form.fields.map((q) => ({ ...q, label: q.label.trim(), max: Math.max(0, Math.round(+q.max || 0)) })), visible: form.visible === 'true', featured: form.featured === 'true', tags: form.tags };
+        const products = form.id ? this.state.products.map((p) => (p.id === form.id ? { ...p, ...rec } : p)) : [{ id: 'new' + this.state.products.length, sku: 'Not set', ...rec }, ...this.state.products];
+        this.setState({ products, saving: false, drawer: null, form: null, status: 'ready' });
+        toast(form.id ? 'Saved ' + rec.name + '.' : 'Added ' + rec.name + '. It shows in the shop while it is visible and in stock.');
+      }, 900);
+    };
+    const confirmP = all.find((p) => p.id === s.confirm);
+
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      isLoading: s.status === 'loading', isError: s.status === 'error',
+      isEmpty: s.status === 'ready' && all.length === 0,
+      isReady: s.status === 'ready' && all.length > 0,
+      retry: () => { this.setState({ status: 'loading' }); setTimeout(() => this.setState({ status: 'ready' }), 900); },
+      stats, chips,
+      query: s.query, onQuery: (e) => this.setState({ query: e.target.value }),
+      cat: s.cat, onCat: (e) => this.setState({ cat: e.target.value }),
+      tablePressed: s.view === 'table' ? 'true' : 'false', cardsPressed: s.view === 'cards' ? 'true' : 'false',
+      showTable: () => this.setState({ view: 'table' }), showCards: () => this.setState({ view: 'cards' }),
+      noMatch: rows.length === 0,
+      showTableView: rows.length > 0 && s.view === 'table',
+      showCardView: rows.length > 0 && s.view === 'cards',
+      resultText: rows.length + ' products shown',
+      clearFilters: () => this.setState({ query: '', cat: 'all', filter: 'all' }),
+      rows, allOn,
+      toggleAll: () => this.setState({ sel: allOn ? s.sel.filter((x) => !ids.includes(x)) : Array.from(new Set([...s.sel, ...ids])) }),
+      sortByName: sortBy('name'), sortByPrice: sortBy('price'), sortByStock: sortBy('stock'),
+      sortName: ariaSort('name'), sortPrice: ariaSort('price'), sortStock: ariaSort('stock'),
+      hasSel: s.sel.length > 0, selText: s.sel.length + ' selected',
+      // Only tracked products have a count, so made-to-order rows are left alone and the button says so.
+      bulkRestock: () => { const n = all.filter((p) => s.sel.includes(p.id) && p.mode === 'tracked').length; this.setState({ products: all.map((p) => (s.sel.includes(p.id) && p.mode === 'tracked' ? { ...p, stock: p.stock + 10 } : p)) }); toast('Added 10 to stock on ' + n + (n === 1 ? ' tracked product.' : ' tracked products.')); },
+      restockOff: !all.some((p) => s.sel.includes(p.id) && p.mode === 'tracked'),
+      restockTitle: all.some((p) => s.sel.includes(p.id) && p.mode === 'tracked') ? 'Adds 10 to each tracked product' : 'Made-to-order products have no stock count',
+      bulkOut: () => bulk((p) => ({ ...p, stock: 0 }), 'Marked # products out of stock.'),
+      bulkHide: () => bulk((p) => ({ ...p, visible: false }), 'Hid # products from the shop.'),
+      bulkShow: () => bulk((p) => ({ ...p, visible: true }), 'Showing # products in the shop.'),
+      clearSel: () => this.setState({ sel: [] }),
+      openAdd: () => this.setState({ drawer: 'add', form: this.blank(), tried: false, saveErr: false }),
+
+      drawerOpen: !!s.drawer,
+      closeDrawer: () => this.setState({ drawer: null, saving: false, tried: false, saveErr: false }),
+      drawerEyebrow: isAdd ? '> new product' : '> edit product',
+      drawerTitle: isAdd ? 'Add a made thing' : (editing ? editing.name : fm.name) || 'Edit product',
+      formErr: problems.length > 0, saveErr: s.saveErr,
+      formErrText: 'This needs ' + problems.join(', ').replace(/, ([^,]*)$/, ' and $1') + ' before it can go on the shelf.',
+      varCount: vars.length + (vars.length === 1 ? ' variant' : ' variants'),
+      varErr, varErrText: varNoneOn ? 'Turn on at least one variant, or hide the whole product instead.' : varDupe ? 'Two variants share a SKU. Each one needs its own.' : 'Every variant needs a name customers will see.',
+      vars: vars.map((v, i) => ({
+        ...v, nid: 'v-n-' + i, sid: 'v-s-' + i, pid: 'v-p-' + i,
+        nameInv: s.tried && !String(v.name).trim() ? 'true' : 'false', nameCls: s.tried && !String(v.name).trim() ? 'tt-input is-error' : 'tt-input',
+        onStr: v.on ? 'true' : 'false', offStr: v.on ? 'false' : 'true', onLabel: (v.name || 'Variant ' + (i + 1)) + ' on sale',
+        isFirst: i === 0, only: vars.length === 1,
+        upLabel: 'Move ' + (v.name || 'variant ' + (i + 1)) + ' up', rmLabel: 'Remove ' + (v.name || 'variant ' + (i + 1)),
+        onName: (e) => setList('vars', i, { name: e.target.value }), onSku: (e) => setList('vars', i, { sku: e.target.value }), onAdj: (e) => setList('vars', i, { adj: e.target.value }),
+        flip: () => setList('vars', i, { on: !v.on }), up: () => moveUp('vars', i), remove: () => dropAt('vars', i)
+      })),
+      addVar: () => this.setState({ form: { ...fm, vars: [...vars, { name: '', sku: '', adj: '0', on: true }] } }),
+      fieldCount: fields.length === 0 ? 'none' : fields.length + (fields.length === 1 ? ' question' : ' questions'),
+      noFields: fields.length === 0,
+      fields: fields.map((q, i) => ({
+        ...q, lid: 'q-l-' + i, tid: 'q-t-' + i, mid: 'q-m-' + i, cid: 'q-c-' + i,
+        labelInv: fieldErr && !String(q.label).trim() ? 'true' : 'false', labelCls: fieldErr && !String(q.label).trim() ? 'tt-input is-error' : 'tt-input',
+        hasMax: q.type === 'short' || q.type === 'long', isChoice: q.type === 'choice', isFile: q.type === 'file',
+        isFirst: i === 0,
+        upLabel: 'Move ' + (q.label || 'question ' + (i + 1)) + ' up', rmLabel: 'Remove ' + (q.label || 'question ' + (i + 1)),
+        onLabel: (e) => setList('fields', i, { label: e.target.value }), onType: (e) => setList('fields', i, { type: e.target.value }),
+        onMax: (e) => setList('fields', i, { max: e.target.value }), onChoices: (e) => setList('fields', i, { choices: e.target.value }),
+        flipReq: () => setList('fields', i, { required: !q.required }), up: () => moveUp('fields', i), remove: () => dropAt('fields', i)
+      })),
+      addField: () => this.setState({ form: { ...fm, fields: [...fields, { label: '', type: 'short', required: false, max: '40', choices: '' }] } }),
+      fName: fm.name, onName: setF('name'), nameErr, nameInv: nameErr ? 'true' : 'false', nameCls: nameErr ? 'tt-input is-error' : 'tt-input',
+      fCat: fm.cat, onFCat: setF('cat'),
+      fSku: isAdd ? 'Made when you save' : (editing ? sku(editing) : ''),
+      fPrice: fm.price, onPrice: setF('price'), priceInv: priceErr ? 'true' : 'false', priceCls: priceErr ? 'tt-input has-pre is-error' : 'tt-input has-pre',
+      fCost: fm.cost, onCost: setF('cost'),
+      marginText: priceErr ? 'Price needs to be more than $0.' : fm.cost === '' ? 'Add a unit cost to see your margin. Shipping is free, so postage comes out of it.' : priceC > 0 ? 'Margin ' + Math.round(((priceC - costC) / priceC) * 100) + '%, ' + money(priceC - costC) + ' a unit. Shipping is free, so it comes out of this.' : 'Shipping is free, so postage comes out of your margin.',
+      fStock: fm.stock, onFStock: setF('stock'),
+      modeMto: fm.mode === 'mto' ? 'true' : 'false', modeTracked: fm.mode === 'tracked' ? 'true' : 'false',
+      fIsMto: fm.mode === 'mto', fIsTracked: fm.mode === 'tracked',
+      setMto: () => this.setState({ form: { ...fm, mode: 'mto' } }), setTracked: () => this.setState({ form: { ...fm, mode: 'tracked' } }),
+      weightHelp: fm.weight === '' ? 'Not set yet. Add it so packing and postage are easy. Customers never see it.' : 'For packing and postage. Customers never see it.',
+      fWeight: fm.weight, onWeight: setF('weight'),
+      fBlurb: fm.blurb, onBlurb: setF('blurb'),
+      fTags: fm.tags, onTags: setF('tags'),
+      fVisible: fm.visible, flipVisible: () => this.setState({ form: { ...fm, visible: fm.visible === 'true' ? 'false' : 'true' } }),
+      fFeatured: fm.featured, flipFeatured: () => this.setState({ form: { ...fm, featured: fm.featured === 'true' ? 'false' : 'true' } }),
+      saving: s.saving, notSaving: !s.saving, savingStr: s.saving ? 'true' : 'false',
+      saveIcon: isAdd ? 'ph ph-plus' : 'ph ph-check', saveText: isAdd ? 'Add product' : 'Save changes',
+      saveDrawer: save,
+
+      confirmOpen: !!confirmP, confirmName: confirmP ? sku(confirmP) : '',
+      closeConfirm: () => this.setState({ confirm: null }),
+      doHide: () => { const n = sku(confirmP); setP(confirmP.id, (x) => ({ ...x, visible: false })); this.setState({ confirm: null }); toast(n + ' is hidden from the shop.'); },
+
+      hasToast: !!s.toast, toastMsg: s.toast || '',
+      closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

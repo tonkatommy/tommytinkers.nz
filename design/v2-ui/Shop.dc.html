@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Shop - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="shop" count="{{count}}" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" on-open-cart="{{openCart}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main">
+
+  <!-- category hero: this page's one full-bleed gradient surface -->
+  <section class="tt-warm" aria-labelledby="shop-h">
+    <div class="tt-container" style="padding-block: 40px 40px; display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; shop / {{catSlug}}</span>
+      <h1 id="shop-h" class="tt-h1" style="font-size: clamp(36px, 5vw, 56px);">{{catTitle}}</h1>
+      <p style="font-size: 18px; max-width: 600px;">{{catSub}}</p>
+    </div>
+  </section>
+
+  <section class="tt-container" style="padding-block: 40px 96px;">
+    <div class="tt-shop">
+
+      <!-- desktop sidebar -->
+      <aside class="tt-side" aria-label="Filters">
+        <div class="tt-field">
+          <label for="q">Search the shop</label>
+          <div class="tt-search"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="q" type="search" class="tt-input" placeholder="Try name or grid" value="{{query}}" onChange="{{onQuery}}"></div>
+        </div>
+        <nav aria-labelledby="cat-h" style="display: flex; flex-direction: column; gap: 8px;">
+          <h2 id="cat-h" style="font-size: 14px; font-weight: 500;">Category</h2>
+          <ul style="display: flex; flex-direction: column; gap: 2px;">
+            <sc-for list="{{cats}}" as="c" hint-placeholder-count="5">
+              <li><button type="button" class="tt-catbtn" aria-current="{{c.current}}" onClick="{{c.pick}}"><span><i class="{{c.icon}} ph-20" aria-hidden="true"></i>{{c.label}}</span><span class="n">{{c.n}}</span></button></li>
+            </sc-for>
+          </ul>
+        </nav>
+        <div class="tt-field">
+          <label for="sort">Sort by</label>
+          <div class="tt-selectwrap"><select id="sort" class="tt-input" value="{{sort}}" onChange="{{onSort}}"><option value="featured">Featured first</option><option value="new">Newest</option><option value="price-asc">Price, low to high</option><option value="price-desc">Price, high to low</option><option value="stock">In stock first</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div>
+        </div>
+        <label class="tt-check"><input type="checkbox" checked="{{inStockOnly}}" onChange="{{toggleInStock}}">Hide out of stock</label>
+      </aside>
+
+      <div class="tt-shopmain">
+        <!-- mobile filters: search, then category chips -->
+        <div class="tt-mobfilters">
+          <div class="tt-search"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><label for="qm" class="sr-only">Search the shop</label><input id="qm" type="search" class="tt-input" placeholder="Search the shop" value="{{query}}" onChange="{{onQuery}}"></div>
+          <div class="tt-chips" role="group" aria-label="Category">
+            <sc-for list="{{cats}}" as="c" hint-placeholder-count="5">
+              <button type="button" class="tt-chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}"><i class="{{c.icon}} ph-16" aria-hidden="true"></i>{{c.label}}<span class="n">{{c.n}}</span></button>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- results bar -->
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+          <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);" role="status" aria-live="polite">{{resultText}}</p>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <sc-if value="{{filtered}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" onClick="{{clearAll}}"><i class="ph ph-x" aria-hidden="true"></i>Clear filters</button></sc-if>
+            <div class="tt-selectwrap tt-only-mob"><label for="sortm" class="sr-only">Sort by</label><select id="sortm" class="tt-input" style="min-height: 40px; font-size: 14px;" value="{{sort}}" onChange="{{onSort}}"><option value="featured">Featured</option><option value="new">Newest</option><option value="price-asc">Price, low to high</option><option value="price-desc">Price, high to low</option><option value="stock">In stock first</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div>
+          </div>
+        </div>
+
+        <!-- loading -->
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+          <ul class="tt-grid--shop" aria-busy="true">
+            <sc-for list="{{skeletons}}" as="k" hint-placeholder-count="6">
+              <li class="tt-card tt-card--flush"><div class="tt-skel" style="aspect-ratio: 1 / 1; border-radius: 0;"></div><div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;"><div class="tt-skel" style="height: 12px; width: 45%;"></div><div class="tt-skel" style="height: 16px; width: 80%;"></div><div class="tt-skel" style="height: 20px; width: 35%;"></div><div class="tt-skel" style="height: 36px; width: 100%; border-radius: 6px;"></div></div></li>
+            </sc-for>
+          </ul>
+          <p class="sr-only" role="status">Loading products</p>
+        </sc-if>
+
+        <!-- error -->
+        <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+          <div class="tt-card" role="alert" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px; border-color: var(--error);">
+            <span style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center; color: var(--error);"><i class="ph ph-warning-circle ph-24" aria-hidden="true"></i></span>
+            <h2 class="tt-h4" style="font-weight: 600;">Couldn't load the shop</h2>
+            <p class="tt-small" style="max-width: 400px;">Something went wrong on my end, not yours. Give it another go in a moment.</p>
+            <button type="button" class="tt-btn tt-btn--primary"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Try again</button>
+          </div>
+        </sc-if>
+
+        <!-- category with nothing printed yet -->
+        <sc-if value="{{isSoon}}" hint-placeholder-val="{{false}}">
+          <div class="tt-card tt-ph-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px;">
+            <span style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center; color: var(--text-secondary);"><i class="{{soonIcon}} ph-24" aria-hidden="true"></i></span>
+            <h2 class="tt-h4" style="font-weight: 600;">Nothing printed yet</h2>
+            <p class="tt-small" style="max-width: 420px;">{{soonText}} If you've got something in mind, <a href="Contact.dc.html">ask me about a custom print</a>.</p>
+            <button type="button" class="tt-btn tt-btn--secondary" onClick="{{showStickers}}"><i class="ph ph-sticker" aria-hidden="true"></i>See the stickers</button>
+          </div>
+        </sc-if>
+
+        <!-- no results -->
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+          <div class="tt-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px; border-style: dashed; border-color: var(--border-default);">
+            <span style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center; color: var(--text-secondary);"><i class="ph ph-magnifying-glass ph-24" aria-hidden="true"></i></span>
+            <h2 class="tt-h4" style="font-weight: 600;">Nothing matches that</h2>
+            <p class="tt-small" style="max-width: 400px;">Try a different word or clear the filters. If it's something I could make, <a href="Contact.dc.html">ask me about it</a>.</p>
+            <button type="button" class="tt-btn tt-btn--secondary" onClick="{{clearAll}}"><i class="ph ph-x" aria-hidden="true"></i>Clear filters</button>
+          </div>
+        </sc-if>
+
+        <!-- grid -->
+        <sc-if value="{{hasProducts}}" hint-placeholder-val="{{true}}">
+          <ul class="tt-grid--shop">
+            <sc-for list="{{products}}" as="p" hint-placeholder-count="9">
+              <li class="tt-card tt-card--hover tt-card--flush" style="display: flex; flex-direction: column;">
+                <a href="Product.dc.html" class="{{p.phClass}}" tabindex="-1" aria-hidden="true"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></a>
+                <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                  <div style="display: flex; flex-wrap: wrap; gap: 4px;"><sc-for list="{{p.tags}}" as="t" hint-placeholder-count="2"><span class="tt-tag tt-tag--muted">{{t}}</span></sc-for></div>
+                  <h3 style="font-size: 16px; font-weight: 600; line-height: 1.3;"><a href="Product.dc.html" style="color: var(--text-primary); text-decoration: none;">{{p.name}}</a></h3>
+                  <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto;">
+                    <span style="font-size: 18px; font-weight: 600;">{{p.price}}</span>
+                    <span class="{{p.pillClass}}">{{p.pillText}}</span>
+                  </div>
+                  <sc-if value="{{p.choose}}" hint-placeholder-val="{{false}}">
+                    <a href="Product.dc.html" class="tt-btn tt-btn--secondary tt-btn--sm tt-btn--block" aria-label="{{p.chooseLabel}}"><i class="ph ph-sliders-horizontal" aria-hidden="true"></i>Choose options</a>
+                  </sc-if>
+                  <sc-if value="{{p.canBuy}}" hint-placeholder-val="{{true}}">
+                    <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm tt-btn--block" aria-label="{{p.addLabel}}" onClick="{{p.add}}"><i class="{{p.addIcon}}" aria-hidden="true"></i>{{p.addText}}</button>
+                  </sc-if>
+                  <sc-if value="{{p.soldOut}}" hint-placeholder-val="{{false}}">
+                    <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm tt-btn--block" disabled="disabled">Out of stock</button>
+                  </sc-if>
+                </div>
+              </li>
+            </sc-for>
+          </ul>
+        </sc-if>
+
+        <!-- custom orders -->
+        <div class="tt-card" style="margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding: 32px;">
+          <div style="display: flex; flex-direction: column; gap: 8px; max-width: 520px;">
+            <span class="tt-label">&gt; can't find it?</span>
+            <h2 class="tt-h3">Custom orders welcome</h2>
+            <p class="tt-small">Send a sketch, a photo or an STL file. I'll come back with a flat price and an honest turnaround.</p>
+          </div>
+          <a href="Contact.dc.html" class="tt-btn tt-btn--warm"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Ask for a custom build</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+
+<dc-import name="CartDrawer" theme="{{theme}}" open="{{drawer}}" items="{{cart}}" on-close="{{closeCart}}" on-qty="{{setQty}}" on-remove="{{removeItem}}" hint-size="0px,0px"></dc-import>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite">
+    <div class="tt-toast tt-toast--ok">
+      <i class="ph ph-check-circle" aria-hidden="true"></i>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+        <p class="tt-toast-title">Added to cart</p>
+        <p class="tt-toast-msg">{{toastMsg}}</p>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" style="align-self: flex-start; margin-top: 4px;" onClick="{{openCart}}">View cart</button>
+      </div>
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button>
+    </div>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","loading","empty","error"],"default":"ready"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2700}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      theme: null, drawer: false, toast: null, added: null,
+      cat: 'all', sort: 'featured', inStockOnly: false,
+      // The "no results" artboard starts with a search that matches nothing.
+      query: props.state === 'empty' ? 'glow in the dark' : '',
+      cart: [{ id: 'wcgs', name: 'Waikato Champs grid stickers', option: 'Event sheet', cents: 1500, mto: true, qty: 1, max: 20 }]
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.toastT); clearTimeout(this.addedT); }
+  catalogue() {
+    // The live range from the old Shopify store. Prices in cents. "mto" = printed to order, so it never sells out.
+    return [
+      { id: 'rcws', cat: 'stickers', name: 'RC name window stickers', cents: 2000, tags: ['vinyl', '1/10', '1/8'], stock: 'mto', options: true, rank: 1, added: 1 },
+      { id: 'ss-a4', cat: 'stickers', name: 'Custom sticker sheet A4', cents: 3500, tags: ['vinyl', 'A4', 'custom'], stock: 'mto', options: true, rank: 2, added: 2 },
+      { id: 'wcgs', cat: 'stickers', name: 'Waikato Champs grid stickers', cents: 1500, tags: ['vinyl', 'event'], stock: 'mto', option: 'Event sheet', rank: 3, added: 4, max: 20 },
+      { id: 'amgs', cat: 'stickers', name: 'Astro Masters grid stickers', cents: 2000, tags: ['vinyl', '1/10', 'event'], stock: 'out', rank: 4, added: 3, max: 0 }
+    ];
+  }
+  add(p) {
+    const cart = this.state.cart.slice();
+    const at = cart.findIndex((c) => c.id === p.id);
+    if (at >= 0) cart[at] = { ...cart[at], qty: Math.min(p.max, cart[at].qty + 1) };
+    else cart.push({ id: p.id, name: p.name, option: p.option, cents: p.cents, mto: p.stock === 'mto', qty: 1, max: p.max });
+    clearTimeout(this.toastT); clearTimeout(this.addedT);
+    this.setState({ cart, toast: p.name + ' is in your cart.', added: p.id });
+    this.toastT = setTimeout(() => this.setState({ toast: null }), 5000);
+    this.addedT = setTimeout(() => this.setState({ added: null }), 1800);
+  }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const view = P.state || 'ready';
+    const cats = [
+      { id: 'all', label: 'Everything', icon: 'ph ph-squares-four', title: 'The full bench', sub: 'Everything I make, in one place. Printed in Helensville, with free shipping anywhere in New Zealand.' },
+      { id: 'stickers', label: 'Stickers & decals', icon: 'ph ph-sticker', title: 'Stickers & decals', sub: 'Waterproof vinyl for RC cars: name window stickers, event grid numbers and custom A4 sheets. Printed to order.', soon: '' },
+      { id: 'rc-parts', label: 'RC car parts', icon: 'ph ph-car-profile', title: 'RC car parts', sub: '3D printed parts for 1/10 scale RC cars. Got a model file? Send it through.', soon: 'RC parts are on the printer list, but none are on the shelf yet.' },
+      { id: 'toys', label: "Kids' toys", icon: 'ph ph-cube', title: "Kids' toys", sub: 'Printed toys made to be played with, not put on a shelf.', soon: 'Toys are coming, but none are ready to sell yet.' },
+      { id: 'household', label: 'Household', icon: 'ph ph-house-line', title: 'Household', sub: 'Hooks, organisers and handy bits that make a corner of the house work.', soon: 'Household prints are coming, but none are ready to sell yet.' }
+    ];
+    const all = this.catalogue().map((p) => ({ ...p, catLabel: cats.find((c) => c.id === p.cat).label }));
+    const q = s.query.trim().toLowerCase();
+    let list = all.filter((p) => (s.cat === 'all' || p.cat === s.cat)
+      && (!s.inStockOnly || p.stock !== 'out')
+      && (!q || (p.name + ' ' + p.catLabel + ' ' + p.tags.join(' ')).toLowerCase().includes(q)));
+    const sorters = { featured: (a, b) => a.rank - b.rank, new: (a, b) => b.added - a.added, 'price-asc': (a, b) => a.cents - b.cents, 'price-desc': (a, b) => b.cents - a.cents, stock: (a, b) => (a.stock === 'out') - (b.stock === 'out') };
+    list = list.slice().sort(sorters[s.sort] || sorters.featured);
+    const active = cats.find((c) => c.id === s.cat);
+    const pill = { mto: ['tt-pill tt-pill--in', 'Made to order'], in: ['tt-pill tt-pill--in', 'In stock'], low: ['tt-pill tt-pill--low', 'Low stock'], out: ['tt-pill tt-pill--out', 'Out of stock'] };
+    const catHasNone = s.cat !== 'all' && !all.some((p) => p.cat === s.cat);
+    const count = s.cart.reduce((n, c) => n + c.qty, 0);
+    const ready = view === 'ready' || view === 'empty';
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      signedIn: !!P.signedIn,
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      count,
+      cart: s.cart,
+      drawer: s.drawer,
+      openCart: () => this.setState({ drawer: true, toast: null }),
+      closeCart: () => this.setState({ drawer: false }),
+      setQty: (id, qty) => this.setState({ cart: s.cart.map((c) => (c.id === id ? { ...c, qty } : c)) }),
+      removeItem: (id) => this.setState({ cart: s.cart.filter((c) => c.id !== id) }),
+      catSlug: active.id === 'all' ? 'everything' : active.id,
+      catTitle: active.title,
+      catSub: active.sub,
+      cats: cats.map((c) => ({
+        ...c,
+        n: c.id === 'all' ? all.length : all.filter((p) => p.cat === c.id).length,
+        current: c.id === s.cat ? 'true' : 'false',
+        pressed: c.id === s.cat ? 'true' : 'false',
+        pick: () => this.setState({ cat: c.id })
+      })),
+      query: s.query,
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      sort: s.sort,
+      onSort: (e) => this.setState({ sort: e.target.value }),
+      inStockOnly: s.inStockOnly,
+      toggleInStock: () => this.setState({ inStockOnly: !s.inStockOnly }),
+      filtered: s.cat !== 'all' || !!q || s.inStockOnly,
+      clearAll: () => this.setState({ cat: 'all', query: '', inStockOnly: false }),
+      resultText: view === 'loading' ? 'Loading...' : view === 'error' ? '' : list.length + (list.length === 1 ? ' result' : ' results'),
+      isLoading: view === 'loading',
+      skeletons: [1, 2, 3, 4, 5, 6],
+      isError: view === 'error',
+      isSoon: ready && catHasNone && !q,
+      soonText: active.soon || '', soonIcon: active.icon,
+      showStickers: () => this.setState({ cat: 'stickers' }),
+      isEmpty: ready && list.length === 0 && !(catHasNone && !q),
+      hasProducts: ready && list.length > 0,
+      products: list.map((p) => {
+        const justAdded = s.added === p.id;
+        return {
+          ...p,
+          phClass: p.stock === 'out' ? 'tt-ph is-out' : 'tt-ph',
+          pillClass: pill[p.stock][0],
+          pillText: pill[p.stock][1],
+          price: '$' + (p.cents / 100).toFixed(2),
+          choose: !!p.options && p.stock !== 'out',
+          chooseLabel: 'Choose options for ' + p.name,
+          canBuy: !p.options && p.stock !== 'out',
+          soldOut: p.stock === 'out',
+          addIcon: justAdded ? 'ph ph-check' : 'ph ph-plus',
+          addText: justAdded ? 'Added' : 'Add to cart',
+          addLabel: 'Add ' + p.name + ' to cart',
+          add: () => this.add(p)
+        };
+      }),
+      hasToast: !!s.toast,
+      toastMsg: s.toast || '',
+      closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

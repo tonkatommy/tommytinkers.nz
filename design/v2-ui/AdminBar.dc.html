@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>AdminBar - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="tt" data-theme="{{theme}}" style="background: transparent; font-family: var(--font-body); color: var(--text-primary);">
+<header class="tt-admbar">
+  <div class="tt-admbar-in">
+    <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+      <a href="Admin.dc.html" class="tt-brand" aria-label="tommy tinkers NZ admin, stockroom">
+        <span class="tt-disc"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></span>
+        <span class="tt-only-desk" style="gap: 0.3em;">tommy tinkers<span class="nz">NZ</span></span>
+      </a>
+      <span class="tt-tag tt-tag--muted">admin</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <a href="Main.dc.html" class="tt-btn tt-btn--ghost tt-btn--sm"><i class="ph ph-arrow-square-out" aria-hidden="true"></i>View site</a>
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{themeLabel}}" title="{{themeLabel}}" onClick="{{toggleTheme}}"><i class="{{themeIcon}}" aria-hidden="true"></i></button>
+      <span class="tt-av tt-av--sm" title="Signed in as Tommy G., Owner" aria-label="Signed in as Tommy G., Owner" role="img">T</span>
+    </div>
+  </div>
+</header>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"onToggleTheme":{"editor":null},"$preview":{"width":1280,"height":64}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme || 'dark') !== 'light';
+    return {
+      theme: this.props.theme || 'dark',
+      themeLabel: dark ? 'Switch to light mode' : 'Switch to dark mode',
+      themeIcon: dark ? 'ph ph-sun' : 'ph ph-moon',
+      toggleTheme: () => (this.props.onToggleTheme ? this.props.onToggleTheme() : null)
+    };
+  }
+}
+</script>
+</body>
+</html>

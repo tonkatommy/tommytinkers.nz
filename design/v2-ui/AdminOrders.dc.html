@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Admin, orders - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="AdminBar" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-admpage">
+<div class="tt-adm">
+<dc-import name="AdminSide" theme="{{theme}}" active="orders" orders="{{toPack}}" queue="5" hint-size="100%,720px"></dc-import>
+
+<main id="main" class="tt-admmain">
+  <header class="tt-admhead">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; admin / orders</span>
+      <h1 class="tt-h2">Orders</h1>
+      <p class="tt-admnote">22 orders imported from the closed Shopify store, plus two test orders. New orders arrive from the Stripe webhook.</p>
+    </div>
+    <button type="button" class="tt-btn tt-btn--secondary"><i class="ph ph-download-simple" aria-hidden="true"></i>Export CSV</button>
+  </header>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+    <div class="tt-tablewrap" aria-busy="true" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+      <div class="tt-skel" style="height: 20px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div>
+    </div>
+    <p class="sr-only" role="status">Loading orders</p>
+  </sc-if>
+
+  <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+    <div class="tt-card" role="alert" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px;">
+      <span class="tt-icon-hero" style="color: var(--error);"><i class="ph ph-warning-circle ph-24" aria-hidden="true"></i></span>
+      <h2 class="tt-h3">Orders didn't load</h2>
+      <p class="tt-small" style="max-width: 440px;">Nothing is lost. Paid orders are saved by the webhook even when this page can't reach them.</p>
+      <button type="button" class="tt-btn tt-btn--secondary" onClick="{{retry}}"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Try again</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div class="tt-card tt-ph-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px;">
+      <span class="tt-icon-hero"><i class="ph ph-receipt ph-24" aria-hidden="true"></i></span>
+      <h2 class="tt-h3">No orders yet</h2>
+      <p class="tt-small" style="max-width: 440px;">When someone checks out, their order lands here with an email to you. Test orders from staging use Stripe test keys and never show up in production.</p>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isReady}}" hint-placeholder-val="{{true}}">
+    <div class="tt-toolbar">
+      <div class="tt-search"><label for="oq" class="sr-only">Search orders</label><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="oq" class="tt-input" type="search" placeholder="Order number, name or email" value="{{query}}" onChange="{{onQuery}}"></div>
+    </div>
+    <div class="tt-chips" role="group" aria-label="Filter by status">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="5"><button type="button" class="tt-chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}">{{c.label}}<span class="n">{{c.n}}</span></button></sc-for>
+    </div>
+
+    <sc-if value="{{noMatch}}" hint-placeholder-val="{{false}}">
+      <div class="tt-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 48px 32px;">
+        <h2 class="tt-h4" style="font-weight: 600;">No orders match</h2>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{clearFilters}}">Clear filters</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{hasRows}}" hint-placeholder-val="{{true}}">
+      <div class="tt-tablewrap">
+        <div class="tt-table" role="table" aria-label="Orders, newest first. Open an order to pack, post or refund it." style="--cols: 120px minmax(160px, 1.5fr) 96px 100px 116px 112px;">
+          
+          <div class="tt-thead" role="rowgroup"><div class="tt-tr" role="row"><div role="columnheader" class="tt-th">Order</div><div role="columnheader" class="tt-th">Customer</div><div role="columnheader" class="tt-th">Items</div><div role="columnheader" class="tt-th num">Total</div><div role="columnheader" class="tt-th">Status</div><div role="columnheader" class="tt-th act"><span class="sr-only">Open</span></div></div></div>
+          <div class="tt-tbody" role="rowgroup">
+            <sc-for list="{{rows}}" as="o" hint-placeholder-count="7">
+              <div class="tt-tr" role="row">
+                <div role="cell" class="tt-td"><p style="font-family: var(--font-mono); font-weight: 500;">{{o.id}}</p><p class="mono">{{o.date}}</p></div>
+                <div role="cell" class="tt-td"><p style="font-weight: 600;">{{o.customer}}</p><p class="mono">{{o.town}}</p></div>
+                <div role="cell" class="tt-td" style="color: var(--text-secondary);">{{o.itemText}}</div>
+                <div role="cell" class="tt-td num" style="font-weight: 600;">{{o.total}}</div>
+                <div role="cell" class="tt-td"><span class="{{o.pillCls}}">{{o.statusLabel}}</span></div>
+                <div role="cell" class="tt-td act"><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" aria-label="{{o.openLabel}}" onClick="{{o.open}}">Open<i class="ph ph-caret-right" aria-hidden="true"></i></button></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </sc-if>
+</main>
+</div>
+</div>
+
+<!-- ORDER DRAWER -->
+<sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-scrim" onClick="{{closeDrawer}}" aria-hidden="true"></div>
+  <aside class="tt-drawer tt-drawer--wide" role="dialog" aria-modal="true" aria-labelledby="od-h">
+    <div class="tt-drawer-head">
+      <div><span class="tt-label" style="font-size: 12px;">&gt; order · {{dDate}}</span><h2 id="od-h" class="tt-h4" style="font-weight: 600; font-family: var(--font-mono);">{{dId}}</h2></div>
+      <div style="display: flex; gap: 4px;"><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Print packing slip" title="Print packing slip"><i class="ph ph-printer ph-20" aria-hidden="true"></i></button><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close" onClick="{{closeDrawer}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div>
+    </div>
+    <div class="tt-drawer-body" style="display: flex; flex-direction: column; gap: 24px; padding-block: 24px;">
+      <sc-if value="{{dRefunded}}" hint-placeholder-val="{{false}}">
+        <div class="tt-banner"><i class="ph ph-arrow-counter-clockwise ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Refunded</p><p class="tt-small">The money went back through Stripe. It can take 5 to 10 working days to reach the card.</p></div></div>
+      </sc-if>
+      <sc-if value="{{dNotRefunded}}" hint-placeholder-val="{{true}}">
+        <ol class="tt-ostep" aria-label="Order progress"><sc-for list="{{steps}}" as="st" hint-placeholder-count="3"><li class="{{st.cls}}" aria-current="{{st.cur}}">{{st.label}}</li></sc-for></ol>
+      </sc-if>
+
+      <section aria-labelledby="od-items" style="display: flex; flex-direction: column; gap: 12px;">
+        <h3 id="od-items" class="tt-label" style="font-size: 12px;">&gt; items</h3>
+        <sc-if value="{{noItems}}" hint-placeholder-val="{{false}}"><p class="tt-small">{{dCount}}. The Shopify export only has the total, not the line items.</p></sc-if>
+        <sc-for list="{{dItems}}" as="it" hint-placeholder-count="2">
+          <div class="tt-row" style="align-items: center;"><div class="tt-prodcell"><span class="tt-ph" aria-hidden="true"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></span><div><p class="nm" style="font-weight: 600;">{{it.name}}</p><p class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">{{it.sku}} · {{it.qty}} at {{it.each}} · {{it.grams}}</p></div></div><span style="font-weight: 600;">{{it.line}}</span></div>
+          <sc-if value="{{it.hasPz}}" hint-placeholder-val="{{false}}">
+            <div class="tt-pz" role="group" aria-label="{{it.pzLabel}}">
+              <div class="tt-row" style="align-items: center;"><span class="tt-label" style="font-size: 11px;">&gt; print this</span><button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" style="min-height: 32px;" aria-label="{{it.copyLabel}}" onClick="{{it.copy}}"><i class="ph ph-copy" aria-hidden="true"></i>{{it.copyText}}</button></div>
+              <dl class="tt-pzdl"><sc-for list="{{it.pz}}" as="f" hint-placeholder-count="4"><div><dt>{{f.k}}</dt><dd>{{f.v}}</dd></div></sc-for></dl>
+              <sc-if value="{{it.hasArt}}" hint-placeholder-val="{{false}}"><a href="#artwork" class="tt-btn tt-btn--secondary tt-btn--sm" style="align-self: flex-start;"><i class="ph ph-download-simple" aria-hidden="true"></i>{{it.art}}</a></sc-if>
+            </div>
+          </sc-if>
+        </sc-for>
+        <dl class="tt-dl" style="margin-top: 8px;"><dt>Subtotal</dt><dd class="num">{{dSub}}</dd><dt>Shipping</dt><dd>{{dShip}}</dd><dt style="font-weight: 600; color: var(--text-primary);">Total paid</dt><dd style="font-weight: 600;">{{dTotal}}</dd></dl>
+        <p class="tt-help">{{dGrams}}</p>
+      </section>
+
+      <section aria-labelledby="od-cust" style="display: flex; flex-direction: column; gap: 8px;">
+        <h3 id="od-cust" class="tt-label" style="font-size: 12px;">&gt; ship to</h3>
+        <address style="font-style: normal; line-height: 1.6;">{{dCustomer}}<br>{{dAddr}}</address>
+        <p class="tt-small">{{dContact}} · {{dPaid}}<sc-if value="{{hasLink}}" hint-placeholder-val="{{true}}"> · <a href="#payment">{{dLink}}<i class="ph ph-arrow-square-out ph-16" aria-hidden="true" style="vertical-align: -2px; margin-left: 4px;"></i></a></sc-if></p>
+      </section>
+
+      <!-- post it -->
+      <sc-if value="{{showPost}}" hint-placeholder-val="{{false}}">
+        <section class="tt-card" aria-labelledby="od-post" style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+          <h3 id="od-post" class="tt-h4" style="font-weight: 600; font-size: 18px;">Mark as posted</h3>
+          <div class="tt-pair">
+            <div class="tt-field"><label for="carrier">Courier</label><div class="tt-selectwrap"><select id="carrier" class="tt-input"><option>NZ Post</option><option>CourierPost</option><option>Aramex</option><option>Other</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+            <div class="tt-field"><label for="track">Tracking number</label><input id="track" class="{{trackCls}}" value="{{track}}" onChange="{{onTrack}}" aria-invalid="{{trackInv}}" aria-describedby="track-h" style="font-family: var(--font-mono);"></div>
+          </div>
+          <sc-if value="{{trackErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" id="track-h"><i class="ph ph-warning-circle" aria-hidden="true"></i>Add the tracking number so the customer can follow it.</p></sc-if>
+          <p class="tt-help">Saving emails the customer their tracking link from Resend.</p>
+        </section>
+      </sc-if>
+    </div>
+    <div class="tt-drawer-foot" style="flex-direction: row; flex-wrap: wrap;">
+      <sc-if value="{{canRefund}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--danger" onClick="{{openRefund}}"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Refund</button></sc-if>
+      <sc-if value="{{hasNext}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--primary" style="flex: 1;" aria-disabled="{{busyStr}}" onClick="{{advance}}"><sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</sc-if><sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><i class="{{nextIcon}}" aria-hidden="true"></i>{{nextText}}</sc-if></button></sc-if>
+      <sc-if value="{{noNext}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--secondary" style="flex: 1;" onClick="{{closeDrawer}}">Close</button></sc-if>
+    </div>
+  </aside>
+</sc-if>
+
+<!-- REFUND CONFIRM -->
+<sc-if value="{{refundOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-modalwrap">
+    <div class="tt-scrim" onClick="{{closeRefund}}" aria-hidden="true" style="z-index: 210;"></div>
+    <div class="tt-modal" role="alertdialog" aria-modal="true" aria-labelledby="rf-h" aria-describedby="rf-d" style="width: min(460px, 100%); z-index: 211;">
+      <span class="tt-icon-hero" style="color: var(--error);"><i class="ph ph-arrow-counter-clockwise ph-24" aria-hidden="true"></i></span>
+      <h2 id="rf-h" class="tt-h3">Refund {{dTotal}}?</h2>
+      <p id="rf-d" class="tt-small">The full amount goes back to the customer's card through Stripe, and they get an email. This can't be undone from here.</p>
+      <label class="tt-check"><input type="checkbox" checked="{{restock}}" onChange="{{flipRestock}}">Put the items back in stock</label>
+      <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px;"><button type="button" class="tt-btn tt-btn--ghost" onClick="{{closeRefund}}">Don't refund</button><button type="button" class="tt-btn tt-btn--danger" onClick="{{doRefund}}"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Refund in full</button></div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Done</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","loading","empty","error","detail","posting","refund"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const st = props.state || 'ready';
+    // The 22 orders imported from the Shopify export (the store is closed), newest first, plus two
+    // test orders so the pack and post flow can be shown. v2 shows every order as TT####NZ and keeps
+    // Shopify's own name in `ref` (it used TT-1001-NZ style up to 1015). Tommy's own test orders
+    // 1001 and 1011 are skipped on import. Customer names here are invented: the design never shows
+    // real customers. Totals are integer cents; the export has no line items.
+    const old = [
+      [1025, 'TT1025NZ', '21/03/2026', 'Aroha T.', 3000, 2], [1024, 'TT1024NZ', '09/03/2026', 'Ben K.', 2000, 1], [1023, 'TT1023NZ', '23/01/2026', 'Sione L.', 2000, 1],
+      [1022, 'TT1022NZ', '20/01/2026', 'Mere W.', 2000, 1], [1021, 'TT1021NZ', '13/01/2026', 'Liam C.', 6000, 2], [1020, 'TT1020NZ', '06/01/2026', 'Hana P.', 2000, 1],
+      [1019, 'TT1019NZ', '03/11/2025', 'Josh R.', 3000, 2], [1018, 'TT1018NZ', '18/08/2025', 'Kiri M.', 16500, 11], [1017, 'TT1017NZ', '26/07/2025', 'Sam O.', 4000, 2],
+      [1015, 'TT-1015-NZ', '12/05/2025', 'Ngaio B.', 2500, 1], [1014, 'TT-1014-NZ', '01/05/2025', 'Tama H.', 4000, 2], [1013, 'TT-1013-NZ', '21/04/2025', 'Olivia D.', 2500, 1],
+      [1012, 'TT-1012-NZ', '17/04/2025', 'Rangi F.', 6000, 3], [1010, 'TT-1010-NZ', '02/03/2025', 'Jack N.', 4000, 2],
+      [1009, 'TT-1009-NZ', '26/02/2025', 'Ana V.', 4000, 1], [1008, 'TT-1008-NZ', '19/02/2025', 'Wiremu E.', 4000, 1], [1007, 'TT-1007-NZ', '14/02/2025', 'Grace L.', 3000, 1],
+      [1006, 'TT-1006-NZ', '14/02/2025', 'Finn A.', 3000, 1], [1005, 'TT-1005-NZ', '13/02/2025', 'Lucy J.', 3000, 1], [1004, 'TT-1004-NZ', '13/02/2025', 'Matiu R.', 3000, 1],
+      [1003, 'TT-1003-NZ', '13/02/2025', 'Tama H.', 3000, 1], [1002, 'TT-1002-NZ', '13/02/2025', 'Mere W.', 3000, 1]
+    ].map(([n, ref, date, customer, total, count]) => ({ id: 'TT' + n + 'NZ', ref, date, customer, total, count, items: null, test: false, shopify: true, status: 'posted' }));
+    const tests = [
+      { id: 'TT1027NZ', date: '07/11/2026', customer: 'Tommy G.', status: 'packing', test: true, items: [{ name: 'Custom sticker sheet A4', sku: 'No SKU yet', qty: 1, each: 3500, pz: [['Design brief', 'Test order. Club grid numbers 1 to 12, black on yellow, about 60 mm high.']], art: 'grid-numbers.svg, 84 KB' }] },
+      { id: 'TT1026NZ', date: '07/11/2026', customer: 'Tommy G.', status: 'paid', test: true, items: [{ name: 'RC name window stickers', sku: 'RCWS-MXD-01', qty: 2, each: 2000, deal: true, pz: [['Sheet', 'Mixed'], ['Name', 'TOMMY G'], ['Flag', 'New Zealand'], ['Colours', 'White on black'], ['Font', 'Not given']] }, { name: 'Waikato Champs grid stickers', sku: 'WCGS-2025', qty: 1, each: 1500 }] }
+    ];
+    const seed = [...tests, ...old];
+    this.state = {
+      theme: null,
+      status: ['loading', 'empty', 'error'].includes(st) ? st : 'ready',
+      orders: st === 'empty' ? [] : seed,
+      filter: 'all', query: '',
+      open: ['detail', 'posting', 'refund'].includes(st) ? (st === 'detail' ? 'TT1026NZ' : 'TT1027NZ') : null,
+      posting: st === 'posting', track: '', trackTried: false, busy: false,
+      refund: st === 'refund', restock: true, toast: null
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.t1); clearTimeout(this.toastT); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const money = (c) => '$' + (c / 100).toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const FREE_SHIPPING = true; // read from shipping settings on the server
+    const gross = (o) => (o.items ? o.items.reduce((a, i) => a + i.each * i.qty, 0) : o.total);
+    const dealOff = (o) => (o.items && o.items.filter((i) => i.deal).reduce((a, i) => a + i.qty, 0) >= 2 ? 500 : 0);
+    const sub = (o) => gross(o) - dealOff(o);
+    const units = (o) => (o.items ? o.items.reduce((a, i) => a + i.qty, 0) : o.count);
+    const labels = { paid: 'To pack', packing: 'Packing', posted: 'Posted', refunded: 'Refunded' };
+    const pills = { paid: 'tt-pill tt-pill--low', packing: 'tt-pill tt-pill--in', posted: 'tt-pill tt-pill--out', refunded: 'tt-pill tt-pill--out' };
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    const setO = (id, patch) => this.setState({ orders: this.state.orders.map((o) => (o.id === id ? { ...o, ...patch } : o)) });
+
+    let list = s.orders;
+    if (s.filter === 'open') list = list.filter((o) => o.status === 'paid' || o.status === 'packing');
+    else if (s.filter !== 'all') list = list.filter((o) => o.status === s.filter);
+    const q = s.query.trim().toLowerCase();
+    if (q) list = list.filter((o) => (o.id + ' ' + o.customer).toLowerCase().includes(q));
+    const count = (fn) => s.orders.filter(fn).length;
+    const chips = [['open', 'Open', count((o) => o.status === 'paid' || o.status === 'packing')], ['paid', 'To pack', count((o) => o.status === 'paid')], ['posted', 'Posted', count((o) => o.status === 'posted')], ['refunded', 'Refunded', count((o) => o.status === 'refunded')], ['all', 'All', s.orders.length]]
+      .map(([id, label, n]) => ({ label, n, pressed: s.filter === id ? 'true' : 'false', pick: () => this.setState({ filter: id }) }));
+
+    const rows = list.map((o) => {
+      const n = units(o);
+      return {
+        id: o.id, date: o.date, customer: o.customer, town: o.test ? 'Test order' : 'Shopify ' + o.ref,
+        itemText: n + (n === 1 ? ' item' : ' items'), total: money(sub(o)),
+        statusLabel: labels[o.status], pillCls: pills[o.status],
+        openLabel: 'Open order ' + o.id,
+        open: () => this.setState({ open: o.id, posting: false, track: '', trackTried: false })
+      };
+    });
+
+    const d = s.orders.find((o) => o.id === s.open);
+    const flow = ['paid', 'packing', 'posted'];
+    const at = d ? flow.indexOf(d.status) : -1;
+    const steps = ['Paid', 'Packing', 'Posted'].map((label, i) => ({ label, cls: i < at || (i === at && at === 2) ? 'is-done' : i === at ? 'is-now' : '', cur: i === at ? 'step' : 'false' }));
+    const trackErr = s.trackTried && !s.track.trim();
+    let nextText = '', nextIcon = '';
+    if (d && d.status === 'paid') { nextText = 'Start packing'; nextIcon = 'ph ph-package'; }
+    if (d && d.status === 'packing') { nextText = s.posting ? 'Save and email tracking' : 'Mark as posted'; nextIcon = s.posting ? 'ph ph-paper-plane-tilt' : 'ph ph-truck'; }
+    const advance = () => {
+      if (s.busy || !d) return;
+      if (d.status === 'packing' && !s.posting) return this.setState({ posting: true });
+      if (d.status === 'packing' && !s.track.trim()) return this.setState({ trackTried: true });
+      this.setState({ busy: true });
+      // Stands in for a server action that checks manage_orders, updates the row and sends the email.
+      this.t1 = setTimeout(() => {
+        const next = d.status === 'paid' ? 'packing' : 'posted';
+        setO(d.id, { status: next });
+        this.setState({ busy: false, posting: false });
+        toast(next === 'packing' ? d.id + ' is in packing.' : d.id + ' is posted. The customer has their tracking link.');
+      }, 800);
+    };
+
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      toPack: count((o) => o.status === 'paid'),
+      isLoading: s.status === 'loading', isError: s.status === 'error',
+      isEmpty: s.status === 'ready' && s.orders.length === 0,
+      isReady: s.status === 'ready' && s.orders.length > 0,
+      retry: () => { this.setState({ status: 'loading' }); setTimeout(() => this.setState({ status: 'ready' }), 900); },
+      query: s.query, onQuery: (e) => this.setState({ query: e.target.value }),
+      chips, rows, hasRows: rows.length > 0, noMatch: rows.length === 0,
+      clearFilters: () => this.setState({ filter: 'all', query: '' }),
+
+      drawerOpen: !!d,
+      closeDrawer: () => this.setState({ open: null, posting: false, refund: false }),
+      dId: d ? d.id : '', dDate: d ? d.date : '', dCustomer: d ? d.customer : '',
+      dAddr: d && d.shopify ? 'Address not in the Shopify export' : 'Helensville 0800, New Zealand',
+      dContact: d && d.shopify ? 'Imported as Shopify ' + d.ref : 'hello@tommytinkers.nz',
+      dPaid: d && d.shopify ? 'Paid through Shopify (store now closed)' : 'Paid by card through Stripe',
+      dLink: 'Open in Stripe', hasLink: !!d && !d.shopify,
+      noItems: !!d && !d.items, dCount: d ? units(d) + (units(d) === 1 ? ' item' : ' items') : '',
+      dRefunded: !!d && d.status === 'refunded', dNotRefunded: !!d && d.status !== 'refunded',
+      steps,
+      // Personalisation is saved on the order line at checkout, so it can't drift if the product changes later.
+      dItems: d && d.items ? d.items.map((i, n) => ({ ...i, each: money(i.each), line: money(i.each * i.qty), grams: 'weight not set',
+        hasPz: !!i.pz, pz: (i.pz || []).map(([k, v]) => ({ k, v })), pzLabel: 'Print details for ' + i.name,
+        hasArt: !!i.art, art: 'Download artwork, ' + (i.art || ''),
+        copyLabel: 'Copy print details for ' + i.name, copyText: s.copied === d.id + n ? 'Copied' : 'Copy',
+        copy: () => { clearTimeout(this.cpT); this.setState({ copied: d.id + n }); this.cpT = setTimeout(() => this.setState({ copied: null }), 1800); } })) : [],
+      dSub: d ? money(gross(d)) + (dealOff(d) ? ' less $5.00 multi-buy' : '') : '', dShip: d && d.shopify ? 'Included in the Shopify total' : FREE_SHIPPING ? 'Free, NZ wide' : 'Flat rate', dTotal: d ? money(sub(d)) : '',
+      dGrams: d && d.items ? 'Packed weight shows here once product weights are set. Weight is admin only.' : 'Weight is admin only.',
+      showPost: !!d && d.status === 'packing' && s.posting,
+      track: s.track, onTrack: (e) => this.setState({ track: e.target.value }),
+      trackErr, trackInv: trackErr ? 'true' : 'false', trackCls: trackErr ? 'tt-input is-error' : 'tt-input',
+      canRefund: !!d && d.status !== 'refunded' && !d.shopify,
+      hasNext: !!d && (d.status === 'paid' || d.status === 'packing'), noNext: !!d && (d.status === 'posted' || d.status === 'refunded'),
+      nextText, nextIcon, advance, busy: s.busy, notBusy: !s.busy, busyStr: s.busy ? 'true' : 'false',
+
+      refundOpen: s.refund && !!d,
+      openRefund: () => this.setState({ refund: true }),
+      closeRefund: () => this.setState({ refund: false }),
+      restock: s.restock, flipRestock: () => this.setState({ restock: !s.restock }),
+      doRefund: () => { setO(d.id, { status: 'refunded' }); this.setState({ refund: false, posting: false }); toast(d.id + ' is refunded' + (s.restock ? ' and the items are back in stock.' : '.')); },
+
+      hasToast: !!s.toast, toastMsg: s.toast || '',
+      closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

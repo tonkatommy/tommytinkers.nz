@@ -8,7 +8,7 @@ This file is the single source of project guidance for every coding agent. `AGEN
 
 The v2 plan, with every decision and its reasoning: https://claude.ai/artifact/XUjDd7kyNkr9fNoFxoF7CQ
 
-The v2 UI design, every page and state in both themes at desktop and mobile sizes: https://claude.ai/artifact/9uCGiFfBAyfo1yeKShipHw. If the design and this file disagree on a fact (a rate, a price, a rule), this file wins and the design gets fixed.
+The v2 UI design, every page and state in both themes at desktop and mobile sizes: https://claude.ai/artifact/9uCGiFfBAyfo1yeKShipHw. If the design and this file disagree on a fact (a rate, a price, a rule), this file wins and the design gets fixed. An export of every board sits in `design/v2-ui/`; its README explains how to read the board files.
 
 ## Repo layout
 
@@ -17,7 +17,8 @@ site/tommytinkers.nz.v2.0/   v2 app (all new work goes here)
 site/tommytinkers.nz/        v1 app, live, reference only
 deploy/                      v2 Docker Compose: compose.yaml, compose.staging.yaml, backup/, secrets/
 design/brand/                logo masters
-design/prototype/            static HTML/JSX prototype (the visual and behavioural spec)
+design/v2-ui/                exported v2 UI design boards (the visual and behavioural spec, see its README)
+design/prototype/            static HTML/JSX prototype (older spec, fills gaps only)
 docs/                        business summary (Feb 2026, business context only)
 ```
 
@@ -25,9 +26,10 @@ docs/                        business summary (Feb 2026, business context only)
 
 1. **The v2 code.** If code and any other source disagree about how something is built, the code wins.
 2. **The v2 plan** (link above) for scope and decisions.
-3. **The design system** (`tommytinkers.nz DS.zip` in the claude.ai project: `README.md`, `design.md`, `colors_and_type.css`). It wins on visuals, copy and interaction. Ignore its `SKILL.md` advice to copy the sister site's zero-build static setup.
-4. **The prototype** in `design/prototype/`. Port its look and behaviour, never its code structure: it relies on `window.*` globals, Babel standalone, inline styles, `data-lucide` icons and localStorage.
-5. **v1** for how things were done before (RBAC keys, lockout logic, FX driver). Don't copy its pages: they are single giant client components.
+3. **The v2 UI design** in `design/v2-ui/`, exported from the canvas linked above. It's built on the design system and wins on layout, states and behaviour for every screen it covers. Port it, don't copy its code; the README says how to read the boards.
+4. **The design system** (`tommytinkers.nz DS.zip` in the claude.ai project: `README.md`, `design.md`, `colors_and_type.css`). If a board breaks one of its rules (tokens, colour roles, type, copy), the design system wins. Its tokens are also in `design/v2-ui/ds/tommy-tinkers-nz/tokens.json`. Ignore its `SKILL.md` advice to copy the sister site's zero-build static setup.
+5. **The prototype** in `design/prototype/`. Port its look and behaviour, never its code structure: it relies on `window.*` globals, Babel standalone, inline styles, `data-lucide` icons and localStorage. Use it only where the v2 design has no board.
+6. **v1** for how things were done before (RBAC keys, lockout logic, FX driver). Don't copy its pages: they are single giant client components.
 
 ## v2 stack (versions pinned 02/11/2026)
 
