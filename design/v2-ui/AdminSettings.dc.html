@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Admin, shipping and motion - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="AdminBar" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-admpage">
+<div class="tt-adm">
+<dc-import name="AdminSide" theme="{{theme}}" active="settings" orders="1" queue="5" hint-size="100%,720px"></dc-import>
+
+<main id="main" class="tt-admmain" style="max-width: 960px;">
+  <header class="tt-admhead">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; admin / settings</span>
+      <h1 class="tt-h2">Shipping and motion</h1>
+      <p class="tt-small">These are site-wide and saved to the database. They apply on the next page load.</p>
+    </div>
+  </header>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+    <div aria-busy="true" style="display: flex; flex-direction: column; gap: 24px;"><div class="tt-skel" style="height: 280px; width: 100%; border-radius: 16px;"></div><div class="tt-skel" style="height: 420px; width: 100%; border-radius: 16px;"></div></div>
+    <p class="sr-only" role="status">Loading settings</p>
+  </sc-if>
+
+  <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+    <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div style="flex: 1;"><p style="font-weight: 600;">That didn't save</p><p class="tt-small">The site is still using the old settings. Your changes are here, so try again.</p></div><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{save}}">Try again</button></div>
+  </sc-if>
+
+  <sc-if value="{{isReady}}" hint-placeholder-val="{{true}}">
+    <!-- SHIPPING -->
+    <section id="shipping" class="tt-card" aria-labelledby="h-ship" style="display: flex; flex-direction: column; gap: 4px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i class="ph ph-truck ph-24" aria-hidden="true" style="color: var(--text-secondary);"></i><h2 id="h-ship" class="tt-h4" style="font-weight: 600;">Shipping</h2></div>
+      <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;" id="l-free">Free shipping anywhere in New Zealand</p><p class="tt-small">No minimum spend. When it's off, every order pays one flat rate.</p></div><button type="button" class="tt-switch" role="switch" aria-checked="{{freeStr}}" aria-labelledby="l-free" onClick="{{flipFree}}"></button></div>
+
+      <sc-if value="{{showRate}}" hint-placeholder-val="{{false}}">
+        <div class="tt-setrow"><div class="tt-field" style="flex: 1 1 260px; max-width: 280px;"><label for="rate">Flat rate per order</label><div class="tt-affix"><span class="pre" aria-hidden="true">$</span><input id="rate" class="{{rateCls}}" inputmode="decimal" value="{{rate}}" onChange="{{onRate}}" aria-invalid="{{rateInv}}" aria-describedby="rate-h"></div>
+          <sc-if value="{{rateErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" id="rate-h"><i class="ph ph-warning-circle" aria-hidden="true"></i>Type a rate above $0, or turn free shipping back on.</p></sc-if>
+          <sc-if value="{{rateOk}}" hint-placeholder-val="{{true}}"><p class="tt-help" id="rate-h">One price, whatever the weight. Charged in NZD.</p></sc-if>
+        </div></div>
+      </sc-if>
+
+      <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;">Where I ship</p><p class="tt-small">New Zealand addresses only. Stripe Checkout only offers NZ, so overseas addresses can't get through.</p></div><span class="tt-tag tt-tag--muted"><i class="ph ph-map-pin ph-16" aria-hidden="true"></i>NZ only</span></div>
+
+      <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;">What customers see</p><p class="tt-small">The cart and checkout line, as it'll read after you save.</p></div>
+        <div style="min-width: 240px; padding: 12px 16px; border-radius: 12px; background: var(--bg-raised); border: 1px solid var(--border-subtle);"><div class="tt-row"><span class="tt-small">Shipping</span><span style="font-weight: 600;">{{shipPreview}}</span></div><p class="tt-help" style="font-size: 13px;">{{shipPreviewNote}}</p></div>
+      </div>
+      <p class="tt-help" style="padding-top: 12px; border-top: 1px solid var(--border-subtle);"><i class="ph ph-eye-slash ph-16" aria-hidden="true" style="vertical-align: -3px; margin-right: 4px;"></i>Product weights stay in the stockroom for packing. They don't change what anyone pays.</p>
+    </section>
+
+    <!-- STOCK -->
+    <section id="stock" class="tt-card" aria-labelledby="h-stock" style="display: flex; flex-direction: column; gap: 4px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i class="ph ph-package ph-24" aria-hidden="true" style="color: var(--text-secondary);"></i><h2 id="h-stock" class="tt-h4" style="font-weight: 600;">Stock alerts</h2></div>
+      <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;"><label for="low">Low stock at</label></p><p class="tt-small">Products at or under this count get the "Low stock" pill in the shop and the stockroom.</p></div><div class="tt-affix" style="width: 140px;"><input id="low" class="tt-input has-post" type="number" min="1" inputmode="numeric" value="{{low}}" onChange="{{onLow}}"><span class="post" aria-hidden="true">units</span></div></div>
+    </section>
+
+    <!-- MOTION -->
+    <section id="motion" class="tt-card" aria-labelledby="h-motion" style="display: flex; flex-direction: column; gap: 4px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i class="ph ph-sparkle ph-24" aria-hidden="true" style="color: var(--text-secondary);"></i><h2 id="h-motion" class="tt-h4" style="font-weight: 600;">Site motion defaults</h2></div>
+      <p class="tt-small" style="margin-bottom: 8px;">What first-time visitors get. Anyone can change their own in account settings, and anyone whose device asks for reduced motion gets none of it.</p>
+      <div class="tt-setrow"><div style="max-width: 360px;"><p style="font-weight: 600;"><label for="fx-card">Card hover</label></p><p class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">data-tt-cardfx</p></div><div class="tt-selectwrap" style="flex: 0 1 260px;"><select id="fx-card" class="tt-input" value="{{cardV}}" onChange="{{cardSet}}"><option value="classic">Classic lift</option><option value="tilt">Tilt to cursor</option><option value="socket">Socket, press in</option><option value="peel">Sticker peel</option><option value="glow">Edge glow and wipe</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+      <div class="tt-setrow"><div style="max-width: 360px;"><p style="font-weight: 600;"><label for="fx-link">Link hover</label></p><p class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">data-tt-linkfx</p></div><div class="tt-selectwrap" style="flex: 0 1 260px;"><select id="fx-link" class="tt-input" value="{{linkV}}" onChange="{{linkSet}}"><option value="underline">Underline wipe</option><option value="caret">Terminal caret</option><option value="bracket">Square brackets</option><option value="swipe">Highlighter swipe</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+      <div class="tt-setrow"><div style="max-width: 360px;"><p style="font-weight: 600;"><label for="fx-scroll">Scroll reveal</label></p><p class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">data-tt-scrollfx</p></div><div class="tt-selectwrap" style="flex: 0 1 260px;"><select id="fx-scroll" class="tt-input" value="{{scrollV}}" onChange="{{scrollSet}}"><option value="none">Off</option><option value="rise">Rise and fade</option><option value="assemble">Assemble</option><option value="blur">Focus in</option><option value="swing">Swing in</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+      <div class="tt-setrow"><div style="max-width: 360px;"><p style="font-weight: 600;"><label for="fx-btn">Button feel</label></p><p class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">data-tt-btnfx</p></div><div class="tt-selectwrap" style="flex: 0 1 260px;"><select id="fx-btn" class="tt-input" value="{{btnV}}" onChange="{{btnSet}}"><option value="glow">Glow</option><option value="sweep">Sweep</option><option value="press">Press</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+      <div class="tt-setrow"><div><p style="font-weight: 600;" id="l-speed">Speed</p><p class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">--ttfx-scale: {{scale}}</p></div><div class="tt-seg" role="group" aria-labelledby="l-speed"><sc-for list="{{speeds}}" as="o" hint-placeholder-count="3"><button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
+
+      <div class="tt-fxprev" style="padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+        <div class="tt-card tt-card--hover" style="background: var(--bg-raised); display: flex; flex-direction: column; gap: 8px;"><span class="tt-label" style="font-size: 12px;">&gt; preview</span><p style="font-weight: 600;">Hover this card</p><p class="tt-small">Shows the card hover with the speed you picked. Visitors see the same.</p><a href="#motion" style="align-self: flex-start;">A text link</a></div>
+        <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center;">
+          <button type="button" class="tt-btn tt-btn--primary" style="align-self: flex-start;"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i>A primary button</button>
+          <p class="tt-help">The preview runs the real effects, so it goes still when your own device is set to reduce motion.</p>
+        </div>
+      </div>
+    </section>
+
+    <sc-if value="{{dirty}}" hint-placeholder-val="{{false}}">
+      <div class="tt-savebar" role="region" aria-label="Unsaved changes">
+        <span style="font-weight: 600;">{{dirtyText}}</span>
+        <div style="display: flex; gap: 8px;"><button type="button" class="tt-btn tt-btn--ghost" onClick="{{discard}}">Discard</button><button type="button" class="tt-btn tt-btn--primary" aria-disabled="{{savingStr}}" onClick="{{save}}"><sc-if value="{{saving}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</sc-if><sc-if value="{{notSaving}}" hint-placeholder-val="{{true}}"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Save settings</sc-if></button></div>
+      </div>
+    </sc-if>
+  </sc-if>
+</main>
+</div>
+</div>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Saved</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","flatRate","invalid","saving","saved","error","loading"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const st = props.state || 'ready';
+    this.saved = { free: true, rate: '', low: '3', card: 'socket', link: 'caret', scroll: 'swing', btn: 'sweep', speed: 'normal' };
+    this.state = {
+      theme: null, ...this.saved,
+      status: st === 'loading' ? 'loading' : 'ready',
+      error: st === 'error', saving: st === 'saving', tried: st === 'invalid',
+      toast: st === 'saved' ? 'Shipping and motion are saved. New page loads use them.' : null
+    };
+    if (st === 'flatRate' || st === 'saving' || st === 'error') Object.assign(this.state, { free: false, rate: '8.50' });
+    if (st === 'invalid') Object.assign(this.state, { free: false, rate: '' });
+  }
+  componentWillUnmount() { clearTimeout(this.t1); clearTimeout(this.toastT); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const keys = Object.keys(this.saved);
+    const changed = keys.filter((k) => String(s[k]) !== String(this.saved[k]));
+    const rateC = Math.round((parseFloat(s.rate) || 0) * 100);
+    const rateBad = !s.free && rateC <= 0;
+    const rateErr = s.tried && rateBad;
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    const scales = { slow: '1.5', normal: '1', fast: '0.62' };
+    const save = () => {
+      if (s.saving) return;
+      if (rateBad) return this.setState({ tried: true });
+      this.setState({ saving: true, error: false, tried: false });
+      // Stands in for a server action that checks manage_content, then revalidates the layout.
+      this.t1 = setTimeout(() => { keys.forEach((k) => { this.saved[k] = this.state[k]; }); this.setState({ saving: false }); toast('Shipping and motion are saved. New page loads use them.'); }, 900);
+    };
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      isLoading: s.status === 'loading', isReady: s.status === 'ready', isError: s.error,
+      freeStr: s.free ? 'true' : 'false',
+      flipFree: () => this.setState({ free: !s.free, tried: false }),
+      showRate: !s.free,
+      rate: s.rate, onRate: (e) => this.setState({ rate: e.target.value }),
+      rateErr, rateOk: !rateErr, rateInv: rateErr ? 'true' : 'false', rateCls: rateErr ? 'tt-input has-pre is-error' : 'tt-input has-pre',
+      shipPreview: s.free ? 'Free' : rateC > 0 ? '$' + (rateC / 100).toFixed(2) : '$0.00',
+      shipPreviewNote: s.free ? 'Free shipping anywhere in NZ.' : 'Flat rate, anywhere in NZ.',
+      low: s.low, onLow: (e) => this.setState({ low: e.target.value }),
+      cardV: s.card, cardSet: (e) => this.setState({ card: e.target.value }),
+      linkV: s.link, linkSet: (e) => this.setState({ link: e.target.value }),
+      scrollV: s.scroll, scrollSet: (e) => this.setState({ scroll: e.target.value }),
+      btnV: s.btn, btnSet: (e) => this.setState({ btn: e.target.value }),
+      speeds: [['slow', 'Slow'], ['normal', 'Normal'], ['fast', 'Fast']].map(([k, label]) => ({ label, pressed: s.speed === k ? 'true' : 'false', pick: () => this.setState({ speed: k }) })),
+      scale: scales[s.speed],
+      dirty: changed.length > 0 || s.saving || s.error,
+      dirtyText: changed.length === 1 ? '1 unsaved change' : changed.length + ' unsaved changes',
+      discard: () => this.setState({ ...this.saved, tried: false, error: false }),
+      saving: s.saving, notSaving: !s.saving, savingStr: s.saving ? 'true' : 'false',
+      save,
+      hasToast: !!s.toast, toastMsg: s.toast || '',
+      closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

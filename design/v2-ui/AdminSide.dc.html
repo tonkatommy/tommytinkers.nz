@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>AdminSide - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="tt" data-theme="{{theme}}" style="background: var(--bg-base); font-family: var(--font-body); color: var(--text-primary); height: 100%;">
+<nav class="tt-admside" aria-label="Admin sections">
+  <span class="tt-label tt-admside-h" style="font-size: 12px;">&gt; admin</span>
+  <ul>
+    <sc-for list="{{items}}" as="it" hint-placeholder-count="6">
+      <li><a href="{{it.href}}" class="tt-catbtn" aria-current="{{it.current}}" style="text-decoration: none;"><span><i class="{{it.icon}}" aria-hidden="true"></i>{{it.label}}</span><sc-if value="{{it.hasN}}" hint-placeholder-val="{{false}}"><span class="n" aria-label="{{it.nLabel}}">{{it.n}}</span></sc-if></a></li>
+    </sc-for>
+  </ul>
+  <p class="tt-help tt-only-desk" style="margin-top: auto; padding: 16px; font-size: 13px;">You only see the sections your role allows. Changes to roles apply on your next click.</p>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"active":{"editor":"enum","options":["stock","orders","discounts","users","moderation","settings"],"default":"stock"},"orders":{"editor":"int","default":1},"queue":{"editor":"int","default":5},"$preview":{"width":248,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const active = p.active || 'stock';
+    const orders = p.orders == null ? 1 : p.orders;
+    const queue = p.queue == null ? 5 : p.queue;
+    // Each item maps to one permission string, so the server can hide a whole section.
+    const defs = [
+      ['stock', 'Stockroom', 'ph ph-package ph-20', 'Admin.dc.html', 0, ''],
+      ['orders', 'Orders', 'ph ph-receipt ph-20', 'AdminOrders.dc.html', orders, ' to pack'],
+      ['discounts', 'Discounts', 'ph ph-tag ph-20', 'AdminDiscounts.dc.html', 0, ''],
+      ['users', 'Users and roles', 'ph ph-users ph-20', 'AdminUsers.dc.html', 0, ''],
+      ['moderation', 'Moderation', 'ph ph-shield-check ph-20', 'AdminModeration.dc.html', queue, ' waiting'],
+      ['settings', 'Shipping and motion', 'ph ph-sliders-horizontal ph-20', 'AdminSettings.dc.html', 0, '']
+    ];
+    return {
+      theme: p.theme || 'dark',
+      items: defs.map(([id, label, icon, href, n, suffix]) => ({
+        label, icon, href, n, hasN: n > 0, nLabel: n + suffix,
+        current: id === active ? 'page' : 'false'
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

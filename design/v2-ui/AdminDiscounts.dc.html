@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Admin, discounts - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="AdminBar" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-admpage">
+<div class="tt-adm">
+<dc-import name="AdminSide" theme="{{theme}}" active="discounts" orders="1" queue="5" hint-size="100%,720px"></dc-import>
+
+<main id="main" class="tt-admmain">
+  <header class="tt-admhead">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; admin / discounts</span>
+      <h1 class="tt-h2">Discounts</h1>
+      <p class="tt-admnote">the multi-buy is real. The others are examples, saved as drafts, so you can see each kind.</p>
+    </div>
+    <button type="button" class="tt-btn tt-btn--primary" onClick="{{openNew}}"><i class="ph ph-plus" aria-hidden="true"></i>New discount</button>
+  </header>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+    <div class="tt-tablewrap" aria-busy="true" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;"><div class="tt-skel" style="height: 20px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div></div>
+    <p class="sr-only" role="status">Loading discounts</p>
+  </sc-if>
+
+  <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+    <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div style="flex: 1;"><p style="font-weight: 600;">Discounts didn't load</p><p class="tt-small">Checkout keeps applying the ones that are live, so customers aren't affected.</p></div><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{retry}}">Try again</button></div>
+  </sc-if>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div class="tt-card tt-ph-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px;">
+      <span class="tt-icon-hero"><i class="ph ph-tag ph-24" aria-hidden="true"></i></span>
+      <h2 class="tt-h3">No discounts yet</h2>
+      <p class="tt-small" style="max-width: 460px;">Make a multi-buy, take money off a product or the whole shop, schedule a sale, or make a code to hand out.</p>
+      <button type="button" class="tt-btn tt-btn--primary" onClick="{{openNew}}"><i class="ph ph-plus" aria-hidden="true"></i>Make your first discount</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isReady}}" hint-placeholder-val="{{true}}">
+    <section class="tt-kinds" aria-label="Kinds of discount">
+      <sc-for list="{{kinds}}" as="k" hint-placeholder-count="5">
+        <button type="button" class="tt-kind" onClick="{{k.start}}"><span class="tt-choice-ic"><i class="{{k.icon}}" aria-hidden="true"></i></span><span style="display: flex; flex-direction: column; gap: 2px; text-align: left;"><span style="font-weight: 600;">{{k.label}}</span><span class="tt-small">{{k.help}}</span></span></button>
+      </sc-for>
+    </section>
+
+    <div class="tt-chips" role="group" aria-label="Filter by status">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="5"><button type="button" class="tt-chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}">{{c.label}}<span class="n">{{c.n}}</span></button></sc-for>
+    </div>
+
+    <sc-if value="{{noMatch}}" hint-placeholder-val="{{false}}"><p class="tt-small" style="padding: 32px 0; text-align: center;">Nothing in this filter.</p></sc-if>
+
+    <sc-if value="{{hasRows}}" hint-placeholder-val="{{true}}">
+      <div class="tt-tablewrap">
+        <div class="tt-table" role="table" aria-label="Discounts" style="--cols: minmax(220px, 1.6fr) 120px 110px minmax(160px, 1.2fr) minmax(150px, 1fr) 90px 110px 96px;">
+          <div class="tt-thead" role="rowgroup"><div class="tt-tr" role="row"><div role="columnheader" class="tt-th">Discount</div><div role="columnheader" class="tt-th">Kind</div><div role="columnheader" class="tt-th">Takes off</div><div role="columnheader" class="tt-th">Applies to</div><div role="columnheader" class="tt-th">When</div><div role="columnheader" class="tt-th num">Used</div><div role="columnheader" class="tt-th">Status</div><div role="columnheader" class="tt-th act"><span class="sr-only">Actions</span></div></div></div>
+          <div class="tt-tbody" role="rowgroup">
+            <sc-for list="{{rows}}" as="d" hint-placeholder-count="5">
+              <div class="tt-tr" role="row">
+                <div role="cell" class="tt-td"><p style="font-weight: 600;">{{d.name}}</p><p class="mono">{{d.sub}}</p></div>
+                <div role="cell" class="tt-td"><span class="tt-tag tt-tag--muted">{{d.kindLabel}}</span></div>
+                <div role="cell" class="tt-td" style="font-weight: 600;">{{d.value}}</div>
+                <div role="cell" class="tt-td" style="color: var(--text-secondary);">{{d.scope}}</div>
+                <div role="cell" class="tt-td mono">{{d.when}}</div>
+                <div role="cell" class="tt-td num">{{d.used}}</div>
+                <div role="cell" class="tt-td"><span class="{{d.pillCls}}">{{d.statusLabel}}</span></div>
+                <div role="cell" class="tt-td act">
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{d.editLabel}}" onClick="{{d.edit}}"><i class="ph ph-pencil-simple" aria-hidden="true"></i></button>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{d.pauseLabel}}" title="{{d.pauseLabel}}" onClick="{{d.pause}}"><i class="{{d.pauseIcon}}" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+    <p class="tt-help">How they stack: automatic discounts and one code can apply to the same order. If two automatic ones hit the same item, the bigger one wins unless both are set to combine. The server works out every discount again at checkout, in cents, so the cart total can't be tampered with.</p>
+  </sc-if>
+</main>
+</div>
+</div>
+
+<!-- EDIT DRAWER -->
+<sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-scrim" onClick="{{closeDrawer}}" aria-hidden="true"></div>
+  <aside class="tt-drawer tt-drawer--wide" role="dialog" aria-modal="true" aria-labelledby="dd-h">
+    <div class="tt-drawer-head">
+      <div><span class="tt-label" style="font-size: 12px;">{{drawerEyebrow}}</span><h2 id="dd-h" class="tt-h4" style="font-weight: 600;">{{drawerTitle}}</h2></div>
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close" onClick="{{closeDrawer}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button>
+    </div>
+    <div class="tt-drawer-body">
+      <div class="tt-form">
+        <sc-if value="{{formErr}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">A few things to fix</p><p class="tt-small">{{formErrText}}</p></div></div></sc-if>
+
+        <div class="tt-field"><label for="d-name">Name</label><input id="d-name" class="{{nameCls}}" value="{{fName}}" onChange="{{onName}}" aria-invalid="{{nameInv}}" aria-describedby="d-name-h" placeholder="e.g. Christmas sticker sale"><p id="d-name-h" class="tt-help">Customers see this on the cart line, so keep it plain.</p></div>
+
+        <!-- how it's triggered -->
+        <div class="tt-field"><span class="tt-field-label" id="d-how">How it applies</span>
+          <div class="tt-seg" role="group" aria-labelledby="d-how"><button type="button" aria-pressed="{{howAuto}}" onClick="{{setAuto}}"><i class="ph ph-lightning ph-16" aria-hidden="true"></i>Automatically</button><button type="button" aria-pressed="{{howCode}}" onClick="{{setCode}}"><i class="ph ph-key ph-16" aria-hidden="true"></i>With a code</button></div>
+        </div>
+        <sc-if value="{{isCode}}" hint-placeholder-val="{{false}}">
+          <div class="tt-card" style="background: var(--bg-raised); padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+            <div class="tt-field"><label for="d-code">Code</label><div style="display: flex; gap: 8px;"><input id="d-code" class="{{codeCls}}" style="font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em;" value="{{fCode}}" onChange="{{onCode}}" aria-invalid="{{codeInv}}" aria-describedby="d-code-h" placeholder="e.g. CLUB10"><button type="button" class="tt-btn tt-btn--secondary" onClick="{{genCode}}"><i class="ph ph-arrows-clockwise" aria-hidden="true"></i>Make one</button></div><p id="d-code-h" class="tt-help">Letters and numbers only. Customers type it on the checkout page, and case doesn't matter.</p></div>
+            <div class="tt-field"><span class="tt-field-label" id="d-lim">Limits</span>
+              <div class="tt-seg" role="group" aria-labelledby="d-lim"><sc-for list="{{limitOpts}}" as="o" hint-placeholder-count="3"><button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div>
+            </div>
+            <sc-if value="{{limitCapped}}" hint-placeholder-val="{{false}}"><div class="tt-field" style="max-width: 200px;"><label for="d-cap">Total uses allowed</label><input id="d-cap" class="tt-input" type="number" min="1" inputmode="numeric" value="{{fCap}}" onChange="{{onCap}}"></div></sc-if>
+            <label class="tt-check" style="font-size: 14px;"><input type="checkbox" checked="{{fOnePer}}" onChange="{{flipOnePer}}">One use per customer email</label>
+          </div>
+        </sc-if>
+
+        <!-- what it takes off -->
+        <div class="tt-field"><span class="tt-field-label" id="d-off">What it takes off</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start;">
+            <div class="tt-seg" role="group" aria-labelledby="d-off"><button type="button" aria-pressed="{{offPct}}" onClick="{{setPct}}">Percent</button><button type="button" aria-pressed="{{offFixed}}" onClick="{{setFixed}}">Dollar amount</button></div>
+            <div class="tt-affix" style="width: 140px;"><sc-if value="{{isFixed}}" hint-placeholder-val="{{true}}"><span class="pre" aria-hidden="true">$</span></sc-if><label for="d-val" class="sr-only">Amount</label><input id="d-val" class="{{valCls}}" inputmode="decimal" value="{{fVal}}" onChange="{{onVal}}" aria-invalid="{{valInv}}"><sc-if value="{{isPct}}" hint-placeholder-val="{{false}}"><span class="post" aria-hidden="true">%</span></sc-if></div>
+          </div>
+          <sc-if value="{{isFixed}}" hint-placeholder-val="{{true}}"><label class="tt-check" style="font-size: 14px;"><input type="checkbox" checked="{{fPerItem}}" onChange="{{flipPerItem}}">Take it off each qualifying item, not once per order</label></sc-if>
+        </div>
+
+        <!-- what it applies to -->
+        <fieldset class="tt-edset" style="padding-top: 0; border-top: 0;">
+          <legend class="tt-field-label" style="font-size: 14px; font-weight: 500; margin-bottom: 8px;">What it applies to</legend>
+          <sc-for list="{{scopeOpts}}" as="o" hint-placeholder-count="3"><label class="tt-check" style="font-size: 15px;"><input type="radio" name="d-scope" checked="{{o.on}}" onChange="{{o.pick}}">{{o.label}}</label></sc-for>
+          <sc-if value="{{scopeCat}}" hint-placeholder-val="{{false}}"><div class="tt-selectwrap" style="max-width: 280px; margin-left: 32px;"><label for="d-cat" class="sr-only">Category</label><select id="d-cat" class="tt-input" value="{{fCat}}" onChange="{{onCat}}"><option value="stickers">Stickers and decals</option><option value="rc-parts">RC car parts</option><option value="toys">Kids' toys</option><option value="household">Household</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></sc-if>
+          <sc-if value="{{scopeProducts}}" hint-placeholder-val="{{true}}"><div class="tt-pickgrid" role="group" aria-label="Products this applies to"><sc-for list="{{prodOpts}}" as="o" hint-placeholder-count="4"><label class="tt-check" style="font-size: 14px; min-height: 36px;"><input type="checkbox" checked="{{o.on}}" onChange="{{o.flip}}">{{o.label}}</label></sc-for></div></sc-if>
+        </fieldset>
+
+        <!-- conditions -->
+        <div class="tt-pair">
+          <div class="tt-field"><label for="d-minq">Minimum items</label><input id="d-minq" class="tt-input" type="number" min="1" inputmode="numeric" value="{{fMinQty}}" onChange="{{onMinQty}}" aria-describedby="d-minq-h"><p id="d-minq-h" class="tt-help">Of the qualifying products. 2 makes a multi-buy.</p></div>
+          <div class="tt-field"><label for="d-mins">Minimum spend</label><div class="tt-affix"><span class="pre" aria-hidden="true">$</span><input id="d-mins" class="tt-input has-pre" inputmode="decimal" value="{{fMinSpend}}" onChange="{{onMinSpend}}" placeholder="None"></div></div>
+        </div>
+
+        <!-- schedule -->
+        <fieldset class="tt-edset">
+          <legend class="tt-edhead"><span style="font-weight: 600;">When it runs</span><span class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">NZ time</span></legend>
+          <div class="tt-seg" role="group" aria-label="When it runs"><button type="button" aria-pressed="{{whenAlways}}" onClick="{{setAlways}}">As soon as it's live</button><button type="button" aria-pressed="{{whenSched}}" onClick="{{setSched}}"><i class="ph ph-calendar-blank ph-16" aria-hidden="true"></i>On a schedule</button></div>
+          <sc-if value="{{isSched}}" hint-placeholder-val="{{false}}">
+            <div class="tt-pair">
+              <div class="tt-field"><label for="d-start">Starts</label><input id="d-start" class="tt-input" value="{{fStart}}" onChange="{{onStart}}" placeholder="DD/MM/YYYY 00:00"></div>
+              <div class="tt-field"><label for="d-end">Ends</label><input id="d-end" class="{{endCls}}" value="{{fEnd}}" onChange="{{onEnd}}" placeholder="No end date" aria-invalid="{{endInv}}"></div>
+            </div>
+            <sc-if value="{{endErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>The end has to be after the start.</p></sc-if>
+          </sc-if>
+        </fieldset>
+
+        <div class="tt-setrow" style="border-top: 1px solid var(--border-subtle); padding-top: 16px;"><div style="max-width: 340px;"><p style="font-weight: 600;" id="d-stack">Combine with other discounts</p><p class="tt-small">Off means the bigger discount wins when two land on the same item.</p></div><button type="button" class="tt-switch" role="switch" aria-checked="{{fStack}}" aria-labelledby="d-stack" onClick="{{flipStack}}"></button></div>
+
+        <div class="tt-banner tt-banner--info"><i class="ph ph-receipt ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">What customers see</p><p class="tt-small"><span class="tt-mono">{{previewLine}}</span></p><p class="tt-help" style="font-size: 13px;">{{previewHelp}}</p></div></div>
+      </div>
+    </div>
+    <div class="tt-drawer-foot" style="flex-direction: row; flex-wrap: wrap;">
+      <button type="button" class="tt-btn tt-btn--ghost" onClick="{{saveDraft}}">Save as draft</button>
+      <button type="button" class="tt-btn tt-btn--primary" style="flex: 1;" aria-disabled="{{savingStr}}" onClick="{{saveLive}}"><sc-if value="{{saving}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</sc-if><sc-if value="{{notSaving}}" hint-placeholder-val="{{true}}"><i class="ph ph-check" aria-hidden="true"></i>{{liveText}}</sc-if></button>
+    </div>
+  </aside>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Saved</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","editMultibuy","newCode","invalid","saving","empty","loading","error"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const st = props.state || 'ready';
+    // One real rule (the multi-buy from the old store) plus drafts that show each kind. Money in cents.
+    this.seed = [
+      { id: 'd1', name: '2+ name sticker sheets', how: 'auto', off: 'fixed', val: 500, perItem: false, scope: 'products', products: ['rcws'], minQty: 2, minSpend: 0, sched: false, start: '', end: '', stack: false, status: 'live', used: 0 },
+      { id: 'd2', name: 'Example: sticker sale', how: 'auto', off: 'pct', val: 10, scope: 'category', cat: 'stickers', minQty: 1, minSpend: 0, sched: true, start: '01/12/2026 00:00', end: '24/12/2026 23:59', stack: false, status: 'draft', used: 0 },
+      { id: 'd3', name: 'Example: store-wide weekend', how: 'auto', off: 'pct', val: 15, scope: 'all', minQty: 1, minSpend: 0, sched: true, start: '28/11/2026 00:00', end: '30/11/2026 23:59', stack: false, status: 'draft', used: 0 },
+      { id: 'd4', name: 'Example: club code', how: 'code', code: 'CLUB10', limit: 'capped', cap: 50, onePer: true, off: 'pct', val: 10, scope: 'all', minQty: 1, minSpend: 2000, sched: false, start: '', end: '', stack: true, status: 'draft', used: 0 },
+      { id: 'd5', name: 'Example: one-off thank you', how: 'code', code: 'THANKS5', limit: 'single', cap: 1, onePer: true, off: 'fixed', val: 500, perItem: false, scope: 'all', minQty: 1, minSpend: 0, sched: false, start: '', end: '', stack: true, status: 'draft', used: 0 }
+    ];
+    this.state = {
+      theme: null,
+      status: ['loading', 'error'].includes(st) ? st : 'ready',
+      items: st === 'empty' ? [] : this.seed.map((d) => ({ ...d })),
+      filter: 'all',
+      form: null, tried: st === 'invalid', saving: st === 'saving', toast: null
+    };
+    if (st === 'editMultibuy' || st === 'saving') this.state.form = this.toForm(this.seed[0]);
+    if (st === 'newCode') this.state.form = { ...this.blank(), how: 'code', limit: 'single' };
+    if (st === 'invalid') this.state.form = { ...this.blank(), how: 'code', off: 'pct', val: '120', sched: true, start: '10/12/2026 00:00', end: '01/12/2026 00:00' };
+  }
+  componentWillUnmount() { clearTimeout(this.t1); clearTimeout(this.toastT); }
+  blank() { return { id: null, name: '', how: 'auto', code: '', limit: 'none', cap: '50', onePer: true, off: 'pct', val: '', perItem: false, scope: 'all', cat: 'stickers', products: [], minQty: '1', minSpend: '', sched: false, start: '', end: '', stack: false }; }
+  toForm(d) { return { ...this.blank(), ...d, val: d.off === 'fixed' ? (d.val / 100).toFixed(2) : String(d.val), cap: String(d.cap || 50), minQty: String(d.minQty || 1), minSpend: d.minSpend ? (d.minSpend / 100).toFixed(2) : '', products: [...(d.products || [])] }; }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const money = (c) => '$' + (c / 100).toFixed(2);
+    const prods = [['rcws', 'RC name window stickers'], ['ss-a4', 'Custom sticker sheet A4'], ['wcgs', 'Waikato Champs grid stickers'], ['amgs', 'Astro Masters grid stickers']];
+    const cats = { stickers: 'Stickers and decals', 'rc-parts': 'RC car parts', toys: "Kids' toys", household: 'Household' };
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    // Status comes from the dates, so a scheduled discount turns itself on and off with no cron job.
+    // DD/MM/YYYY HH:MM sorts properly once flipped to YYYY/MM/DD HH:MM.
+    const key = (t) => (t && t.length >= 10 ? t.slice(6, 10) + t.slice(3, 5) + t.slice(0, 2) + t.slice(10) : '');
+    const NOW = key('07/11/2026 12:00');
+    const statusOf = (d) => (d.status === 'draft' || d.status === 'paused' ? d.status : d.sched && d.start && key(d.start) > NOW ? 'scheduled' : d.sched && d.end && key(d.end) < NOW ? 'ended' : 'live');
+    const kindOf = (d) => (d.how === 'code' ? (d.limit === 'single' ? 'One-time code' : 'Code') : d.minQty > 1 ? 'Multi-buy' : d.scope === 'all' ? 'Store-wide' : 'Product');
+    const valueOf = (d) => (d.off === 'pct' ? d.val + '% off' : money(d.val) + ' off' + (d.perItem ? ' each' : ''));
+    const scopeOf = (d) => (d.scope === 'all' ? 'Everything' : d.scope === 'category' ? cats[d.cat] : d.products.map((id) => prods.find((p) => p[0] === id)[1]).join(', ')) + (d.minQty > 1 ? ', ' + d.minQty + '+ items' : '') + (d.minSpend ? ', over ' + money(d.minSpend) : '');
+    const pills = { live: ['tt-pill tt-pill--in', 'Live'], scheduled: ['tt-pill tt-pill--low', 'Scheduled'], paused: ['tt-pill tt-pill--out', 'Paused'], draft: ['tt-pill tt-pill--out', 'Draft'], ended: ['tt-pill tt-pill--out', 'Ended'] };
+    let list = s.items.map((d) => ({ ...d, st: statusOf(d) }));
+    const counts = (k) => list.filter((d) => d.st === k).length;
+    const chips = [['all', 'All', list.length], ['live', 'Live', counts('live')], ['scheduled', 'Scheduled', counts('scheduled')], ['draft', 'Drafts', counts('draft')], ['paused', 'Paused', counts('paused')]]
+      .map(([id, label, n]) => ({ label, n, pressed: s.filter === id ? 'true' : 'false', pick: () => this.setState({ filter: id }) }));
+    if (s.filter !== 'all') list = list.filter((d) => d.st === s.filter);
+    const setItem = (id, patch) => this.setState({ items: this.state.items.map((d) => (d.id === id ? { ...d, ...patch } : d)) });
+    const rows = list.map((d) => ({
+      name: d.name, sub: d.how === 'code' ? d.code + (d.limit === 'single' ? ' · single use' : d.limit === 'capped' ? ' · ' + d.cap + ' uses' : '') : 'automatic',
+      kindLabel: kindOf(d), value: valueOf(d), scope: scopeOf(d),
+      when: d.sched ? d.start.slice(0, 10) + ' to ' + (d.end ? d.end.slice(0, 10) : 'no end') : 'always on',
+      used: d.how === 'code' && d.limit !== 'none' ? d.used + ' / ' + d.cap : String(d.used),
+      pillCls: pills[d.st][0], statusLabel: pills[d.st][1],
+      editLabel: 'Edit ' + d.name, edit: () => this.setState({ form: this.toForm(d), tried: false }),
+      pauseLabel: d.st === 'paused' || d.st === 'draft' ? 'Make ' + d.name + ' live' : 'Pause ' + d.name,
+      pauseIcon: d.st === 'paused' || d.st === 'draft' ? 'ph ph-lightning' : 'ph ph-prohibit',
+      pause: () => { const on = d.st === 'paused' || d.st === 'draft'; setItem(d.id, { status: on ? 'live' : 'paused' }); toast(d.name + (on ? ' is live.' : ' is paused. Carts stop getting it straight away.')); }
+    }));
+
+    // drawer
+    const f = s.form || this.blank();
+    const setF = (k) => (e) => this.setState({ form: { ...this.state.form, [k]: e.target.value } });
+    const patch = (p) => this.setState({ form: { ...this.state.form, ...p } });
+    const valNum = parseFloat(f.val) || 0;
+    const valC = f.off === 'fixed' ? Math.round(valNum * 100) : valNum;
+    const nameBad = !f.name.trim();
+    const valBad = valNum <= 0 || (f.off === 'pct' && valNum > 100);
+    const codeBad = f.how === 'code' && !/^[A-Za-z0-9]{3,20}$/.test(f.code.trim());
+    const scopeBad = f.scope === 'products' && f.products.length === 0;
+    const endBad = f.sched && f.end && f.start && key(f.end) <= key(f.start);
+    const problems = [];
+    if (s.tried) {
+      if (nameBad) problems.push('a name');
+      if (valBad) problems.push(f.off === 'pct' ? 'a percent between 1 and 100' : 'an amount above $0');
+      if (codeBad) problems.push('a code of 3 to 20 letters or numbers');
+      if (scopeBad) problems.push('at least one product');
+      if (endBad) problems.push('an end after the start');
+    }
+    const save = (status) => () => {
+      if (s.saving) return;
+      if (status === 'live' && (nameBad || valBad || codeBad || scopeBad || endBad)) return this.setState({ tried: true });
+      if (status === 'draft' && nameBad) return this.setState({ tried: true });
+      this.setState({ saving: true, tried: false });
+      // Stands in for a zod-validated server action that checks manage_discounts.
+      this.t1 = setTimeout(() => {
+        const form = this.state.form;
+        const rec = { ...form, name: form.name.trim(), code: form.code.trim().toUpperCase(), val: valC, cap: Math.max(1, +form.cap || 1), minQty: Math.max(1, +form.minQty || 1), minSpend: Math.round((parseFloat(form.minSpend) || 0) * 100), status, used: form.used || 0 };
+        const items = form.id ? this.state.items.map((d) => (d.id === form.id ? rec : d)) : [...this.state.items, { ...rec, id: 'd' + (this.state.items.length + 10) }];
+        this.setState({ items, form: null, saving: false, status: 'ready' });
+        toast(rec.name + (status === 'live' ? ' is saved and live.' : ' is saved as a draft.'));
+      }, 800);
+    };
+    const kinds = [
+      ['ph ph-stack ph-20', 'Multi-buy', 'Money off when they buy 2 or more', { scope: 'products', minQty: '2', off: 'fixed' }],
+      ['ph ph-tag ph-20', 'Product or category', 'A sale on chosen things', { scope: 'category', off: 'pct' }],
+      ['ph ph-storefront ph-20', 'Store-wide', 'Everything in the shop', { scope: 'all', off: 'pct' }],
+      ['ph ph-calendar-blank ph-20', 'Scheduled sale', 'Starts and stops by itself', { scope: 'all', off: 'pct', sched: true }],
+      ['ph ph-key ph-20', 'Code', 'One-time or limited use', { how: 'code', limit: 'single', off: 'fixed' }]
+    ];
+    const previewAmt = f.off === 'pct' ? (valNum || 0) + '%' : money(valC || 0);
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      isLoading: s.status === 'loading', isError: s.status === 'error',
+      isEmpty: s.status === 'ready' && s.items.length === 0, isReady: s.status === 'ready' && s.items.length > 0,
+      retry: () => { this.setState({ status: 'loading' }); setTimeout(() => this.setState({ status: 'ready' }), 900); },
+      kinds: kinds.map(([icon, label, help, pre]) => ({ icon, label, help, start: () => this.setState({ form: { ...this.blank(), ...pre }, tried: false }) })),
+      chips, rows, hasRows: rows.length > 0, noMatch: rows.length === 0,
+      openNew: () => this.setState({ form: this.blank(), tried: false }),
+
+      drawerOpen: !!s.form,
+      closeDrawer: () => this.setState({ form: null, tried: false, saving: false }),
+      drawerEyebrow: f.id ? '> edit discount' : '> new discount',
+      drawerTitle: f.id ? f.name : 'New discount',
+      formErr: problems.length > 0, formErrText: 'This needs ' + problems.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.',
+      fName: f.name, onName: setF('name'), nameInv: s.tried && nameBad ? 'true' : 'false', nameCls: s.tried && nameBad ? 'tt-input is-error' : 'tt-input',
+      howAuto: f.how === 'auto' ? 'true' : 'false', howCode: f.how === 'code' ? 'true' : 'false',
+      setAuto: () => patch({ how: 'auto' }), setCode: () => patch({ how: 'code' }), isCode: f.how === 'code',
+      fCode: f.code, onCode: (e) => patch({ code: e.target.value.toUpperCase() }),
+      codeInv: s.tried && codeBad ? 'true' : 'false', codeCls: s.tried && codeBad ? 'tt-input is-error' : 'tt-input',
+      genCode: () => patch({ code: 'TT' + Math.random().toString(36).slice(2, 8).toUpperCase() }),
+      limitOpts: [['none', 'No limit'], ['capped', 'Limited uses'], ['single', 'One use only']].map(([k, label]) => ({ label, pressed: f.limit === k ? 'true' : 'false', pick: () => patch({ limit: k }) })),
+      limitCapped: f.limit === 'capped', fCap: f.cap, onCap: setF('cap'),
+      fOnePer: !!f.onePer, flipOnePer: () => patch({ onePer: !f.onePer }),
+      offPct: f.off === 'pct' ? 'true' : 'false', offFixed: f.off === 'fixed' ? 'true' : 'false',
+      setPct: () => patch({ off: 'pct' }), setFixed: () => patch({ off: 'fixed' }), isPct: f.off === 'pct', isFixed: f.off === 'fixed',
+      fVal: f.val, onVal: setF('val'), valInv: s.tried && valBad ? 'true' : 'false',
+      valCls: (f.off === 'fixed' ? 'tt-input has-pre' : 'tt-input has-post') + (s.tried && valBad ? ' is-error' : ''),
+      fPerItem: !!f.perItem, flipPerItem: () => patch({ perItem: !f.perItem }),
+      scopeOpts: [['all', 'The whole order'], ['category', 'A category'], ['products', 'Chosen products']].map(([k, label]) => ({ label, on: f.scope === k, pick: () => patch({ scope: k }) })),
+      scopeCat: f.scope === 'category', fCat: f.cat, onCat: setF('cat'),
+      scopeProducts: f.scope === 'products',
+      prodOpts: prods.map(([id, label]) => ({ label, on: f.products.includes(id), flip: () => patch({ products: f.products.includes(id) ? f.products.filter((x) => x !== id) : [...f.products, id] }) })),
+      fMinQty: f.minQty, onMinQty: setF('minQty'), fMinSpend: f.minSpend, onMinSpend: setF('minSpend'),
+      whenAlways: f.sched ? 'false' : 'true', whenSched: f.sched ? 'true' : 'false',
+      setAlways: () => patch({ sched: false }), setSched: () => patch({ sched: true }), isSched: !!f.sched,
+      fStart: f.start, onStart: setF('start'), fEnd: f.end, onEnd: setF('end'),
+      endErr: !!endBad, endInv: endBad ? 'true' : 'false', endCls: endBad ? 'tt-input is-error' : 'tt-input',
+      fStack: f.stack ? 'true' : 'false', flipStack: () => patch({ stack: !f.stack }),
+      previewLine: (f.name.trim() || 'Discount name') + '   -' + previewAmt,
+      previewHelp: f.how === 'code' ? 'Shows once they type ' + (f.code.trim() || 'the code') + ' at checkout.' : (+f.minQty > 1 ? 'Shows in the cart as soon as they have ' + f.minQty + ' qualifying items.' : 'Shows in the cart straight away.'),
+      saving: s.saving, notSaving: !s.saving, savingStr: s.saving ? 'true' : 'false',
+      liveText: f.id && f.status === 'live' ? 'Save changes' : f.sched ? 'Save and schedule' : 'Save and make live',
+      saveDraft: save('draft'), saveLive: save('live'),
+      hasToast: !!s.toast, toastMsg: s.toast || '', closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

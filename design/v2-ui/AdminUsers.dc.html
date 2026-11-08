@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Admin, users and roles - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="AdminBar" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-admpage">
+<div class="tt-adm">
+<dc-import name="AdminSide" theme="{{theme}}" active="users" orders="1" queue="5" hint-size="100%,720px"></dc-import>
+
+<main id="main" class="tt-admmain">
+  <header class="tt-admhead">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; admin / users</span>
+      <h1 class="tt-h2">Users and roles</h1>
+      <p class="tt-admnote">test accounts plus three sample members with invented names. Roles are permission strings, read fresh on every request.</p>
+    </div>
+  </header>
+
+  <div class="tt-seg" role="tablist" aria-label="Users or roles" style="align-self: flex-start;">
+    <button type="button" role="tab" aria-selected="{{usersSel}}" aria-pressed="{{usersSel}}" aria-controls="p-users" onClick="{{showUsers}}"><i class="ph ph-users ph-16" aria-hidden="true"></i>Users</button>
+    <button type="button" role="tab" aria-selected="{{rolesSel}}" aria-pressed="{{rolesSel}}" aria-controls="p-roles" onClick="{{showRoles}}"><i class="ph ph-shield ph-16" aria-hidden="true"></i>Roles</button>
+  </div>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+    <div class="tt-tablewrap" aria-busy="true" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;"><div class="tt-skel" style="height: 20px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div></div>
+    <p class="sr-only" role="status">Loading users</p>
+  </sc-if>
+  <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+    <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div style="flex: 1;"><p style="font-weight: 600;">Users didn't load</p><p class="tt-small">Try again in a moment. Nobody's access has changed.</p></div><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{retry}}">Try again</button></div>
+  </sc-if>
+
+  <!-- USERS -->
+  <sc-if value="{{showUsersPanel}}" hint-placeholder-val="{{true}}">
+    <section id="p-users" role="tabpanel" aria-label="Users" style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="tt-toolbar">
+        <div class="tt-search"><label for="uq" class="sr-only">Search users</label><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="uq" class="tt-input" type="search" placeholder="Name or email" value="{{query}}" onChange="{{onQuery}}"></div>
+        <div class="tt-selectwrap" style="flex: 0 1 200px;"><label for="rf" class="sr-only">Role</label><select id="rf" class="tt-input" value="{{roleFilter}}" onChange="{{onRoleFilter}}"><option value="all">Every role</option><option value="owner">Owner</option><option value="shop">Shopkeeper</option><option value="mod">Moderator</option><option value="member">Member</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div>
+      </div>
+      <div class="tt-tablewrap">
+        <div class="tt-table" role="table" aria-label="Accounts. Change a role from its menu. You can't change your own role." style="--cols: minmax(220px, 2fr) 196px 140px 112px 64px minmax(132px, 1fr);">
+          
+          <div class="tt-thead" role="rowgroup"><div class="tt-tr" role="row"><div role="columnheader" class="tt-th">Member</div><div role="columnheader" class="tt-th">Role</div><div role="columnheader" class="tt-th">Status</div><div role="columnheader" class="tt-th">Joined</div><div role="columnheader" class="tt-th num">Posts</div><div role="columnheader" class="tt-th act"><span class="sr-only">Actions</span></div></div></div>
+          <div class="tt-tbody" role="rowgroup">
+            <sc-for list="{{users}}" as="u" hint-placeholder-count="6">
+              <div class="tt-tr" role="row">
+                <div role="cell" class="tt-td"><div class="tt-prodcell"><span class="tt-av tt-av--sm" aria-hidden="true">{{u.initials}}</span><div><p style="font-weight: 600;">{{u.name}}<sc-if value="{{u.isMe}}" hint-placeholder-val="{{false}}"> <span class="tt-tag tt-tag--muted">you</span></sc-if></p><p class="mono">{{u.email}}</p></div></div></div>
+                <div role="cell" class="tt-td">
+                  <div class="tt-selectwrap" style="max-width: 180px;"><label for="{{u.selId}}" class="sr-only">{{u.roleLabel}}</label><select id="{{u.selId}}" class="tt-input" style="min-height: 36px; font-size: 14px;" value="{{u.role}}" onChange="{{u.setRole}}" disabled="{{u.isMe}}"><option value="owner">Owner</option><option value="shop">Shopkeeper</option><option value="mod">Moderator</option><option value="member">Member</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div>
+                </div>
+                <div role="cell" class="tt-td"><span class="{{u.pillCls}}">{{u.statusLabel}}</span></div>
+                <div role="cell" class="tt-td mono">{{u.joined}}</div>
+                <div role="cell" class="tt-td num">{{u.posts}}</div>
+                <div role="cell" class="tt-td act">
+                  <sc-if value="{{u.isLocked}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{u.unlock}}"><i class="ph ph-lock-simple-open" aria-hidden="true"></i>Unlock</button></sc-if>
+                  <sc-if value="{{u.canSuspend}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" aria-label="{{u.suspendLabel}}" onClick="{{u.suspend}}"><i class="ph ph-prohibit" aria-hidden="true"></i>Suspend</button></sc-if>
+                  <sc-if value="{{u.isSuspended}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" onClick="{{u.restore}}"><i class="ph ph-check" aria-hidden="true"></i>Restore</button></sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <p class="tt-help">Locked means five wrong passwords in a row. It clears by itself after 15 minutes, or you can unlock it now.</p>
+    </section>
+  </sc-if>
+
+  <!-- ROLES -->
+  <sc-if value="{{showRolesPanel}}" hint-placeholder-val="{{false}}">
+    <section id="p-roles" role="tabpanel" aria-label="Roles" class="tt-roles">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <ul style="display: flex; flex-direction: column; gap: 2px;">
+          <sc-for list="{{roles}}" as="r" hint-placeholder-count="4">
+            <li><button type="button" class="tt-catbtn" aria-current="{{r.current}}" onClick="{{r.pick}}"><span><i class="{{r.icon}}" aria-hidden="true"></i>{{r.name}}</span><span class="n">{{r.members}}</span></button></li>
+          </sc-for>
+        </ul>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" style="align-self: flex-start; margin-top: 8px;" onClick="{{newRole}}"><i class="ph ph-plus" aria-hidden="true"></i>New role</button>
+      </div>
+
+      <div class="tt-card" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="tt-row" style="align-items: flex-start;"><div><h2 class="tt-h3">{{roleName}}</h2><p class="tt-small">{{roleMembers}}</p></div><sc-if value="{{roleLocked}}" hint-placeholder-val="{{false}}"><span class="tt-tag tt-tag--muted"><i class="ph ph-lock-simple ph-16" aria-hidden="true"></i>locked</span></sc-if></div>
+        <sc-if value="{{isNew}}" hint-placeholder-val="{{false}}">
+          <div class="tt-field"><label for="rn">Role name</label><input id="rn" class="{{rnCls}}" value="{{newName}}" onChange="{{onNewName}}" placeholder="e.g. Helper" aria-invalid="{{rnInv}}"><sc-if value="{{rnErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Give the role a name.</p></sc-if></div>
+        </sc-if>
+        <sc-if value="{{roleLocked}}" hint-placeholder-val="{{false}}">
+          <div class="tt-banner tt-banner--info"><i class="ph ph-info ph-20" aria-hidden="true"></i><p class="tt-small">Owner always has every permission, so nobody can lock the site out of its own admin.</p></div>
+        </sc-if>
+        <fieldset style="border: 0; margin: 0; padding: 0;">
+          <legend class="tt-label" style="font-size: 12px; margin-bottom: 8px;">&gt; permissions</legend>
+          <sc-for list="{{perms}}" as="p" hint-placeholder-count="6">
+            <label class="tt-perm"><input type="checkbox" class="tt-cb" checked="{{p.on}}" disabled="{{p.off}}" onChange="{{p.flip}}" aria-describedby="{{p.hid}}"><span><span style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;"><span style="font-weight: 600;">{{p.label}}</span><code>{{p.code}}</code></span><span id="{{p.hid}}" class="tt-small" style="display: block;">{{p.help}}</span></span></label>
+          </sc-for>
+        </fieldset>
+        <sc-if value="{{noAdminWarn}}" hint-placeholder-val="{{false}}">
+          <div class="tt-banner"><i class="ph ph-warning ph-20" aria-hidden="true" style="color: var(--warm-orange);"></i><p class="tt-small">Without <code class="tt-mono">access_admin</code>, people in this role can't open admin at all, so the other boxes do nothing.</p></div>
+        </sc-if>
+        <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+          <sc-if value="{{dirty}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--ghost" onClick="{{resetRole}}">Undo changes</button></sc-if>
+          <button type="button" class="tt-btn tt-btn--primary" disabled="{{saveOff}}" aria-disabled="{{savingStr}}" onClick="{{saveRole}}"><sc-if value="{{saving}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</sc-if><sc-if value="{{notSaving}}" hint-placeholder-val="{{true}}"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Save role</sc-if></button>
+        </div>
+      </div>
+    </section>
+  </sc-if>
+</main>
+</div>
+</div>
+
+<!-- SUSPEND CONFIRM -->
+<sc-if value="{{suspendOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-modalwrap">
+    <div class="tt-scrim" onClick="{{closeSuspend}}" aria-hidden="true"></div>
+    <div class="tt-modal" role="alertdialog" aria-modal="true" aria-labelledby="su-h" aria-describedby="su-d" style="width: min(460px, 100%);">
+      <span class="tt-icon-hero" style="color: var(--error);"><i class="ph ph-prohibit ph-24" aria-hidden="true"></i></span>
+      <h2 id="su-h" class="tt-h3">Suspend {{suspendName}}?</h2>
+      <p id="su-d" class="tt-small">They're signed out everywhere and can't sign in, post or react. Their orders stay. You can restore them later.</p>
+      <div class="tt-field"><label for="su-r">Reason, for your records</label><input id="su-r" class="tt-input" placeholder="e.g. spam pins"></div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px;"><button type="button" class="tt-btn tt-btn--ghost" onClick="{{closeSuspend}}">Cancel</button><button type="button" class="tt-btn tt-btn--danger" onClick="{{doSuspend}}"><i class="ph ph-prohibit" aria-hidden="true"></i>Suspend</button></div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Saved</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"tab":{"editor":"enum","options":["users","roles"],"default":"users"},"state":{"editor":"enum","options":["ready","loading","error","suspend","roleSaved","newRole"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const st = props.state || 'ready';
+    this.permDefs = [
+      ['access_admin', 'Open admin', 'See the admin area at all. Every other permission needs this one.'],
+      ['manage_inventory', 'Stockroom', 'Add, edit and hide products. Change stock and prices.'],
+      ['manage_orders', 'Orders', 'Pack, post and refund orders. See customer addresses.'],
+      ['manage_discounts', 'Discounts', 'Make, schedule and pause discounts and codes.'],
+      ['manage_users', 'Users and roles', 'Change roles, unlock and suspend accounts.'],
+      ['moderate_community', 'Moderation', 'Approve or reject Pinboard pins and Workshop posts.'],
+      ['manage_content', 'Site settings', 'Shipping, site motion defaults and page copy.']
+    ];
+    this.savedRoles = [
+      { id: 'owner', name: 'Owner', icon: 'ph ph-crown ph-20', locked: true, perms: this.permDefs.map((p) => p[0]) },
+      { id: 'shop', name: 'Shopkeeper', icon: 'ph ph-storefront ph-20', perms: ['access_admin', 'manage_inventory', 'manage_orders', 'manage_discounts'] },
+      { id: 'mod', name: 'Moderator', icon: 'ph ph-shield-check ph-20', perms: ['access_admin', 'moderate_community'] },
+      { id: 'member', name: 'Member', icon: 'ph ph-user ph-20', perms: [] }
+    ];
+    this.state = {
+      theme: null,
+      tab: st === 'roleSaved' || st === 'newRole' ? 'roles' : props.tab || 'users',
+      status: st === 'loading' || st === 'error' ? st : 'ready',
+      query: '', roleFilter: 'all',
+      users: [
+        // Tommy, staging test accounts, and three sample members with invented names. v2 starts empty, so nobody here came from Shopify.
+        { id: 'u1', name: 'Tommy G.', email: 'hello@tommytinkers.nz', role: 'owner', status: 'active', joined: '02/11/2026', posts: 8, me: true },
+        { id: 'u2', name: 'Test member A', email: 'test+a@tommytinkers.nz', role: 'mod', status: 'active', joined: '03/11/2026', posts: 4 },
+        { id: 'u3', name: 'Test member B', email: 'test+b@tommytinkers.nz', role: 'member', status: 'active', joined: '03/11/2026', posts: 2 },
+        { id: 'u4', name: 'Test member C', email: 'test+c@tommytinkers.nz', role: 'member', status: 'suspended', joined: '04/11/2026', posts: 2 },
+        { id: 'u5', name: 'Test member D', email: 'test+d@tommytinkers.nz', role: 'member', status: 'locked', joined: '04/11/2026', posts: 2 },
+        { id: 'u6', name: 'Aroha T.', email: 'aroha@example.com', role: 'member', status: 'active', joined: '05/11/2026', posts: 0 },
+        { id: 'u7', name: 'Ben K.', email: 'ben@example.com', role: 'member', status: 'active', joined: '06/11/2026', posts: 0 },
+        { id: 'u8', name: 'Sione L.', email: 'sione@example.com', role: 'member', status: 'active', joined: '07/11/2026', posts: 0 }
+      ],
+      roles: this.savedRoles.map((r) => ({ ...r, perms: [...r.perms] })),
+      roleId: st === 'newRole' ? 'new' : 'shop',
+      draft: st === 'newRole' ? { id: 'new', name: '', icon: 'ph ph-user-gear ph-20', perms: ['access_admin'] } : null,
+      newTried: false, saving: false,
+      suspend: st === 'suspend' ? 'u3' : null,
+      toast: st === 'roleSaved' ? 'Shopkeeper is saved. People in it get the change on their next click.' : null
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.t1); clearTimeout(this.toastT); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    const setU = (id, patch) => this.setState({ users: this.state.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) });
+    const roleName = (id) => (s.roles.find((r) => r.id === id) || {}).name || id;
+    const statusPill = { active: ['tt-pill tt-pill--in', 'Active'], locked: ['tt-pill tt-pill--low', 'Locked, 15 min'], suspended: ['tt-pill tt-pill--out', 'Suspended'] };
+
+    let users = s.users;
+    if (s.roleFilter !== 'all') users = users.filter((u) => u.role === s.roleFilter);
+    const q = s.query.trim().toLowerCase();
+    if (q) users = users.filter((u) => (u.name + ' ' + u.email).toLowerCase().includes(q));
+
+    // role editor works on a draft copy so Undo is cheap
+    const saved = s.roles.find((r) => r.id === s.roleId);
+    const role = s.draft || saved;
+    const isNew = role.id === 'new';
+    const dirty = !!s.draft && (isNew || JSON.stringify([...s.draft.perms].sort()) !== JSON.stringify([...saved.perms].sort()));
+    const setDraft = (patch) => this.setState({ draft: { ...(this.state.draft || role), perms: [...(this.state.draft || role).perms], ...patch } });
+    const members = s.users.filter((u) => u.role === role.id).length;
+    const rnErr = isNew && s.newTried && !role.name.trim();
+
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      isLoading: s.status === 'loading', isError: s.status === 'error',
+      retry: () => { this.setState({ status: 'loading' }); setTimeout(() => this.setState({ status: 'ready' }), 900); },
+      usersSel: s.tab === 'users' ? 'true' : 'false', rolesSel: s.tab === 'roles' ? 'true' : 'false',
+      showUsers: () => this.setState({ tab: 'users' }), showRoles: () => this.setState({ tab: 'roles' }),
+      showUsersPanel: s.status === 'ready' && s.tab === 'users',
+      showRolesPanel: s.status === 'ready' && s.tab === 'roles',
+      query: s.query, onQuery: (e) => this.setState({ query: e.target.value }),
+      roleFilter: s.roleFilter, onRoleFilter: (e) => this.setState({ roleFilter: e.target.value }),
+      roleOpts: s.roles.map((r) => ({ id: r.id, name: r.name })),
+      users: users.map((u) => ({
+        name: u.name, email: u.email, joined: u.joined, posts: u.posts, isMe: !!u.me,
+        initials: u.name.startsWith('Test member') ? u.name.slice(-1) : u.name[0],
+        selId: 'role-' + u.id, roleLabel: 'Role for ' + u.name, role: u.role,
+        setRole: (e) => { setU(u.id, { role: e.target.value }); toast(u.name + ' is now ' + roleName(e.target.value) + '. It applies on their next click.'); },
+        pillCls: statusPill[u.status][0], statusLabel: statusPill[u.status][1],
+        isLocked: u.status === 'locked', isSuspended: u.status === 'suspended',
+        canSuspend: !u.me && u.status !== 'suspended',
+        suspendLabel: 'Suspend ' + u.name,
+        unlock: () => { setU(u.id, { status: 'active' }); toast(u.name + ' can sign in again.'); },
+        suspend: () => this.setState({ suspend: u.id }),
+        restore: () => { setU(u.id, { status: 'active' }); toast(u.name + ' is restored.'); }
+      })),
+
+      roles: s.roles.map((r) => ({ name: r.name, icon: r.icon, members: s.users.filter((u) => u.role === r.id).length, current: r.id === s.roleId ? 'true' : 'false', pick: () => this.setState({ roleId: r.id, draft: null, newTried: false }) })),
+      newRole: () => this.setState({ roleId: 'new', draft: { id: 'new', name: '', icon: 'ph ph-user-gear ph-20', perms: ['access_admin'] }, newTried: false }),
+      isNew, newName: role.name, onNewName: (e) => setDraft({ name: e.target.value }),
+      rnErr, rnInv: rnErr ? 'true' : 'false', rnCls: rnErr ? 'tt-input is-error' : 'tt-input',
+      roleName: isNew ? 'New role' : role.name,
+      roleMembers: isNew ? 'Not given to anyone yet.' : members === 1 ? '1 person has this role.' : members + ' people have this role.',
+      roleLocked: !!role.locked,
+      perms: this.permDefs.map(([code, label, help]) => {
+        const on = role.perms.includes(code);
+        return { code, label, help, hid: 'ph-' + code, on, off: !!role.locked, flip: () => setDraft({ perms: on ? role.perms.filter((x) => x !== code) : [...role.perms, code] }) };
+      }),
+      noAdminWarn: role.perms.length > 0 && !role.perms.includes('access_admin'),
+      dirty, saveOff: !!role.locked || !dirty,
+      resetRole: () => this.setState({ draft: null, roleId: isNew ? 'shop' : s.roleId }),
+      saving: s.saving, notSaving: !s.saving, savingStr: s.saving ? 'true' : 'false',
+      saveRole: () => {
+        if (s.saving) return;
+        if (isNew && !role.name.trim()) return this.setState({ newTried: true });
+        this.setState({ saving: true });
+        // Stands in for a server action that checks manage_users. No migration: the perms are just strings.
+        this.t1 = setTimeout(() => {
+          const d = this.state.draft;
+          const id = isNew ? 'r' + Date.now() : d.id;
+          const rec = { ...d, id, name: d.name.trim() };
+          const roles = isNew ? [...this.state.roles, rec] : this.state.roles.map((r) => (r.id === id ? rec : r));
+          this.setState({ roles, roleId: id, draft: null, saving: false });
+          toast(rec.name + ' is saved. People in it get the change on their next click.');
+        }, 800);
+      },
+
+      suspendOpen: !!s.suspend,
+      suspendName: (s.users.find((u) => u.id === s.suspend) || {}).name || '',
+      closeSuspend: () => this.setState({ suspend: null }),
+      doSuspend: () => { const u = s.users.find((x) => x.id === s.suspend); setU(u.id, { status: 'suspended' }); this.setState({ suspend: null }); toast(u.name + ' is suspended and signed out everywhere.'); },
+
+      hasToast: !!s.toast, toastMsg: s.toast || '',
+      closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

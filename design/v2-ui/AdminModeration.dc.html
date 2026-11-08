@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Admin, moderation - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="AdminBar" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-admpage">
+<div class="tt-adm">
+<dc-import name="AdminSide" theme="{{theme}}" active="moderation" orders="1" queue="{{waitingN}}" hint-size="100%,720px"></dc-import>
+
+<main id="main" class="tt-admmain">
+  <header class="tt-admhead">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; admin / moderation</span>
+      <h1 class="tt-h2">Moderation queue</h1>
+      <p class="tt-small" style="max-width: 600px;">A new member's first 3 pins wait here before they go on the Pinboard. Reported pins and posts land here too.</p>
+    </div>
+  </header>
+
+  <div class="tt-chips" role="group" aria-label="Queue">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button type="button" class="tt-chip" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}"><i class="{{t.icon}}" aria-hidden="true"></i>{{t.label}}<span class="n">{{t.n}}</span></button></sc-for>
+  </div>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+    <div class="tt-modq" aria-busy="true">
+      <div class="tt-card tt-moditem"><div class="tt-skel" style="aspect-ratio: 1 / 1; border-radius: 12px;"></div><div style="display: flex; flex-direction: column; gap: 12px;"><div class="tt-skel" style="height: 32px; width: 60%;"></div><div class="tt-skel" style="height: 64px; width: 100%;"></div><div class="tt-skel" style="height: 36px; width: 50%;"></div></div></div>
+      <div class="tt-card tt-moditem"><div class="tt-skel" style="aspect-ratio: 1 / 1; border-radius: 12px;"></div><div style="display: flex; flex-direction: column; gap: 12px;"><div class="tt-skel" style="height: 32px; width: 60%;"></div><div class="tt-skel" style="height: 64px; width: 100%;"></div><div class="tt-skel" style="height: 36px; width: 50%;"></div></div></div>
+    </div>
+    <p class="sr-only" role="status">Loading the queue</p>
+  </sc-if>
+
+  <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+    <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div style="flex: 1;"><p style="font-weight: 600;">The queue didn't load</p><p class="tt-small">Pins stay hidden until someone approves them, so nothing slips through while this is down.</p></div><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{retry}}">Try again</button></div>
+  </sc-if>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div class="tt-card tt-ph-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px;">
+      <span class="tt-icon-hero" style="color: var(--mono);"><i class="ph ph-check-circle ph-24" aria-hidden="true"></i></span>
+      <h2 class="tt-h3">{{emptyTitle}}</h2>
+      <p class="tt-small" style="max-width: 420px;">{{emptyText}}</p>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}">
+    <ul class="tt-modq" aria-label="{{listLabel}}">
+      <sc-for list="{{items}}" as="it" hint-placeholder-count="4">
+        <li class="tt-card tt-moditem" aria-labelledby="{{it.hid}}">
+          <sc-if value="{{it.hasPhoto}}" hint-placeholder-val="{{true}}"><div class="tt-photo" role="img" aria-label="Photo the member attached (placeholder)"><i class="ph ph-image ph-24" aria-hidden="true"></i>Photo</div></sc-if>
+          <sc-if value="{{it.noPhoto}}" hint-placeholder-val="{{false}}"><div class="tt-photo" style="font-family: var(--font-mono);"><i class="ph ph-note ph-24" aria-hidden="true"></i>text only</div></sc-if>
+          <div style="display: flex; flex-direction: column; gap: 12px; min-width: 0;">
+            <div class="tt-meta" style="display: flex; align-items: center; gap: 12px;">
+              <span class="tt-av tt-av--sm" aria-hidden="true">{{it.initials}}</span>
+              <div style="min-width: 0;"><p id="{{it.hid}}" style="font-weight: 600;">{{it.author}}</p><p class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">{{it.meta}}</p></div>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;"><span class="tt-tag tt-tag--muted">{{it.where}}</span><sc-if value="{{it.isNew}}" hint-placeholder-val="{{true}}"><span class="tt-tag">{{it.firstText}}</span></sc-if><sc-if value="{{it.hasLink}}" hint-placeholder-val="{{false}}"><span class="tt-pill tt-pill--low"><i class="ph ph-link ph-16" aria-hidden="true"></i>has a link</span></sc-if></div>
+            <p style="line-height: 1.6;">{{it.text}}</p>
+            <sc-if value="{{it.isReport}}" hint-placeholder-val="{{false}}"><div class="tt-banner" style="padding: 12px;"><i class="ph ph-flag ph-20" aria-hidden="true" style="color: var(--warm-orange);"></i><p class="tt-small">{{it.reportText}}</p></div></sc-if>
+
+            <sc-if value="{{it.rejecting}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 12px; background: var(--bg-raised);">
+                <div class="tt-field"><label for="{{it.rid}}">Why it's not going up</label><div class="tt-selectwrap"><select id="{{it.rid}}" class="tt-input"><option>Spam or selling</option><option>Off topic for the Shed</option><option>Not kind to someone</option><option>Shares someone's personal details</option><option>Something else</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+                <div class="tt-field"><label for="{{it.nid}}">Note to the member, optional</label><textarea id="{{it.nid}}" class="tt-input" style="min-height: 72px;" placeholder="They get this in the email with the reason."></textarea></div>
+                <div class="tt-modacts"><button type="button" class="tt-btn tt-btn--danger tt-btn--sm" onClick="{{it.reject}}"><i class="ph ph-x-circle" aria-hidden="true"></i>Reject and email</button><button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" onClick="{{it.cancelReject}}">Cancel</button></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{it.showActs}}" hint-placeholder-val="{{true}}">
+              <div class="tt-modacts" style="margin-top: auto;">
+                <button type="button" class="tt-btn tt-btn--primary tt-btn--sm" aria-label="{{it.okLabel}}" onClick="{{it.approve}}"><i class="ph ph-check" aria-hidden="true"></i>{{it.okText}}</button>
+                <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" aria-label="{{it.noLabel}}" onClick="{{it.startReject}}"><i class="ph ph-x" aria-hidden="true"></i>{{it.noText}}</button>
+                <a href="AdminUsers.dc.html" class="tt-btn tt-btn--ghost tt-btn--sm"><i class="ph ph-user" aria-hidden="true"></i>View member</a>
+              </div>
+            </sc-if>
+            <sc-if value="{{it.isDecided}}" hint-placeholder-val="{{false}}">
+              <div class="tt-row" style="align-items: center;"><span class="{{it.pillCls}}">{{it.decision}}</span><button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" onClick="{{it.undo}}"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Undo</button></div>
+            </sc-if>
+          </div>
+        </li>
+      </sc-for>
+    </ul>
+  </sc-if>
+  <p class="tt-help">Approving a new member's 3rd pin lifts the check. Their next pins go straight up.</p>
+</main>
+</div>
+</div>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Done</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","loading","empty","error","rejecting","reported"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const st = props.state || 'ready';
+    const items = [
+      // Staging test accounts only. A new member's first 3 pins wait here.
+      { id: 'q1', kind: 'pin', author: 'Test member B', when: '06/11/2026 09:14', n: 1, photo: true, link: false, text: 'Test pin: name stickers on a 1/10 buggy, white on black.' },
+      { id: 'q2', kind: 'pin', author: 'Test member B', when: '06/11/2026 08:02', n: 2, photo: true, link: false, text: 'Test pin: grid numbers on the pit board.' },
+      { id: 'q3', kind: 'pin', author: 'Test member E', when: '05/11/2026 21:40', n: 1, photo: false, link: true, text: 'Test pin with a link to another site, so the "has a link" flag shows.' },
+      { id: 'q4', kind: 'pin', author: 'Test member F', when: '05/11/2026 18:25', n: 3, photo: true, link: false, text: 'Test pin: a printed toy, painted at home.' },
+      { id: 'r1', kind: 'report', author: 'Test member C', when: '04/11/2026 12:10', photo: false, link: false, where: 'Workshop reply', reports: 2, reason: 'Not kind to someone', text: 'Test reply written to be reported, so the report flow can be checked.' }
+    ];
+    this.state = {
+      theme: null,
+      status: st === 'loading' || st === 'error' ? st : 'ready',
+      tab: st === 'reported' ? 'reported' : 'waiting',
+      items: st === 'empty' ? [] : items.map((x) => ({ ...x, decided: null })),
+      rejecting: st === 'rejecting' ? 'q3' : null,
+      toast: null
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.toastT); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    const decide = (id, decided) => this.setState({ items: this.state.items.map((x) => (x.id === id ? { ...x, decided } : x)), rejecting: null });
+    const open = s.items.filter((x) => !x.decided);
+    const waiting = open.filter((x) => x.kind === 'pin');
+    const reported = open.filter((x) => x.kind === 'report');
+    const decided = s.items.filter((x) => x.decided);
+    const list = s.tab === 'waiting' ? waiting : s.tab === 'reported' ? reported : decided;
+    const tabs = [['waiting', 'Waiting', 'ph ph-hourglass ph-16', waiting.length], ['reported', 'Reported', 'ph ph-flag ph-16', reported.length], ['decided', 'Decided today', 'ph ph-list-checks ph-16', decided.length]]
+      .map(([id, label, icon, n]) => ({ label, icon, n, pressed: s.tab === id ? 'true' : 'false', pick: () => this.setState({ tab: id, rejecting: null }) }));
+    const empties = {
+      waiting: ['The queue is clear', 'No pins are waiting. New members’ first pins show up here as they post.'],
+      reported: ['Nothing reported', 'When a member reports a pin or post, it shows up here.'],
+      decided: ['Nothing decided yet today', 'Approved and rejected items show here for a day so you can undo.']
+    };
+    const items = list.map((x) => {
+      const isReport = x.kind === 'report';
+      const rej = s.rejecting === x.id;
+      return {
+        hid: 'mq-' + x.id, rid: 'rr-' + x.id, nid: 'rn-' + x.id,
+        author: x.author, initials: x.author.slice(-1), meta: x.when + (isReport ? '' : ' · new member'),
+        where: isReport ? x.where : 'Pinboard pin',
+        isNew: !isReport, firstText: 'pin ' + x.n + ' of 3 checked',
+        hasPhoto: x.photo, noPhoto: !x.photo, hasLink: x.link,
+        text: x.text,
+        isReport, reportText: x.reports + ' reports. Most common reason: ' + x.reason + '.',
+        rejecting: rej && !x.decided,
+        showActs: !rej && !x.decided,
+        isDecided: !!x.decided,
+        decision: x.decided === 'ok' ? (isReport ? 'Kept up' : 'Approved') : 'Removed',
+        pillCls: x.decided === 'ok' ? 'tt-pill tt-pill--in' : 'tt-pill tt-pill--out',
+        okText: isReport ? 'Keep it up' : 'Approve', noText: isReport ? 'Remove' : 'Reject',
+        okLabel: (isReport ? 'Keep up the post by ' : 'Approve the pin by ') + x.author,
+        noLabel: (isReport ? 'Remove the post by ' : 'Reject the pin by ') + x.author,
+        approve: () => { decide(x.id, 'ok'); toast(isReport ? 'Kept up. The reports are cleared.' : 'Approved. It’s on the Pinboard now.'); },
+        startReject: () => this.setState({ rejecting: x.id }),
+        cancelReject: () => this.setState({ rejecting: null }),
+        reject: () => { decide(x.id, 'no'); toast('Removed. The member has an email with the reason.'); },
+        undo: () => { decide(x.id, null); toast('Back in the queue.'); }
+      };
+    });
+    const ready = s.status === 'ready';
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      waitingN: waiting.length + reported.length,
+      tabs,
+      isLoading: s.status === 'loading', isError: s.status === 'error',
+      retry: () => { this.setState({ status: 'loading' }); setTimeout(() => this.setState({ status: 'ready' }), 900); },
+      isEmpty: ready && items.length === 0, hasItems: ready && items.length > 0,
+      emptyTitle: empties[s.tab][0], emptyText: empties[s.tab][1],
+      listLabel: s.tab === 'waiting' ? 'Pins waiting for a check' : s.tab === 'reported' ? 'Reported items' : 'Decided today',
+      items,
+      hasToast: !!s.toast, toastMsg: s.toast || '',
+      closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

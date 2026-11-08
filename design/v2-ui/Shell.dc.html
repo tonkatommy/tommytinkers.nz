@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Shell states - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="tt" data-theme="{{theme}}" style="width: 1280px; min-height: 3300px; box-sizing: border-box; padding: 48px; display: flex; flex-direction: column; gap: 64px;">
+
+  <header style="display: flex; flex-direction: column; gap: 8px;">
+    <span class="tt-label">&gt; 00. shell</span>
+    <h1 class="tt-h2">Site shell: states ({{themeName}})</h1>
+    <p class="tt-small" style="max-width: 720px;">Nav, account menu, cart drawer and mobile menu in every state they can be in. The working version is the Home artboards: the cart, account menu, theme toggle and mobile menu all click.</p>
+  </header>
+
+  <!-- ============ NAV ============ -->
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <h2 class="tt-h3">Nav, 1280</h2>
+      <p class="tt-small">64px tall. Solid base at the top of the page. After 8px of scroll it becomes the blurred overlay (bg-overlay plus 12px backdrop blur) with a hairline.</p>
+    </div>
+
+    <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// at top of page, signed out, cart empty</p>
+    <div style="border: 1px solid var(--border-subtle); border-radius: 10px; overflow: hidden;">
+      <div class="tt-nav" style="position: relative;">
+        <div class="tt-nav-in" style="padding-inline: 24px;">
+          <a href="#" class="tt-brand"><span class="tt-disc"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></span><span>tommy tinkers <span class="nz">NZ</span></span></a>
+          <nav class="tt-navlinks" aria-label="Main (example)"><a href="#" class="tt-navlink">Shop</a><a href="#" class="tt-navlink">Codebench</a><a href="#" class="tt-navlink">The Shed</a></nav>
+          <div class="tt-navright">
+            <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Light theme"><i class="ph ph-sun" aria-hidden="true"></i></button>
+            <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Account menu"><i class="ph ph-user-circle" aria-hidden="true"></i></button>
+            <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Cart, 0 items"><i class="ph ph-shopping-cart-simple ph-24" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// scrolled: blurred overlay over page content, "Shop" active, link hover on "The Shed", focus ring on the cart</p>
+    <div style="position: relative; height: 200px; border: 1px solid var(--border-subtle); border-radius: 10px; overflow: hidden;">
+      <div class="tt-hero" style="position: absolute; inset: 0; padding: 24px 48px; display: flex; flex-direction: column; gap: 8px;">
+        <p class="tt-eyebrow" style="position: relative;">Stickers &amp; decals</p>
+        <p class="tt-h1" style="position: relative; font-size: 64px; font-weight: 700;">Everything in the shop</p>
+        <p class="tt-lead" style="position: relative;">Page content scrolling underneath the nav.</p>
+      </div>
+      <div class="tt-nav is-scrolled" style="position: absolute; left: 0; right: 0; top: 0;">
+        <div class="tt-nav-in" style="padding-inline: 24px;">
+          <a href="#" class="tt-brand"><span class="tt-disc"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></span><span>tommy tinkers <span class="nz">NZ</span></span></a>
+          <nav class="tt-navlinks" aria-label="Main (example)"><a href="#" class="tt-navlink is-active" aria-current="page">Shop</a><a href="#" class="tt-navlink">Codebench</a><a href="#" class="tt-navlink" style="color: var(--text-primary);">The Shed</a></nav>
+          <div class="tt-navright">
+            <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Light theme"><i class="ph ph-sun" aria-hidden="true"></i></button>
+            <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Account menu"><i class="ph ph-user-circle" aria-hidden="true"></i></button>
+            <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon is-focus" style="position: relative;" aria-label="Cart, 3 items"><i class="ph ph-shopping-cart-simple ph-24" aria-hidden="true"></i><span class="tt-count" aria-hidden="true">3</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 32px; align-items: flex-start;">
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// account menu, signed out</p>
+        <div style="display: flex; justify-content: flex-end; padding: 8px 24px 24px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-base); flex-direction: column; align-items: flex-end; gap: 8px;">
+          <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Account menu" aria-expanded="true" style="background: var(--bg-raised); color: var(--text-primary);"><i class="ph ph-user-circle" aria-hidden="true"></i></button>
+          <div class="tt-menu" role="menu">
+            <p style="padding: 8px 12px 12px; font-size: 14px; color: var(--text-secondary); max-width: 240px;">Sign in to post in the Shed and see your orders.</p>
+            <a href="#" class="tt-menu-item" role="menuitem"><i class="ph ph-sign-in" aria-hidden="true"></i>Sign in</a>
+            <a href="#" class="tt-menu-item" role="menuitem" style="background: var(--bg-raised);"><i class="ph ph-user" aria-hidden="true"></i>Create a free account</a>
+          </div>
+        </div>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// account menu, signed in (member)</p>
+        <div style="display: flex; padding: 8px 24px 24px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-base); flex-direction: column; align-items: flex-end; gap: 8px;">
+          <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Account menu" aria-expanded="true" style="background: var(--bg-raised); color: var(--text-primary);"><i class="ph ph-user-circle" aria-hidden="true"></i></button>
+          <div class="tt-menu" role="menu">
+            <div style="padding: 8px 12px 12px; display: flex; flex-direction: column;"><span style="font-weight: 600; font-size: 14px;">Tommy</span><span style="font-size: 14px; color: var(--text-secondary);">hello@tommytinkers.nz</span></div>
+            <a href="#" class="tt-menu-item" role="menuitem"><i class="ph ph-receipt" aria-hidden="true"></i>Orders</a>
+            <a href="#" class="tt-menu-item" role="menuitem"><i class="ph ph-user" aria-hidden="true"></i>Shed profile</a>
+            <a href="#" class="tt-menu-item" role="menuitem"><i class="ph ph-gear-six" aria-hidden="true"></i>Account settings</a>
+            <div class="tt-menu-sep" role="separator"></div>
+            <button type="button" class="tt-menu-item" role="menuitem"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out</button>
+          </div>
+        </div>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// account menu, signed in (admin)</p>
+        <div style="display: flex; padding: 8px 24px 24px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-base); flex-direction: column; align-items: flex-end; gap: 8px;">
+          <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Account menu" aria-expanded="true" style="background: var(--bg-raised); color: var(--text-primary);"><i class="ph ph-user-circle" aria-hidden="true"></i></button>
+          <div class="tt-menu" role="menu">
+            <div style="padding: 8px 12px 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px;"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600; font-size: 14px;">Tommy</span><span style="font-size: 14px; color: var(--text-secondary);">hello@tommytinkers.nz</span></span><span class="tt-pill tt-pill--warm">Admin</span></div>
+            <a href="#" class="tt-menu-item" role="menuitem"><i class="ph ph-package" aria-hidden="true"></i>Stockroom</a>
+            <a href="#" class="tt-menu-item" role="menuitem"><i class="ph ph-shield-check" aria-hidden="true"></i>Moderation queue<span class="tt-tag" style="margin-left: auto;">4</span></a>
+            <a href="#" class="tt-menu-item" role="menuitem"><i class="ph ph-gear-six" aria-hidden="true"></i>Account settings</a>
+            <div class="tt-menu-sep" role="separator"></div>
+            <button type="button" class="tt-menu-item" role="menuitem"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CART DRAWER ============ -->
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <h2 class="tt-h3">Cart drawer</h2>
+      <p class="tt-small">Slides in from the right over a blurred scrim (400ms). 420px wide on desktop, full width on mobile. Focus moves to the close button and is trapped until it closes. Esc, the close button or a scrim click closes it.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; align-items: start;">
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// with items</p>
+        <aside class="tt-drawer" style="position: relative; width: 100%; height: 680px; border: 1px solid var(--border-default); border-radius: 16px; overflow: hidden; animation: none;" aria-label="Cart (example)">
+          <div class="tt-drawer-head"><h3 style="font-size: 20px; font-weight: 600;">Your cart <span style="color: var(--text-secondary); font-weight: 500;">(3)</span></h3><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close cart"><i class="ph ph-x ph-24" aria-hidden="true"></i></button></div>
+          <ul class="tt-drawer-body">
+            <li class="tt-line">
+              <div class="tt-ph"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div>
+              <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+                <div style="display: flex; justify-content: space-between; gap: 12px;"><div><p style="font-weight: 600; font-size: 15px; line-height: 1.3;">RC name window stickers</p><p style="font-size: 13px; color: var(--text-secondary);">Mixed sheet · 2 at $20.00</p></div><span style="font-weight: 600; font-size: 15px;">$40.00</span></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                  <div class="tt-qty" role="group" aria-label="Quantity"><button type="button" aria-label="Decrease quantity"><i class="ph ph-minus ph-16" aria-hidden="true"></i></button><output>2</output><button type="button" aria-label="Increase quantity"><i class="ph ph-plus ph-16" aria-hidden="true"></i></button></div>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--sm"><i class="ph ph-trash" aria-hidden="true"></i>Remove</button>
+                </div>
+              </div>
+            </li>
+            <li class="tt-line">
+              <div class="tt-ph"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div>
+              <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+                <div style="display: flex; justify-content: space-between; gap: 12px;"><div><p style="font-weight: 600; font-size: 15px; line-height: 1.3;">Custom sticker sheet A4</p><p style="font-size: 13px; color: var(--text-secondary);">Your design</p></div><span style="font-weight: 600; font-size: 15px;">$35.00</span></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                  <div class="tt-qty" role="group" aria-label="Quantity"><button type="button" aria-label="Decrease quantity" disabled="disabled"><i class="ph ph-minus ph-16" aria-hidden="true"></i></button><output>1</output><button type="button" aria-label="Increase quantity" disabled="disabled"><i class="ph ph-plus ph-16" aria-hidden="true"></i></button></div>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--sm"><i class="ph ph-trash" aria-hidden="true"></i>Remove</button>
+                </div>
+                <p class="tt-help" style="font-size: 13px;">Printed to order, then posted.</p>
+              </div>
+            </li>
+          </ul>
+          <div class="tt-drawer-foot">
+            <div style="display: flex; justify-content: space-between; font-size: 14px;"><span style="color: var(--text-secondary);">2+ name sticker sheets</span><span style="font-weight: 600;">-$5.00</span></div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: 600;">Subtotal</span><span style="font-size: 20px; font-weight: 700;">$70.00</span></div>
+            <p class="tt-small" style="display: flex; gap: 8px;"><i class="ph ph-truck ph-20" aria-hidden="true" style="flex: none;"></i>Free shipping anywhere in New Zealand.</p>
+            <a href="#" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-lock-simple" aria-hidden="true"></i>Go to checkout</a>
+            <button type="button" class="tt-btn tt-btn--ghost tt-btn--block">Keep shopping</button>
+          </div>
+        </aside>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// empty</p>
+        <aside class="tt-drawer" style="position: relative; width: 100%; height: 680px; border: 1px solid var(--border-default); border-radius: 16px; overflow: hidden; animation: none;" aria-label="Cart (example)">
+          <div class="tt-drawer-head"><h3 style="font-size: 20px; font-weight: 600;">Your cart <span style="color: var(--text-secondary); font-weight: 500;">(0)</span></h3><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close cart"><i class="ph ph-x ph-24" aria-hidden="true"></i></button></div>
+          <div class="tt-drawer-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px;">
+            <span style="width: 64px; height: 64px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center; color: var(--text-secondary);"><i class="ph ph-shopping-cart-simple ph-24" aria-hidden="true"></i></span>
+            <h4 class="tt-h4" style="font-weight: 600;">Your cart is empty</h4>
+            <p class="tt-small" style="max-width: 260px;">Have a look around the shop. Something will catch your eye.</p>
+            <a href="#" class="tt-btn tt-btn--primary">Browse the shop</a>
+          </div>
+        </aside>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// error: quantity update failed</p>
+        <aside class="tt-drawer" style="position: relative; width: 100%; height: 680px; border: 1px solid var(--border-default); border-radius: 16px; overflow: hidden; animation: none;" aria-label="Cart (example)">
+          <div class="tt-drawer-head"><h3 style="font-size: 20px; font-weight: 600;">Your cart <span style="color: var(--text-secondary); font-weight: 500;">(2)</span></h3><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close cart"><i class="ph ph-x ph-24" aria-hidden="true"></i></button></div>
+          <div class="tt-drawer-body" style="display: flex; flex-direction: column; gap: 0;">
+            <div role="alert" style="display: flex; gap: 12px; align-items: flex-start; margin-top: 16px; padding: 12px 16px; border: 1px solid var(--error); border-radius: 10px; background: var(--bg-raised);">
+              <i class="ph ph-warning-circle ph-20" aria-hidden="true" style="color: var(--error); margin-top: 2px;"></i>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <p style="font-size: 14px; font-weight: 600;">Couldn't update your cart</p>
+                <p style="font-size: 14px; color: var(--text-secondary);">Check your connection and try again. Nothing has been lost.</p>
+                <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" style="align-self: flex-start;"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Try again</button>
+              </div>
+            </div>
+            <div class="tt-line">
+              <div class="tt-ph"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div>
+              <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+                <div style="display: flex; justify-content: space-between; gap: 12px;"><div><p style="font-weight: 600; font-size: 15px; line-height: 1.3;">Waikato Champs grid stickers</p><p style="font-size: 13px; color: var(--text-secondary);">Event sheet</p></div><span style="font-weight: 600; font-size: 15px;">$15.00</span></div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="tt-qty" role="group" aria-label="Quantity" style="opacity: 0.6;"><button type="button" aria-label="Decrease quantity" disabled="disabled"><i class="ph ph-minus ph-16" aria-hidden="true"></i></button><output>2</output><button type="button" aria-label="Increase quantity" disabled="disabled"><i class="ph ph-plus ph-16" aria-hidden="true"></i></button></div>
+                  <span class="tt-small" style="display: inline-flex; gap: 6px; align-items: center;"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Updating</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tt-drawer-foot">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: 600;">Subtotal</span><span style="font-size: 20px; font-weight: 700;">$15.00</span></div>
+            <a href="#" class="tt-btn tt-btn--primary tt-btn--block is-disabled" aria-disabled="true"><i class="ph ph-lock-simple" aria-hidden="true"></i>Go to checkout</a>
+            <p class="tt-help" style="text-align: center;">Checkout unlocks once your cart is saved.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MOBILE ============ -->
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <h2 class="tt-h3">Mobile, 375</h2>
+      <p class="tt-small">Below 1024px the links, theme toggle and account move into the menu. Cart stays in the bar so it's always one tap away. The menu panel opens under the nav and the icon swaps to a close X.</p>
+    </div>
+    <div style="display: flex; gap: 32px; align-items: flex-start;">
+
+      <div style="width: 375px; display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// menu open, signed out</p>
+        <div style="width: 375px; height: 720px; border: 1px solid var(--border-default); border-radius: 16px; overflow: hidden; background: var(--bg-base); display: flex; flex-direction: column;">
+          <div style="height: 64px; display: flex; align-items: center; gap: 4px; padding: 0 12px 0 24px; border-bottom: 1px solid var(--border-subtle);">
+            <a href="#" class="tt-brand" style="font-size: 17px;"><span class="tt-disc"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></span><span>tommy tinkers <span class="nz">NZ</span></span></a>
+            <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin-left: auto; position: relative;" aria-label="Cart, 3 items"><i class="ph ph-shopping-cart-simple ph-24" aria-hidden="true"></i><span class="tt-count" aria-hidden="true">3</span></button>
+            <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close menu" aria-expanded="true"><i class="ph ph-x ph-24" aria-hidden="true"></i></button>
+          </div>
+          <nav style="padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 8px;" aria-label="Main (example)">
+            <a href="#" class="tt-moblink" aria-current="page"><span style="display: inline-flex; align-items: center; gap: 12px;"><span style="width: 3px; height: 20px; border-radius: 2px; background: var(--accent);"></span>Shop</span><i class="ph ph-caret-right ph-20" aria-hidden="true"></i></a>
+            <a href="#" class="tt-moblink">Codebench<i class="ph ph-caret-right ph-20" aria-hidden="true"></i></a>
+            <a href="#" class="tt-moblink">The Shed<i class="ph ph-caret-right ph-20" aria-hidden="true"></i></a>
+            <a href="#" class="tt-moblink is-sub">Pinboard</a>
+            <a href="#" class="tt-moblink is-sub">Workshop</a>
+            <a href="#" class="tt-moblink">Contact<i class="ph ph-caret-right ph-20" aria-hidden="true"></i></a>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 4px;"><span style="font-size: 14px; color: var(--text-secondary);">Theme: {{themeName}}</span><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm"><i class="{{otherIcon}}" aria-hidden="true"></i>{{otherLabel}}</button></div>
+            <a href="#" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-sign-in" aria-hidden="true"></i>Sign in</a>
+            <a href="#" class="tt-btn tt-btn--secondary tt-btn--block">Create a free account</a>
+          </nav>
+        </div>
+      </div>
+
+      <div style="width: 375px; display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// cart drawer, loading</p>
+        <div style="width: 375px; height: 720px; border: 1px solid var(--border-default); border-radius: 16px; overflow: hidden; background: var(--bg-surface); display: flex; flex-direction: column;" aria-busy="true">
+          <div class="tt-drawer-head"><h3 style="font-size: 20px; font-weight: 600;">Your cart</h3><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close cart"><i class="ph ph-x ph-24" aria-hidden="true"></i></button></div>
+          <div style="padding: 8px 24px; flex: 1; display: flex; flex-direction: column;">
+            <div class="tt-line"><div class="tt-skel" style="width: 72px; height: 72px; border-radius: 10px;"></div><div style="display: flex; flex-direction: column; gap: 8px; padding-top: 4px;"><div class="tt-skel" style="height: 16px; width: 80%;"></div><div class="tt-skel" style="height: 12px; width: 40%;"></div><div class="tt-skel" style="height: 32px; width: 112px; margin-top: 8px;"></div></div></div>
+            <div class="tt-line"><div class="tt-skel" style="width: 72px; height: 72px; border-radius: 10px;"></div><div style="display: flex; flex-direction: column; gap: 8px; padding-top: 4px;"><div class="tt-skel" style="height: 16px; width: 64%;"></div><div class="tt-skel" style="height: 12px; width: 48%;"></div><div class="tt-skel" style="height: 32px; width: 112px; margin-top: 8px;"></div></div></div>
+            <p class="sr-only" role="status">Loading your cart</p>
+          </div>
+          <div class="tt-drawer-foot"><div class="tt-skel" style="height: 20px; width: 100%;"></div><div class="tt-skel" style="height: 44px; width: 100%; border-radius: 6px;"></div></div>
+        </div>
+      </div>
+
+      <div style="width: 375px; display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// cart drawer, full width on mobile</p>
+        <div style="width: 375px; height: 720px; border: 1px solid var(--border-default); border-radius: 16px; overflow: hidden; background: var(--bg-surface); display: flex; flex-direction: column;">
+          <div class="tt-drawer-head"><h3 style="font-size: 20px; font-weight: 600;">Your cart <span style="color: var(--text-secondary); font-weight: 500;">(1)</span></h3><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon is-focus" aria-label="Close cart"><i class="ph ph-x ph-24" aria-hidden="true"></i></button></div>
+          <ul style="padding: 8px 24px; flex: 1;">
+            <li class="tt-line">
+              <div class="tt-ph" style="border-radius: 10px; overflow: hidden;"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div>
+              <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+                <div style="display: flex; justify-content: space-between; gap: 12px;"><div><p style="font-weight: 600; font-size: 15px; line-height: 1.3;">Custom sticker sheet A4</p><p style="font-size: 13px; color: var(--text-secondary);">Your design</p></div><span style="font-weight: 600; font-size: 15px;">$35.00</span></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                  <div class="tt-qty" role="group" aria-label="Quantity"><button type="button" aria-label="Decrease quantity" disabled="disabled"><i class="ph ph-minus ph-16" aria-hidden="true"></i></button><output>1</output><button type="button" aria-label="Increase quantity"><i class="ph ph-plus ph-16" aria-hidden="true"></i></button></div>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Remove Custom sticker sheet A4"><i class="ph ph-trash ph-20" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <div class="tt-drawer-foot">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: 600;">Subtotal</span><span style="font-size: 20px; font-weight: 700;">$35.00</span></div>
+            <p class="tt-small">Free shipping anywhere in New Zealand.</p>
+            <a href="#" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-lock-simple" aria-hidden="true"></i>Go to checkout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOME STATES ============ -->
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <h2 class="tt-h3">Home: featured products states</h2>
+      <p class="tt-small">Loading keeps the grid shape so nothing jumps. Empty and error replace the grid with a single message card.</p>
+    </div>
+    <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// loading</p>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px;" aria-busy="true">
+      <div class="tt-card tt-card--flush"><div class="tt-skel" style="aspect-ratio: 1 / 1; border-radius: 0;"></div><div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;"><div class="tt-skel" style="height: 12px; width: 50%;"></div><div class="tt-skel" style="height: 16px; width: 85%;"></div><div class="tt-skel" style="height: 20px; width: 35%;"></div><div class="tt-skel" style="height: 36px; width: 100%; border-radius: 6px;"></div></div></div>
+      <div class="tt-card tt-card--flush"><div class="tt-skel" style="aspect-ratio: 1 / 1; border-radius: 0;"></div><div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;"><div class="tt-skel" style="height: 12px; width: 40%;"></div><div class="tt-skel" style="height: 16px; width: 70%;"></div><div class="tt-skel" style="height: 20px; width: 35%;"></div><div class="tt-skel" style="height: 36px; width: 100%; border-radius: 6px;"></div></div></div>
+      <div class="tt-card tt-card--flush"><div class="tt-skel" style="aspect-ratio: 1 / 1; border-radius: 0;"></div><div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;"><div class="tt-skel" style="height: 12px; width: 55%;"></div><div class="tt-skel" style="height: 16px; width: 80%;"></div><div class="tt-skel" style="height: 20px; width: 35%;"></div><div class="tt-skel" style="height: 36px; width: 100%; border-radius: 6px;"></div></div></div>
+      <div class="tt-card tt-card--flush"><div class="tt-skel" style="aspect-ratio: 1 / 1; border-radius: 0;"></div><div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;"><div class="tt-skel" style="height: 12px; width: 45%;"></div><div class="tt-skel" style="height: 16px; width: 75%;"></div><div class="tt-skel" style="height: 20px; width: 35%;"></div><div class="tt-skel" style="height: 36px; width: 100%; border-radius: 6px;"></div></div></div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px;">
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// empty</p>
+        <div class="tt-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 48px 32px;">
+          <span style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center; color: var(--text-secondary);"><i class="ph ph-hammer ph-24" aria-hidden="true"></i></span>
+          <h3 class="tt-h4" style="font-weight: 600;">Nothing on the bench right now</h3>
+          <p class="tt-small" style="max-width: 360px;">I'm between batches. The full shop still has plenty in it.</p>
+          <a href="#" class="tt-btn tt-btn--secondary">See everything</a>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <p class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">// error</p>
+        <div class="tt-card" role="alert" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 48px 32px; border-color: var(--error);">
+          <span style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center; color: var(--error);"><i class="ph ph-warning-circle ph-24" aria-hidden="true"></i></span>
+          <h3 class="tt-h4" style="font-weight: 600;">Couldn't load the featured products</h3>
+          <p class="tt-small" style="max-width: 360px;">Something went wrong on my end. Give it another go, or head straight to the shop.</p>
+          <div style="display: flex; gap: 12px;"><button type="button" class="tt-btn tt-btn--primary"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Try again</button><a href="#" class="tt-btn tt-btn--ghost">Go to the shop</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":1280,"height":3300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const theme = this.props.theme || 'dark';
+    const dark = theme !== 'light';
+    return { theme, themeName: theme, otherIcon: dark ? 'ph ph-sun' : 'ph ph-moon', otherLabel: dark ? 'Light theme' : 'Dark theme' };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Achievements - The Shed - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="shed" count="0" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main">
+  <section class="tt-warm" aria-labelledby="ach-h">
+    <div class="tt-container" style="padding-top: 40px; display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; the shed / achievements</span>
+      <h1 id="ach-h" class="tt-h1" style="font-size: clamp(36px, 5vw, 56px);">Workshop stamps</h1>
+      <p style="font-size: 18px; max-width: 620px;">Little marks for tinkering, ordering, posting and the odd award from Tommy. Tap any stamp for the story.</p>
+      <nav aria-label="The Shed" class="tt-tabs" style="margin-top: 16px;">
+        <a href="Shed.dc.html" class="tt-tab"><i class="ph ph-push-pin ph-20" aria-hidden="true"></i>Pinboard</a>
+        <a href="Workshop.dc.html" class="tt-tab"><i class="ph ph-chats-circle ph-20" aria-hidden="true"></i>Workshop</a>
+        <a href="Achievements.dc.html" class="tt-tab" aria-current="page"><i class="ph ph-trophy ph-20" aria-hidden="true"></i>Achievements</a>
+        <sc-if value="{{signedIn}}" hint-placeholder-val="{{true}}"><a href="Profile.dc.html" class="tt-tab"><i class="ph ph-user ph-20" aria-hidden="true"></i>Your profile</a></sc-if>
+      </nav>
+    </div>
+  </section>
+
+  <section class="tt-container" style="padding-block: 32px 96px; display: flex; flex-direction: column; gap: 32px;">
+    <sc-if value="{{signedOut}}" hint-placeholder-val="{{false}}">
+      <div class="tt-card" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;"><h2 class="tt-h4" style="font-weight: 600;">Start collecting</h2><p class="tt-small">These are all the stamps there are. Make a free account and your first one, Welcome aboard, lands straight away.</p></div>
+        <div style="display: flex; gap: 12px;"><a href="Auth.dc.html" class="tt-btn tt-btn--secondary"><i class="ph ph-sign-in" aria-hidden="true"></i>Sign in</a><a href="Auth.dc.html" class="tt-btn tt-btn--primary">Create a free account</a></div>
+      </div>
+    </sc-if>
+
+    <!-- level card -->
+    <sc-if value="{{signedIn}}" hint-placeholder-val="{{true}}">
+      <section class="tt-card tt-card--feature" aria-labelledby="lvl-h" style="display: flex; flex-wrap: wrap; align-items: center; gap: 32px;">
+        <div class="tt-level" aria-hidden="true"><span class="tt-stat" style="font-size: 11px;">Level</span><span class="tt-stat" style="font-size: 48px; letter-spacing: 0; line-height: 1;">{{level.num}}</span></div>
+        <div style="flex: 999 1 280px; display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+          <span class="tt-eyebrow">Current rank</span>
+          <h2 id="lvl-h" class="tt-h3">{{level.name}}</h2>
+          <div class="tt-bar" role="progressbar" aria-label="Progress to the next level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{level.pct}}"><span style="width: {{level.pctCss}};"></span></div>
+          <p class="tt-mono" style="font-size: 12px; color: var(--text-secondary); display: flex; justify-content: space-between; gap: 12px;"><span>{{level.into}} pts into this level</span><span>{{level.toNext}}</span></p>
+        </div>
+        <div style="flex: 1 1 200px; display: flex; gap: 32px; justify-content: center;">
+          <div style="text-align: center;"><p class="tt-stat" style="font-size: 32px; letter-spacing: 0.04em; line-height: 1.1;">{{earnedCount}}/{{total}}</p><p class="tt-eyebrow">Stamps</p></div>
+          <div style="text-align: center;"><p class="tt-stat" style="font-size: 32px; letter-spacing: 0.04em; line-height: 1.1;">{{points}}</p><p class="tt-eyebrow">Points</p></div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- filters -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="tt-chipwrap" role="group" aria-label="Show stamps that are">
+        <sc-for list="{{statusChips}}" as="c" hint-placeholder-count="4"><button type="button" class="tt-chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}">{{c.label}}<span class="n">{{c.n}}</span></button></sc-for>
+      </div>
+      <div class="tt-chipwrap" role="group" aria-label="Stamp family">
+        <sc-for list="{{famChips}}" as="c" hint-placeholder-count="5"><button type="button" class="tt-chip" style="min-height: 36px; font-size: 13px;" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for>
+      </div>
+    </div>
+
+    <sc-if value="{{none}}" hint-placeholder-val="{{false}}"><p class="tt-small" style="text-align: center; padding: 48px 0;">Nothing in this filter yet. Keep tinkering.</p></sc-if>
+
+    <sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+      <section style="display: flex; flex-direction: column; gap: 16px;" aria-label="{{g.label}} stamps">
+        <div style="display: flex; align-items: center; gap: 12px;"><h2 class="tt-h4" style="font-weight: 600;">{{g.label}}</h2><span class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">{{g.summary}}</span><span style="flex: 1; height: 1px; background: var(--border-subtle);"></span></div>
+        <ul class="tt-badgegrid">
+          <sc-for list="{{g.badges}}" as="b" hint-placeholder-count="5">
+            <li>
+              <button type="button" class="tt-badgecard" aria-haspopup="dialog" aria-label="{{b.aria}}" onClick="{{b.open}}">
+                <span class="tt-mono" style="position: absolute; top: 10px; right: 12px; font-size: 11px; color: var(--text-secondary);">{{b.corner}}</span>
+                <span class="{{b.discClass}}" style="--p: {{b.pct}};"><i class="{{b.icon}}" aria-hidden="true"></i></span>
+                <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 15px;">{{b.name}}</span><span class="tt-mono" style="font-size: 11px; color: var(--text-secondary); letter-spacing: 0.05em;">{{b.points}} pts</span></span>
+              </button>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+    </sc-for>
+  </section>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+
+<!-- badge detail -->
+<sc-if value="{{hasOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-modalwrap">
+    <div class="tt-scrim" onClick="{{close}}" aria-hidden="true"></div>
+    <div class="tt-modal" role="dialog" aria-modal="true" aria-labelledby="bd-h" style="width: min(420px, 100%); align-items: center; text-align: center;">
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="position: absolute; top: 12px; right: 12px;" aria-label="Close" onClick="{{close}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button>
+      <span class="{{sel.discClass}}" style="width: 128px; height: 128px; --p: {{sel.pct}};"><i class="{{sel.icon}}" aria-hidden="true" style="font-size: 56px;"></i></span>
+      <span class="tt-eyebrow">{{sel.family}} · {{sel.points}} points</span>
+      <h2 id="bd-h" class="tt-h3">{{sel.name}}</h2>
+      <p class="tt-small" style="max-width: 320px;">{{sel.desc}}</p>
+      <sc-if value="{{sel.isEarned}}" hint-placeholder-val="{{true}}"><p class="tt-banner tt-banner--ok" style="width: 100%;"><i class="ph ph-check-circle" aria-hidden="true"></i>Earned 02/11/2026</p></sc-if>
+      <sc-if value="{{sel.isProgress}}" hint-placeholder-val="{{false}}"><div style="width: 100%; display: flex; flex-direction: column; gap: 8px;"><p class="tt-mono" style="font-size: 12px; color: var(--text-secondary); display: flex; justify-content: space-between;"><span>progress</span><span>{{sel.corner}}</span></p><div class="tt-bar"><span style="width: {{sel.pct}};"></span></div></div></sc-if>
+      <sc-if value="{{sel.isLocked}}" hint-placeholder-val="{{false}}"><p class="tt-banner" style="width: 100%;"><i class="ph ph-lock-simple" aria-hidden="true"></i>{{sel.lockedText}}</p></sc-if>
+    </div>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"signedIn":{"editor":"boolean","default":true},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":3000}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { theme: null, status: 'all', fam: 'all', open: null }; }
+  catalogue() {
+    // 19 badges from the prototype ("Free ship club" removed). States match Tommy's profile: 5 earned, 105 points.
+    return [
+      ['first-order', 'shop', 'package', 'First order', 'Placed your first order. The workshop is open for you.', 10, 'locked'],
+      ['repeat-customer', 'shop', 'arrows-clockwise', 'Repeat customer', 'Three orders in. Welcome to the regulars.', 25, 'locked'],
+      ['patron', 'shop', 'trophy', 'Workshop patron', "Ten orders posted. The bench misses you when you're not here.", 75, 'locked'],
+      ['sticker-fan', 'shop', 'sticker', 'Sticker fan', 'Five or more stickers ordered. Laptops, bumpers, pavement.', 20, 'locked'],
+      ['pit-crew', 'shop', 'car-profile', 'RC pit crew', 'First RC part ordered. Hold the line at Pukekohe.', 20, 'locked'],
+      ['welcome', 'community', 'hand-heart', 'Welcome aboard', 'Pulled up a stool. Glad you made it.', 5, 'earned'],
+      ['first-post', 'community', 'chat-teardrop-text', 'First post', 'Started your first thread in the Workshop.', 15, 'earned'],
+      ['helpful-hand', 'community', 'chats-circle', 'Helpful hand', 'Left a reply that helped someone else along.', 20, 'locked'],
+      ['conversationalist', 'community', 'users-three', 'Conversationalist', 'Ten replies posted.', 40, 'progress', 1, 10],
+      ['town-crier', 'community', 'megaphone', 'Town crier', 'A thread of yours was marked helpful ten times.', 30, 'locked'],
+      ['idea-person', 'community', 'lightbulb', 'Idea person', 'Asked for a custom build. If a few people want one, Tommy will batch it.', 20, 'locked'],
+      ['show-teller', 'workshop', 'camera', 'Show and teller', 'Pinned a build photo to the Pinboard.', 25, 'earned'],
+      ['tip-sharer', 'workshop', 'book-open-text', 'Tip sharer', 'Dropped a workshop tip the others took home.', 25, 'locked'],
+      ['petg-pilled', 'workshop', 'flask', 'PETG pilled', 'Specced (or asked for) PETG over PLA. Outdoor-grade thinking.', 15, 'locked'],
+      ['helensville', 'workshop', 'map-pin', 'Helensville local', 'Set your location to Helensville. Hi neighbour.', 10, 'earned'],
+      ['founding-tinker', 'special', 'sparkle', 'Founding tinker', 'One of the first 100 members. Plaque on the wall.', 50, 'earned'],
+      ['tinker-of-month', 'special', 'medal', 'Tinker of the month', 'Awarded by Tommy for outstanding workshop spirit. One a month.', 100, 'locked'],
+      ['long-hauler', 'special', 'calendar-check', 'Long hauler', 'One year on the bench.', 60, 'locked'],
+      ['beta-tinker', 'special', 'test-tube', 'Beta tinker', 'Tried something while the glue was still wet.', 30, 'locked']
+    ].map(([id, family, icon, name, desc, points, status, prog, target]) => ({ id, family, icon, name, desc, points, status, prog, target }));
+  }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const signedIn = P.signedIn ?? true;
+    const fams = [['shop', 'Shop'], ['community', 'Community'], ['workshop', 'Workshop'], ['special', 'Special']];
+    const famLabel = (f) => fams.find((x) => x[0] === f)[1];
+    // Signed out: every stamp shows as locked, so visitors can see what there is to earn.
+    const all = this.catalogue().map((b) => (signedIn ? b : { ...b, status: 'locked' }));
+    const decorate = (b) => {
+      const pct = b.status === 'progress' ? Math.round((b.prog / b.target) * 100) + '%' : b.status === 'earned' ? '100%' : '0%';
+      const special = b.family === 'special' ? ' tt-badge--special' : '';
+      return {
+        ...b,
+        familyLabel: famLabel(b.family),
+        family: famLabel(b.family),
+        pct,
+        icon: 'ph-duotone ph-' + (b.status === 'locked' ? 'lock-simple' : b.icon),
+        discClass: 'tt-badge tt-badge--' + (b.status === 'progress' ? 'progress' : b.status) + special,
+        corner: b.status === 'earned' ? 'earned' : b.status === 'progress' ? b.prog + '/' + b.target : 'locked',
+        aria: b.name + ', ' + (b.status === 'progress' ? b.prog + ' of ' + b.target : b.status) + ', ' + b.points + ' points',
+        isEarned: b.status === 'earned', isProgress: b.status === 'progress', isLocked: b.status === 'locked',
+        lockedText: b.id === 'tinker-of-month' ? 'Tommy hands this one out. It can\'t be earned by counting.' : signedIn ? 'Not unlocked yet. Keep tinkering.' : 'Sign in to start earning stamps.',
+        open: () => this.setState({ open: b.id })
+      };
+    };
+    const earned = all.filter((b) => b.status === 'earned');
+    const points = earned.reduce((n, b) => n + b.points, 0);
+    const levels = [[1, 'Curious tinker', 0, 60], [2, 'Apprentice tinker', 60, 150], [3, 'Workshop regular', 150, 300], [4, 'Senior tinker', 300, 500], [5, 'Maker of things', 500, 9999]];
+    const li = levels.findIndex((l) => points >= l[2] && points < l[3]);
+    const L = levels[li];
+    const next = levels[li + 1];
+    const pct = Math.round(((points - L[2]) / (L[3] - L[2])) * 100);
+    const visible = all.filter((b) => (s.status === 'all' || b.status === s.status) && (s.fam === 'all' || b.family === s.fam));
+    const count = (st) => all.filter((b) => b.status === st).length;
+    const sel = s.open ? decorate(all.find((b) => b.id === s.open)) : null;
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      signedIn, signedOut: !signedIn,
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      level: { num: L[0], name: L[1], into: points - L[2], pct, pctCss: pct + '%', toNext: next ? (L[3] - points) + ' pts to ' + next[1] : 'top level' },
+      earnedCount: earned.length,
+      total: all.length,
+      points,
+      statusChips: [['all', 'All', all.length], ['earned', 'Earned', count('earned')], ['progress', 'In progress', count('progress')], ['locked', 'Locked', count('locked')]]
+        .map(([id, label, n]) => ({ label, n, pressed: s.status === id ? 'true' : 'false', pick: () => this.setState({ status: id }) })),
+      famChips: [['all', 'Every family']].concat(fams).map(([id, label]) => ({ label, pressed: s.fam === id ? 'true' : 'false', pick: () => this.setState({ fam: id }) })),
+      none: visible.length === 0,
+      groups: fams.map(([id, label]) => {
+        const list = visible.filter((b) => b.family === id);
+        const famAll = all.filter((b) => b.family === id);
+        return { label, list, summary: famAll.filter((b) => b.status === 'earned').length + ' of ' + famAll.length + ' earned', badges: list.map(decorate) };
+      }).filter((g) => g.list.length > 0),
+      hasOpen: !!sel,
+      sel: sel || { discClass: '', icon: '', pct: '0%' },
+      close: () => this.setState({ open: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

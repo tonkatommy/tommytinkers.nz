@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Sign in - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<dc-import name="SiteNav" theme="{{theme}}" active="" count="0" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main" class="tt-auth">
+  <!-- left: this page's one gradient surface, desktop only -->
+  <aside class="tt-auth-art tt-warm" aria-hidden="true">
+    <span class="tt-label">&gt; the shed / sign in</span>
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <div class="tt-disc" style="width: 120px; height: 120px; background: var(--bg-surface); box-shadow: var(--shadow-lg);"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div>
+      <p class="tt-h2" style="font-weight: 700;">The Shed's open.</p>
+      <ul style="display: flex; flex-direction: column; gap: 12px; font-size: 17px;">
+        <li style="display: flex; gap: 12px; align-items: center;"><i class="ph ph-push-pin ph-24"></i>Pin your builds to the Pinboard</li>
+        <li style="display: flex; gap: 12px; align-items: center;"><i class="ph ph-chats-circle ph-24"></i>Ask and answer in the Workshop</li>
+        <li style="display: flex; gap: 12px; align-items: center;"><i class="ph ph-receipt ph-24"></i>Keep track of your orders</li>
+        <li style="display: flex; gap: 12px; align-items: center;"><i class="ph ph-trophy ph-24"></i>Collect workshop stamps</li>
+      </ul>
+    </div>
+    <p style="font-size: 14px;">Accounts are free. Looking around never needs one.</p>
+  </aside>
+
+  <div class="tt-auth-main">
+    <div class="tt-auth-card">
+
+      <!-- ================= SIGN IN ================= -->
+      <sc-if value="{{is.signin}}" hint-placeholder-val="{{true}}">
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">Welcome back</h1><p class="tt-small">Sign in to post in the Shed, see your orders and pick up your build sheets.</p></header>
+        <sc-if value="{{wrong}}" hint-placeholder-val="{{false}}">
+          <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><div style="display: flex; flex-direction: column; gap: 4px;"><p style="font-weight: 600;">That email and password don't match</p><p style="color: var(--text-secondary);">{{triesText}}</p></div></div>
+        </sc-if>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--block"><i class="ph ph-google-logo" aria-hidden="true"></i>Continue with Google</button>
+        <p class="tt-or">or use your email</p>
+        <form style="display: flex; flex-direction: column; gap: 16px;" novalidate="novalidate" onSubmit="{{signIn}}">
+          <div class="tt-field">
+            <label for="si-email">Email</label>
+            <input id="si-email" type="email" class="{{emailClass}}" autocomplete="email" value="{{email}}" onChange="{{onEmail}}" disabled="{{busy}}" aria-invalid="{{emailInv}}" aria-describedby="si-email-e">
+            <sc-if value="{{emailErr}}" hint-placeholder-val="{{false}}"><p id="si-email-e" class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Pop your email in here.</p></sc-if>
+          </div>
+          <div class="tt-field">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;"><label for="si-pw">Password</label><a href="#forgot" onClick="{{go.forgot}}" style="font-size: 14px;">Forgot your password?</a></div>
+            <div class="tt-pw"><input id="si-pw" type="{{pwType}}" class="{{pwClass}}" autocomplete="current-password" value="{{pw}}" onChange="{{onPw}}" disabled="{{busy}}" aria-invalid="{{pwInv}}" aria-describedby="si-pw-e"><button type="button" aria-label="{{pwToggleLabel}}" aria-pressed="{{pwShown}}" onClick="{{togglePw}}"><i class="{{pwIcon}} ph-20" aria-hidden="true"></i></button></div>
+            <sc-if value="{{pwErr}}" hint-placeholder-val="{{false}}"><p id="si-pw-e" class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>And your password.</p></sc-if>
+          </div>
+          <sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Signing in</button></sc-if>
+          <sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><button type="submit" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-sign-in" aria-hidden="true"></i>Sign in</button></sc-if>
+        </form>
+        <p class="tt-small" style="text-align: center;">New here? <a href="#signup" onClick="{{go.signup}}">Create a free account</a></p>
+      </sc-if>
+
+      <!-- ================= SIGN UP ================= -->
+      <sc-if value="{{is.signup}}" hint-placeholder-val="{{false}}">
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">Pull up a stool</h1><p class="tt-small">A free account lets you pin to the Pinboard, post in the Workshop and keep track of your orders.</p></header>
+        <sc-if value="{{suErrors}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>A few things to sort before I can set you up. They're marked below.</p></div></sc-if>
+        <button type="button" class="tt-btn tt-btn--secondary tt-btn--block"><i class="ph ph-google-logo" aria-hidden="true"></i>Sign up with Google</button>
+        <p class="tt-or">or use your email</p>
+        <form style="display: flex; flex-direction: column; gap: 16px;" novalidate="novalidate" onSubmit="{{signUp}}">
+          <div class="tt-field">
+            <label for="su-name">Display name</label>
+            <input id="su-name" class="{{nameClass}}" autocomplete="nickname" value="{{name}}" onChange="{{onName}}" disabled="{{busy}}" aria-invalid="{{nameInv}}" aria-describedby="su-name-h">
+            <sc-if value="{{nameErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Pick a name other members will see.</p></sc-if>
+            <p id="su-name-h" class="tt-help">This is what other members see. You can change it later.</p>
+          </div>
+          <div class="tt-field">
+            <label for="su-email">Email</label>
+            <input id="su-email" type="email" class="{{emailClass}}" autocomplete="email" value="{{email}}" onChange="{{onEmail}}" disabled="{{busy}}" aria-invalid="{{emailInv}}">
+            <sc-if value="{{emailErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>That email is missing its ending, like .co.nz</p></sc-if>
+          </div>
+          <div class="tt-field">
+            <label for="su-pw">Password</label>
+            <div class="tt-pw"><input id="su-pw" type="{{pwType}}" class="{{pwClass}}" autocomplete="new-password" value="{{pw}}" onChange="{{onPw}}" disabled="{{busy}}" aria-invalid="{{pwInv}}" aria-describedby="su-req"><button type="button" aria-label="{{pwToggleLabel}}" aria-pressed="{{pwShown}}" onClick="{{togglePw}}"><i class="{{pwIcon}} ph-20" aria-hidden="true"></i></button></div>
+            <ul id="su-req" class="tt-req" aria-label="Password needs">
+              <sc-for list="{{reqs}}" as="r" hint-placeholder-count="3"><li class="{{r.cls}}"><i class="{{r.icon}}" aria-hidden="true"></i>{{r.text}}<span class="sr-only">{{r.sr}}</span></li></sc-for>
+            </ul>
+          </div>
+          <div class="tt-field">
+            <label class="tt-check" style="align-items: flex-start;"><input type="checkbox" checked="{{agree}}" onChange="{{toggleAgree}}" disabled="{{busy}}" style="margin-top: 2px;"><span style="font-size: 14px;">I've read the <a href="#rules">house rules</a> and the <a href="#privacy">privacy policy</a>.</span></label>
+            <sc-if value="{{agreeErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Tick this to carry on.</p></sc-if>
+          </div>
+          <sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Setting you up</button></sc-if>
+          <sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><button type="submit" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-user-plus" aria-hidden="true"></i>Create my account</button></sc-if>
+        </form>
+        <p class="tt-small" style="text-align: center;">Already got one? <a href="#signin" onClick="{{go.signin}}">Sign in</a></p>
+      </sc-if>
+
+      <!-- ================= VERIFY: check your email ================= -->
+      <sc-if value="{{is.verify}}" hint-placeholder-val="{{false}}">
+        <span class="tt-icon-hero"><i class="ph ph-envelope-open" aria-hidden="true"></i></span>
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">Check your email</h1><p class="tt-small">I've sent a link to <strong style="color: var(--text-primary);">{{maskedEmail}}</strong>. Click it to finish setting up your account. It works for [24 hours].</p></header>
+        <sc-if value="{{resent}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--ok" role="status"><i class="ph ph-check-circle" aria-hidden="true"></i><p>Sent again. If it's not there in a few minutes, check your spam folder.</p></div></sc-if>
+        <sc-if value="{{coolingDown}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--secondary tt-btn--block" disabled="disabled">Send it again in {{cooldownText}}</button></sc-if>
+        <sc-if value="{{canResend}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--secondary tt-btn--block" onClick="{{resend}}"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Send it again</button></sc-if>
+        <p class="tt-small">Wrong email? <a href="#signup" onClick="{{go.signup}}">Go back and fix it</a></p>
+      </sc-if>
+
+      <!-- ================= VERIFY: link expired ================= -->
+      <sc-if value="{{is.verifyExpired}}" hint-placeholder-val="{{false}}">
+        <span class="tt-icon-hero" style="color: var(--error);"><i class="ph ph-hourglass" aria-hidden="true"></i></span>
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">That link has expired</h1><p class="tt-small">Links only work for [24 hours]. Pop your email in and I'll send a fresh one.</p></header>
+        <div class="tt-field"><label for="ve-email">Email</label><input id="ve-email" type="email" class="tt-input" autocomplete="email" value="{{email}}" onChange="{{onEmail}}"></div>
+        <button type="button" class="tt-btn tt-btn--primary tt-btn--block" onClick="{{go.verify}}"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Send a new link</button>
+      </sc-if>
+
+      <!-- ================= VERIFIED ================= -->
+      <sc-if value="{{is.verified}}" hint-placeholder-val="{{false}}">
+        <span class="tt-icon-hero" style="background: var(--accent-subtle); border-color: var(--accent-muted); color: var(--mono);"><i class="ph ph-check-circle" aria-hidden="true"></i></span>
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">You're in</h1><p class="tt-small">Your email's confirmed and you're signed in. Your first stamp, Welcome aboard, is already on your profile.</p></header>
+        <div style="display: flex; flex-direction: column; gap: 12px;"><a href="Shed.dc.html" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-push-pin" aria-hidden="true"></i>Go to the Shed</a><a href="Shop.dc.html" class="tt-btn tt-btn--ghost tt-btn--block">Back to the shop</a></div>
+      </sc-if>
+
+      <!-- ================= FORGOT ================= -->
+      <sc-if value="{{is.forgot}}" hint-placeholder-val="{{false}}">
+        <span class="tt-icon-hero"><i class="ph ph-key" aria-hidden="true"></i></span>
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">Forgot your password?</h1><p class="tt-small">No worries. Pop your email in and I'll send a link to set a new one.</p></header>
+        <form style="display: flex; flex-direction: column; gap: 16px;" novalidate="novalidate" onSubmit="{{sendReset}}">
+          <div class="tt-field"><label for="fg-email">Email</label><input id="fg-email" type="email" class="{{emailClass}}" autocomplete="email" value="{{email}}" onChange="{{onEmail}}" disabled="{{busy}}" aria-invalid="{{emailInv}}"><sc-if value="{{emailErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>That email is missing its ending, like .co.nz</p></sc-if></div>
+          <sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Sending</button></sc-if>
+          <sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><button type="submit" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Send reset link</button></sc-if>
+        </form>
+        <p class="tt-small" style="text-align: center;">Remembered it? <a href="#signin" onClick="{{go.signin}}">Sign in</a></p>
+      </sc-if>
+
+      <!-- ================= FORGOT: sent ================= -->
+      <sc-if value="{{is.forgotSent}}" hint-placeholder-val="{{false}}">
+        <span class="tt-icon-hero"><i class="ph ph-envelope-open" aria-hidden="true"></i></span>
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">Check your email</h1><p class="tt-small">If there's an account for <strong style="color: var(--text-primary);">{{maskedEmail}}</strong>, a reset link is on its way. It works for [1 hour].</p></header>
+        <p class="tt-help">I say "if" on purpose, so nobody can use this page to find out who has an account.</p>
+        <a href="#signin" class="tt-btn tt-btn--secondary tt-btn--block" onClick="{{go.signin}}"><i class="ph ph-arrow-left" aria-hidden="true"></i>Back to sign in</a>
+      </sc-if>
+
+      <!-- ================= RESET ================= -->
+      <sc-if value="{{is.reset}}" hint-placeholder-val="{{false}}">
+        <span class="tt-icon-hero"><i class="ph ph-password" aria-hidden="true"></i></span>
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">Set a new password</h1><p class="tt-small">Make it one you don't use anywhere else.</p></header>
+        <form style="display: flex; flex-direction: column; gap: 16px;" novalidate="novalidate" onSubmit="{{saveReset}}">
+          <div class="tt-field">
+            <label for="rs-pw">New password</label>
+            <div class="tt-pw"><input id="rs-pw" type="{{pwType}}" class="{{pwClass}}" autocomplete="new-password" value="{{pw}}" onChange="{{onPw}}" disabled="{{busy}}" aria-describedby="rs-req"><button type="button" aria-label="{{pwToggleLabel}}" aria-pressed="{{pwShown}}" onClick="{{togglePw}}"><i class="{{pwIcon}} ph-20" aria-hidden="true"></i></button></div>
+            <ul id="rs-req" class="tt-req" aria-label="Password needs"><sc-for list="{{reqs}}" as="r" hint-placeholder-count="3"><li class="{{r.cls}}"><i class="{{r.icon}}" aria-hidden="true"></i>{{r.text}}<span class="sr-only">{{r.sr}}</span></li></sc-for></ul>
+          </div>
+          <div class="tt-field">
+            <label for="rs-pw2">Type it again</label>
+            <input id="rs-pw2" type="{{pwType}}" class="{{pw2Class}}" autocomplete="new-password" value="{{pw2}}" onChange="{{onPw2}}" disabled="{{busy}}" aria-invalid="{{pw2Inv}}">
+            <sc-if value="{{mismatch}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Those two don't match yet.</p></sc-if>
+          </div>
+          <sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</button></sc-if>
+          <sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><button type="submit" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Save new password</button></sc-if>
+        </form>
+      </sc-if>
+
+      <!-- ================= RESET: expired ================= -->
+      <sc-if value="{{is.resetExpired}}" hint-placeholder-val="{{false}}">
+        <span class="tt-icon-hero" style="color: var(--error);"><i class="ph ph-hourglass" aria-hidden="true"></i></span>
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">That reset link has expired</h1><p class="tt-small">Reset links only work for [1 hour], and only once. Ask for a new one and use it straight away.</p></header>
+        <a href="#forgot" class="tt-btn tt-btn--primary tt-btn--block" onClick="{{go.forgot}}"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Send me a new link</a>
+      </sc-if>
+
+      <!-- ================= RESET: done ================= -->
+      <sc-if value="{{is.resetDone}}" hint-placeholder-val="{{false}}">
+        <span class="tt-icon-hero" style="background: var(--accent-subtle); border-color: var(--accent-muted); color: var(--mono);"><i class="ph ph-check-circle" aria-hidden="true"></i></span>
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">Password changed</h1><p class="tt-small">Your new password works from now on.</p></header>
+        <sc-if value="{{signoutAsk}}" hint-placeholder-val="{{true}}">
+          <fieldset class="tt-card" style="background: var(--bg-raised); margin: 0; display: flex; flex-direction: column; gap: 12px;">
+            <legend class="sr-only">Sign out other devices</legend>
+            <p style="font-weight: 600;">Sign out everywhere else too?</p>
+            <p class="tt-small">If you changed it because you think someone else knows your old password, say yes. Any phone or computer still signed in will have to sign in again.</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;"><button type="button" class="tt-btn tt-btn--primary" onClick="{{signoutYes}}"><i class="ph ph-sign-out" aria-hidden="true"></i>Yes, sign them out</button><button type="button" class="tt-btn tt-btn--ghost" onClick="{{signoutNo}}">No, leave them</button></div>
+          </fieldset>
+        </sc-if>
+        <sc-if value="{{signoutDoneYes}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--ok" role="status"><i class="ph ph-check-circle" aria-hidden="true"></i><p>Done. Every other device is signed out.</p></div></sc-if>
+        <sc-if value="{{signoutDoneNo}}" hint-placeholder-val="{{false}}"><div class="tt-banner" role="status"><i class="ph ph-info" aria-hidden="true"></i><p>No worries. Your other devices stay signed in. You can sign them out any time from account settings.</p></div></sc-if>
+        <a href="#signin" class="tt-btn tt-btn--primary tt-btn--block" onClick="{{go.signin}}"><i class="ph ph-sign-in" aria-hidden="true"></i>Sign in</a>
+      </sc-if>
+
+      <!-- ================= LOCKED ================= -->
+      <sc-if value="{{is.locked}}" hint-placeholder-val="{{false}}">
+        <span class="tt-icon-hero" style="color: var(--error);"><i class="ph ph-lock-key" aria-hidden="true"></i></span>
+        <header style="display: flex; flex-direction: column; gap: 8px;"><h1 class="tt-h2">Sign-in paused</h1><p class="tt-small">That's 5 wrong passwords in a row, so I've paused sign-in for this account for 15 minutes. It keeps guessers out.</p></header>
+        <div class="tt-card" style="background: var(--bg-raised); display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;" role="timer" aria-live="off" aria-label="{{lockAria}}">
+          <span class="tt-stat" style="font-size: 48px; letter-spacing: 0.08em; line-height: 1.1;">{{lockText}}</span>
+          <span class="tt-eyebrow">until you can try again</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <a href="#forgot" class="tt-btn tt-btn--primary tt-btn--block" onClick="{{go.forgot}}"><i class="ph ph-key" aria-hidden="true"></i>Reset my password instead</a>
+          <a href="Main.dc.html" class="tt-btn tt-btn--ghost tt-btn--block">Back to the home page</a>
+        </div>
+        <p class="tt-help" style="display: flex; align-items: flex-start; gap: 8px;"><i class="ph ph-shield-check ph-20" aria-hidden="true" style="flex: none; margin-top: 1px;"></i><span>Wasn't you? Nobody got in. If it keeps happening, reset your password and <a href="#contact">let me know</a>.</span></p>
+      </sc-if>
+
+    </div>
+  </div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"screen":{"editor":"enum","options":["signin","signinError","signinWrong","signinBusy","signup","signupErrors","signupBusy","verify","verifyResent","verifyExpired","verified","forgot","forgotSent","reset","resetMismatch","resetExpired","resetDone","locked"],"default":"signin"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const p = props.screen || 'signin';
+    const base = { theme: null, email: '', pw: '', pw2: '', name: '', agree: false, showPw: false, busy: false, fails: 0, tried: false, wrong: false, resent: false, cooldown: 0, lockLeft: 15 * 60, signout: null };
+    const presets = {
+      signin: { screen: 'signin' },
+      signinError: { screen: 'signin', tried: true },
+      signinWrong: { screen: 'signin', email: 'you@example.co.nz', pw: 'wrongpass', fails: 2, wrong: true },
+      signinBusy: { screen: 'signin', email: 'you@example.co.nz', pw: 'password1', busy: true },
+      signup: { screen: 'signup' },
+      signupErrors: { screen: 'signup', tried: true, email: 'you@example', pw: 'short' },
+      signupBusy: { screen: 'signup', name: 'Sam', email: 'you@example.co.nz', pw: 'a-long-password-1', agree: true, busy: true },
+      verify: { screen: 'verify', email: 'you@example.co.nz' },
+      verifyResent: { screen: 'verify', email: 'you@example.co.nz', resent: true, cooldown: 45 },
+      verifyExpired: { screen: 'verifyExpired' },
+      verified: { screen: 'verified' },
+      forgot: { screen: 'forgot' },
+      forgotSent: { screen: 'forgotSent', email: 'you@example.co.nz' },
+      reset: { screen: 'reset' },
+      resetMismatch: { screen: 'reset', pw: 'a-long-password-1', pw2: 'a-long-password-2', tried: true },
+      resetExpired: { screen: 'resetExpired' },
+      resetDone: { screen: 'resetDone' },
+      locked: { screen: 'locked', fails: 5 }
+    };
+    this.state = { ...base, ...(presets[p] || presets.signin) };
+  }
+  componentDidMount() {
+    // One ticker drives both the resend cooldown and the 15-minute lock countdown.
+    this.tick = setInterval(() => {
+      const s = this.state;
+      if (s.screen === 'locked' && s.lockLeft > 0) this.setState({ lockLeft: s.lockLeft - 1 });
+      if (s.cooldown > 0) this.setState({ cooldown: s.cooldown - 1 });
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.busyT); }
+  go(screen) {
+    return (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      this.setState({ screen, tried: false, wrong: false, busy: false, resent: false, pw: '', pw2: '', showPw: false, lockLeft: 15 * 60, signout: null });
+    };
+  }
+  later(patch, ms) { clearTimeout(this.busyT); this.setState({ busy: true }); this.busyT = setTimeout(() => this.setState({ busy: false, ...patch }), ms || 900); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const emailOk = /.+@.+\..+/.test(s.email);
+    const pwChecks = [
+      ['At least 10 characters', s.pw.length >= 10],
+      ['A number', /[0-9]/.test(s.pw)],
+      ['A symbol, like ! or #', /[^A-Za-z0-9\s]/.test(s.pw)],
+      ['Not the same as your email', !!s.pw && s.pw !== s.email]
+    ];
+    const pwOk = pwChecks.every((c) => c[1]);
+    const t = s.tried;
+    const sc = s.screen;
+    const screens = ['signin', 'signup', 'verify', 'verifyExpired', 'verified', 'forgot', 'forgotSent', 'reset', 'resetExpired', 'resetDone', 'locked'];
+    const is = {};
+    const go = {};
+    screens.forEach((k) => { is[k] = sc === k; go[k] = this.go(k); });
+    const emailErr = t && !emailOk;
+    const pwErr = t && (sc === 'signin' ? !s.pw : !pwOk);
+    const nameErr = t && sc === 'signup' && !s.name.trim();
+    const agreeErr = t && sc === 'signup' && !s.agree;
+    const mismatch = t && sc === 'reset' && s.pw2 !== s.pw;
+    const left = 5 - s.fails;
+    const mm = Math.floor(s.lockLeft / 60);
+    const ss = String(s.lockLeft % 60).padStart(2, '0');
+    const [user, domain] = (s.email || 'you@example.co.nz').split('@');
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      is, go,
+      email: s.email, pw: s.pw, pw2: s.pw2, name: s.name, agree: s.agree,
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      onPw: (e) => this.setState({ pw: e.target.value }),
+      onPw2: (e) => this.setState({ pw2: e.target.value }),
+      onName: (e) => this.setState({ name: e.target.value }),
+      toggleAgree: () => this.setState({ agree: !s.agree }),
+      busy: s.busy, notBusy: !s.busy,
+      pwType: s.showPw ? 'text' : 'password',
+      pwShown: s.showPw ? 'true' : 'false',
+      pwIcon: s.showPw ? 'ph ph-eye-slash' : 'ph ph-eye',
+      pwToggleLabel: s.showPw ? 'Hide password' : 'Show password',
+      togglePw: () => this.setState({ showPw: !s.showPw }),
+      emailErr, emailInv: emailErr ? 'true' : 'false', emailClass: emailErr ? 'tt-input is-error' : 'tt-input',
+      pwErr, pwInv: pwErr ? 'true' : 'false', pwClass: pwErr || s.wrong ? 'tt-input is-error' : 'tt-input',
+      nameErr, nameInv: nameErr ? 'true' : 'false', nameClass: nameErr ? 'tt-input is-error' : 'tt-input',
+      agreeErr,
+      suErrors: t && sc === 'signup' && (nameErr || emailErr || pwErr || agreeErr),
+      mismatch, pw2Inv: mismatch ? 'true' : 'false', pw2Class: mismatch ? 'tt-input is-error' : 'tt-input',
+      reqs: pwChecks.map(([text, ok]) => ({ text, cls: ok ? 'is-ok' : '', icon: ok ? 'ph ph-check-circle' : (t ? 'ph ph-x-circle' : 'ph ph-minus-circle'), sr: ok ? ' (done)' : ' (not yet)' })),
+      wrong: s.wrong,
+      triesText: left === 1 ? 'One more wrong try and sign-in pauses for 15 minutes.' : "You've got " + left + ' tries left before sign-in pauses for 15 minutes.',
+      signIn: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!emailOk || !s.pw) return this.setState({ tried: true });
+        // Demo: any password is "wrong", so you can walk the lockout. Better Auth counts the real ones.
+        const fails = s.fails + 1;
+        this.later(fails >= 5 ? { screen: 'locked', fails, wrong: false, lockLeft: 15 * 60 } : { fails, wrong: true, pw: '' });
+      },
+      signUp: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!s.name.trim() || !emailOk || !pwOk || !s.agree) return this.setState({ tried: true });
+        this.later({ screen: 'verify', tried: false, cooldown: 60 }, 1200);
+      },
+      maskedEmail: user.slice(0, 1) + '•••@' + (domain || 'example.co.nz'),
+      resent: s.resent,
+      coolingDown: s.cooldown > 0,
+      canResend: s.cooldown === 0,
+      cooldownText: '0:' + String(s.cooldown).padStart(2, '0'),
+      resend: () => this.setState({ resent: true, cooldown: 60 }),
+      sendReset: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!emailOk) return this.setState({ tried: true });
+        this.later({ screen: 'forgotSent', tried: false });
+      },
+      saveReset: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!pwOk || s.pw2 !== s.pw) return this.setState({ tried: true });
+        this.later({ screen: 'resetDone', tried: false });
+      },
+      // Better Auth can revoke other sessions on reset; here the member chooses instead of it being automatic.
+      signoutAsk: s.signout === null,
+      signoutDoneYes: s.signout === 'yes',
+      signoutDoneNo: s.signout === 'no',
+      signoutYes: () => this.setState({ signout: 'yes' }),
+      signoutNo: () => this.setState({ signout: 'no' }),
+      lockText: mm + ':' + ss,
+      lockAria: mm + ' minutes ' + ss + ' seconds until you can try again'
+    };
+  }
+}
+</script>
+</body>
+</html>

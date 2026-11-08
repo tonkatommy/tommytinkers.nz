@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>SiteNav - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="tt" data-theme="{{theme}}" style="background: transparent; font-family: var(--font-body); color: var(--text-primary);">
+<header class="{{navClass}}">
+  <div class="tt-container tt-nav-in">
+    <a href="Main.dc.html" class="tt-brand" aria-label="tommy tinkers NZ, home">
+      <span class="tt-disc"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></span>
+      <span>tommy tinkers <span class="nz">NZ</span></span>
+    </a>
+    <nav class="tt-navlinks" aria-label="Main">
+      <a href="Shop.dc.html" class="{{shopClass}}" aria-current="{{shopCurrent}}">Shop</a>
+      <a href="Codebench.dc.html" class="{{codeClass}}" aria-current="{{codeCurrent}}">Codebench</a>
+      <a href="Shed.dc.html" class="{{shedClass}}" aria-current="{{shedCurrent}}">The Shed</a>
+    </nav>
+    <div class="tt-navright">
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon tt-only-desk" aria-label="{{themeLabel}}" title="{{themeLabel}}" onClick="{{toggleTheme}}"><i class="{{themeIcon}}" aria-hidden="true"></i></button>
+      <div style="position: relative;" class="tt-only-desk">
+        <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Account menu" aria-haspopup="menu" aria-expanded="{{acctExpanded}}" onClick="{{toggleAcct}}"><i class="ph ph-user-circle" aria-hidden="true"></i></button>
+        <sc-if value="{{acct}}" hint-placeholder-val="{{false}}">
+          <div class="tt-menu" role="menu" style="position: absolute; right: 0; top: 52px; z-index: 110;">
+            <sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}">
+              <p style="padding: 8px 12px 12px; font-size: 14px; color: var(--text-secondary); max-width: 240px;">Sign in to post in the Shed and see your orders.</p>
+              <a href="Auth.dc.html" class="tt-menu-item" role="menuitem"><i class="ph ph-sign-in" aria-hidden="true"></i>Sign in</a>
+              <a href="Auth.dc.html" class="tt-menu-item" role="menuitem"><i class="ph ph-user" aria-hidden="true"></i>Create a free account</a>
+            </sc-if>
+            <sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}">
+              <div style="padding: 8px 12px 12px; display: flex; flex-direction: column;"><span style="font-weight: 600; font-size: 14px;">Tommy</span><span style="font-size: 14px; color: var(--text-secondary);">hello@tommytinkers.nz</span></div>
+              <a href="#orders" class="tt-menu-item" role="menuitem"><i class="ph ph-receipt" aria-hidden="true"></i>Orders</a>
+              <a href="Profile.dc.html" class="tt-menu-item" role="menuitem"><i class="ph ph-user" aria-hidden="true"></i>Shed profile</a>
+              <a href="Settings.dc.html" class="tt-menu-item" role="menuitem"><i class="ph ph-gear-six" aria-hidden="true"></i>Account settings</a>
+              <div class="tt-menu-sep" role="separator"></div>
+              <button type="button" class="tt-menu-item" role="menuitem"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out</button>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+      <a href="CartDrawer.dc.html" class="tt-btn tt-btn--ghost tt-btn--icon" style="position: relative;" aria-label="{{cartLabel}}" onClick="{{openCart}}">
+        <i class="ph ph-shopping-cart-simple ph-24" aria-hidden="true"></i>
+        <sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}"><span class="tt-count" aria-hidden="true">{{count}}</span></sc-if>
+      </a>
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon tt-only-mob" aria-label="{{mobLabel}}" aria-expanded="{{mobExpanded}}" aria-controls="mobmenu" onClick="{{toggleMob}}"><i class="{{mobIcon}} ph-24" aria-hidden="true"></i></button>
+    </div>
+  </div>
+</header>
+
+<sc-if value="{{mob}}" hint-placeholder-val="{{false}}">
+  <nav id="mobmenu" class="tt-mobmenu tt-only-mob" aria-label="Main">
+    <a href="Shop.dc.html" class="tt-moblink">Shop<i class="ph ph-caret-right ph-20" aria-hidden="true"></i></a>
+    <a href="Codebench.dc.html" class="tt-moblink">Codebench<i class="ph ph-caret-right ph-20" aria-hidden="true"></i></a>
+    <a href="Shed.dc.html" class="tt-moblink">The Shed<i class="ph ph-caret-right ph-20" aria-hidden="true"></i></a>
+    <a href="Shed.dc.html" class="tt-moblink is-sub">Pinboard</a>
+    <a href="Workshop.dc.html" class="tt-moblink is-sub">Workshop</a>
+    <a href="Contact.dc.html" class="tt-moblink">Contact<i class="ph ph-caret-right ph-20" aria-hidden="true"></i></a>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 4px;">
+      <span style="font-size: 14px; color: var(--text-secondary);">Theme: {{themeName}}</span>
+      <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{toggleTheme}}"><i class="{{themeIcon}}" aria-hidden="true"></i>{{themeLabel}}</button>
+    </div>
+    <sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+        <a href="Auth.dc.html" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-sign-in" aria-hidden="true"></i>Sign in</a>
+        <a href="Auth.dc.html" class="tt-btn tt-btn--secondary tt-btn--block">Create a free account</a>
+      </div>
+    </sc-if>
+    <sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}">
+      <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px;">
+        <a href="#orders" class="tt-menu-item"><i class="ph ph-receipt" aria-hidden="true"></i>Orders</a>
+        <a href="Profile.dc.html" class="tt-menu-item"><i class="ph ph-user" aria-hidden="true"></i>Shed profile</a>
+        <a href="Settings.dc.html" class="tt-menu-item"><i class="ph ph-gear-six" aria-hidden="true"></i>Account settings</a>
+        <button type="button" class="tt-menu-item"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out</button>
+      </div>
+    </sc-if>
+  </nav>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"active":{"editor":"enum","options":["","shop","codebench","shed"],"default":"shop"},"count":{"editor":"int","default":3},"signedIn":{"editor":"boolean","default":false},"onToggleTheme":{"editor":null},"onOpenCart":{"editor":null},"$preview":{"width":1280,"height":420}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    // localTheme only matters when this component is viewed on its own (no onToggleTheme from a page).
+    this.state = { mob: false, acct: false, scrolled: false, localTheme: null };
+  }
+  componentDidMount() {
+    this.onScroll = () => {
+      const s = window.scrollY > 8;
+      if (s !== this.state.scrolled) this.setState({ scrolled: s });
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+  }
+  componentWillUnmount() { window.removeEventListener('scroll', this.onScroll); }
+  renderVals() {
+    const s = this.state;
+    const p = this.props;
+    const theme = s.localTheme || p.theme || 'dark';
+    const dark = theme !== 'light';
+    const active = p.active ?? 'shop';
+    const count = Number(p.count ?? 3);
+    const signedIn = !!p.signedIn;
+    const link = (k) => (active === k ? 'tt-navlink is-active' : 'tt-navlink');
+    const cur = (k) => (active === k ? 'page' : 'false');
+    return {
+      theme,
+      navClass: s.scrolled ? 'tt-nav tt-nav--fixed is-scrolled' : 'tt-nav tt-nav--fixed',
+      shopClass: link('shop'), codeClass: link('codebench'), shedClass: link('shed'),
+      shopCurrent: cur('shop'), codeCurrent: cur('codebench'), shedCurrent: cur('shed'),
+      themeIcon: dark ? 'ph ph-sun' : 'ph ph-moon',
+      themeLabel: dark ? 'Light theme' : 'Dark theme',
+      themeName: dark ? 'dark' : 'light',
+      toggleTheme: () => (p.onToggleTheme ? p.onToggleTheme() : this.setState({ localTheme: dark ? 'light' : 'dark' })),
+      count,
+      hasItems: count > 0,
+      cartLabel: 'Cart, ' + count + (count === 1 ? ' item' : ' items'),
+      openCart: () => { this.setState({ mob: false, acct: false }); if (p.onOpenCart) p.onOpenCart(); },
+      acct: s.acct,
+      acctExpanded: s.acct ? 'true' : 'false',
+      toggleAcct: () => this.setState({ acct: !s.acct }),
+      mob: s.mob,
+      mobExpanded: s.mob ? 'true' : 'false',
+      mobIcon: s.mob ? 'ph ph-x' : 'ph ph-list',
+      mobLabel: s.mob ? 'Close menu' : 'Open menu',
+      toggleMob: () => this.setState({ mob: !s.mob, acct: false }),
+      signedIn,
+      signedOut: !signedIn
+    };
+  }
+}
+</script>
+</body>
+</html>

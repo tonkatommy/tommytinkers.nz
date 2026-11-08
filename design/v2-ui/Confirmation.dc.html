@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Order confirmed - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="shop" count="0" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main" class="tt-container" style="padding-block: 48px 96px; display: flex; flex-direction: column; gap: 40px; max-width: 880px;">
+
+  <!-- confirming: Stripe has sent the visitor back but the webhook hasn't landed yet -->
+  <sc-if value="{{isPending}}" hint-placeholder-val="{{false}}">
+    <section class="tt-card tt-card--feature" role="status" aria-live="polite" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 64px 32px;">
+      <span style="width: 64px; height: 64px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center; color: var(--text-primary);"><i class="ph ph-circle-notch tt-spin ph-24" aria-hidden="true"></i></span>
+      <span class="tt-label">&gt; checking with stripe</span>
+      <h1 class="tt-h3">Confirming your payment</h1>
+      <p class="tt-small" style="max-width: 440px;">This usually takes a few seconds. Please don't pay again. This page updates by itself.</p>
+    </section>
+  </sc-if>
+
+  <!-- couldn't confirm -->
+  <sc-if value="{{isFailed}}" hint-placeholder-val="{{false}}">
+    <section class="tt-card tt-card--feature" role="alert" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 64px 32px; border-color: var(--error);">
+      <span style="width: 64px; height: 64px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center; color: var(--error);"><i class="ph ph-warning-circle ph-24" aria-hidden="true"></i></span>
+      <h1 class="tt-h3">I couldn't confirm that payment</h1>
+      <p class="tt-small" style="max-width: 480px;">If money has left your account, don't worry. Email me with the reference below and I'll sort it out.</p>
+      <p class="tt-mono" style="font-size: 14px; padding: 8px 12px; border-radius: 6px; background: var(--bg-raised);">ref: cs_test_a1B2c3D4e5F6</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;"><a href="mailto:hello@tommytinkers.nz" class="tt-btn tt-btn--primary"><i class="ph ph-envelope-simple" aria-hidden="true"></i>Email Tommy</a><a href="Checkout.dc.html" class="tt-btn tt-btn--ghost">Back to checkout</a></div>
+    </section>
+  </sc-if>
+
+  <!-- confirmed -->
+  <sc-if value="{{isConfirmed}}" hint-placeholder-val="{{true}}">
+    <section style="display: flex; flex-direction: column; align-items: flex-start; gap: 16px;" class="fade-up-1">
+      <span style="width: 64px; height: 64px; border-radius: 50%; background: var(--gradient-brand); display: grid; place-items: center; color: var(--on-warm); box-shadow: var(--shadow-glow);"><i class="ph ph-check ph-24" aria-hidden="true" style="font-size: 32px;"></i></span>
+      <span class="tt-eyebrow">Order confirmed</span>
+      <h1 class="tt-h1" style="font-size: clamp(36px, 6vw, 56px);">Thanks, your order's in.</h1>
+      <p class="tt-lead" style="max-width: 620px;">I've emailed a receipt to hello@tommytinkers.nz. Your stickers are printed to order, so I'll print them here in Helensville, then email you a tracking link when they're on the way.</p>
+    </section>
+
+    <section class="tt-card tt-card--feature fade-up-2" aria-labelledby="order-h" style="display: flex; flex-direction: column; gap: 24px;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: baseline;">
+        <h2 id="order-h" class="tt-h4" style="font-weight: 600;">Order <span class="tt-mono" style="font-size: 18px;">TT1026NZ</span></h2>
+        <span class="tt-pill tt-pill--in">Paid</span>
+      </div>
+      <dl class="tt-dl" style="grid-template-columns: auto minmax(0, 1fr);">
+        <dt>Placed</dt><dd>07/11/2026</dd>
+        <dt>Paid with</dt><dd>Visa ending 4242, via Stripe</dd>
+        <dt>Shipping to</dt><dd>Tommy G., Helensville 0800, New Zealand</dd>
+        <dt>Delivery</dt><dd>Free, NZ Post</dd>
+      </dl>
+      <ul>
+        <li class="tt-line" style="grid-template-columns: 56px minmax(0, 1fr);"><div class="tt-ph" style="border-radius: 10px; overflow: hidden;"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div><div class="tt-row"><span><span style="font-weight: 600;">RC name window stickers</span><span style="color: var(--text-secondary);"> · Mixed sheet x 2</span></span><span>$40.00</span></div></li>
+        <li class="tt-line" style="grid-template-columns: 56px minmax(0, 1fr);"><div class="tt-ph" style="border-radius: 10px; overflow: hidden;"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div><div class="tt-row"><span><span style="font-weight: 600;">Waikato Champs grid stickers</span><span style="color: var(--text-secondary);"> · Event sheet x 1</span></span><span>$15.00</span></div></li>
+      </ul>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div class="tt-row"><span style="color: var(--text-secondary);">Subtotal</span><span>$55.00</span></div>
+        <div class="tt-row"><span style="color: var(--text-secondary);">2+ name sticker sheets</span><span>-$5.00</span></div>
+        <div class="tt-row"><span style="color: var(--text-secondary);">Shipping</span><span>Free</span></div>
+        <div class="tt-row" style="border-top: 1px solid var(--border-subtle); padding-top: 12px;"><span style="font-weight: 600;">Total paid</span><span style="font-size: 22px; font-weight: 700;">NZ$50.00</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="next-h" class="fade-up-3" style="display: flex; flex-direction: column; gap: 20px;">
+      <span class="tt-label"><span class="tt-type" style="--n: 18;">&gt; what happens next</span></span>
+      <h2 id="next-h" class="tt-h3 sr-only">What happens next</h2>
+      <ol class="tt-steps" style="list-style: none; margin: 0; padding: 0;">
+        <li class="tt-step is-done"><span class="tt-step-n"><i class="ph ph-check ph-20" aria-hidden="true"></i><span class="sr-only">Done:</span></span><div><p style="font-weight: 600;">Order placed</p><p class="tt-small">Payment's through and your receipt is in your inbox.</p></div></li>
+        <li class="tt-step"><span class="tt-step-n">02</span><div><p style="font-weight: 600;">I print and pack it</p><p class="tt-small">Made-to-order stickers get printed first, then everything is checked and packed by hand in Helensville.</p></div></li>
+        <li class="tt-step"><span class="tt-step-n">03</span><div><p style="font-weight: 600;">It's on its way</p><p class="tt-small">You'll get an email with the NZ Post tracking link when it ships.</p></div></li>
+      </ol>
+    </section>
+
+    <div class="fade-up-4" style="display: flex; flex-wrap: wrap; gap: 12px;">
+      <a href="Shop.dc.html" class="tt-btn tt-btn--primary"><i class="ph ph-storefront" aria-hidden="true"></i>Back to the shop</a>
+      <sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}"><a href="#orders" class="tt-btn tt-btn--secondary"><i class="ph ph-receipt" aria-hidden="true"></i>See your orders</a></sc-if>
+      <sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}"><a href="Auth.dc.html" class="tt-btn tt-btn--secondary"><i class="ph ph-users-three" aria-hidden="true"></i>Join the Shed, it's free</a></sc-if>
+    </div>
+  </sc-if>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["confirmed","pending","failed"],"default":"confirmed"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1800}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { theme: null }; }
+  renderVals() {
+    const P = this.props;
+    const theme = this.state.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const view = P.state || 'confirmed';
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      signedIn: !!P.signedIn,
+      signedOut: !P.signedIn,
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      isPending: view === 'pending',
+      isFailed: view === 'failed',
+      isConfirmed: view === 'confirmed'
+    };
+  }
+}
+</script>
+</body>
+</html>

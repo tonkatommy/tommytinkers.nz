@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Account settings - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="" count="0" signed-in="{{yes}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main" class="tt-container" style="padding-block: 32px 96px; display: flex; flex-direction: column; gap: 32px;">
+  <header style="display: flex; flex-direction: column; gap: 8px;">
+    <span class="tt-label">&gt; account / settings</span>
+    <h1 class="tt-h2">Account settings</h1>
+    <p class="tt-small">Signed in as hello@tommytinkers.nz. Changes save section by section.</p>
+  </header>
+
+  <div class="tt-set">
+    <nav class="tt-set-nav" aria-label="Settings sections">
+      <ul>
+        <li><a href="#s-profile" class="tt-catbtn" aria-current="true" style="text-decoration: none;"><span><i class="ph ph-user ph-20" aria-hidden="true"></i>Profile</span></a></li>
+        <li><a href="#s-security" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-lock-simple ph-20" aria-hidden="true"></i>Sign-in and security</span></a></li>
+        <li><a href="#s-notify" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-bell ph-20" aria-hidden="true"></i>Emails</span></a></li>
+        <li><a href="#s-look" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-palette ph-20" aria-hidden="true"></i>Look and motion</span></a></li>
+        <li><a href="#orders" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-receipt ph-20" aria-hidden="true"></i>Orders</span></a></li>
+        <li><a href="#s-delete" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-trash ph-20" aria-hidden="true"></i>Delete account</span></a></li>
+      </ul>
+    </nav>
+
+    <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+      <!-- PROFILE -->
+      <section id="s-profile" class="tt-card" aria-labelledby="h-profile" style="display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 16px;"><span class="tt-av" style="width: 56px; height: 56px; font-size: 18px;" aria-hidden="true">{{initials}}</span><div><h2 id="h-profile" class="tt-h4" style="font-weight: 600;">Profile</h2><p class="tt-help">What other members see in the Shed. Avatars use your initials.</p></div></div>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>Couldn't save that. Your changes are still here, so try again.</p></div></sc-if>
+        <div class="tt-grid tt-grid--2" style="gap: 16px;">
+          <div class="tt-field"><label for="st-name">Display name</label><input id="st-name" class="{{nameClass}}" value="{{name}}" onChange="{{onName}}" disabled="{{saving}}" aria-invalid="{{nameInv}}"><sc-if value="{{nameErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Your display name can't be empty.</p></sc-if></div>
+          <div class="tt-field"><label for="st-town">Town <span style="color: var(--text-secondary); font-weight: 400;">(optional)</span></label><input id="st-town" class="tt-input" placeholder="e.g. Helensville" value="{{town}}" onChange="{{onTown}}" disabled="{{saving}}"></div>
+        </div>
+        <div class="tt-field"><label for="st-bio">About you <span style="color: var(--text-secondary); font-weight: 400;">(optional)</span></label><textarea id="st-bio" class="tt-input" maxlength="160" placeholder="What do you make?" value="{{bio}}" onChange="{{onBio}}" disabled="{{saving}}" style="min-height: 88px;"></textarea><p class="tt-counter">{{bioCount}} / 160</p></div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <sc-if value="{{saving}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</button></sc-if>
+          <sc-if value="{{notSaving}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--primary" onClick="{{saveProfile}}" disabled="{{profileClean}}"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Save profile</button></sc-if>
+        </div>
+      </section>
+
+      <!-- SECURITY -->
+      <section id="s-security" class="tt-card" aria-labelledby="h-sec" style="display: flex; flex-direction: column; gap: 4px;">
+        <h2 id="h-sec" class="tt-h4" style="font-weight: 600; margin-bottom: 12px;">Sign-in and security</h2>
+        <div class="tt-setrow"><div><p style="font-weight: 600;">Email</p><p class="tt-small">hello@tommytinkers.nz<span class="tt-pill tt-pill--in" style="margin-left: 8px;">Verified</span></p></div><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm">Change email</button></div>
+        <div class="tt-setrow">
+          <div><p style="font-weight: 600;">Password</p><p class="tt-small">Last changed 02/11/2026</p></div>
+          <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" aria-expanded="{{pwOpenStr}}" aria-controls="pw-form" onClick="{{togglePwForm}}">{{pwBtn}}</button>
+          <sc-if value="{{pwOpen}}" hint-placeholder-val="{{false}}">
+            <div id="pw-form" style="flex: 1 1 100%; display: grid; gap: 16px; padding-top: 8px;">
+              <div class="tt-field"><label for="pw-cur">Current password</label><input id="pw-cur" type="password" class="tt-input" autocomplete="current-password"></div>
+              <div class="tt-field"><label for="pw-new">New password</label><input id="pw-new" type="password" class="tt-input" autocomplete="new-password" aria-describedby="pw-new-h"><p id="pw-new-h" class="tt-help">At least 10 characters, with a number and a symbol. Not the same as your email.</p></div>
+              <label class="tt-check"><input type="checkbox">Also sign me out on my other devices</label>
+              <div style="display: flex; justify-content: flex-end;"><button type="button" class="tt-btn tt-btn--primary tt-btn--sm" onClick="{{togglePwForm}}"><i class="ph ph-floppy-disk" aria-hidden="true"></i>Save new password</button></div>
+            </div>
+          </sc-if>
+        </div>
+        <div class="tt-setrow"><div style="display: flex; gap: 12px; align-items: center;"><i class="ph ph-google-logo ph-24" aria-hidden="true"></i><div><p style="font-weight: 600;">Google</p><p class="tt-small">{{googleText}}</p></div></div><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{toggleGoogle}}">{{googleBtn}}</button></div>
+        <div class="tt-setrow">
+          <div style="flex: 1 1 100%;"><p style="font-weight: 600;">Where you're signed in</p></div>
+          <ul style="flex: 1 1 100%; display: flex; flex-direction: column; gap: 8px;">
+            <li style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 14px;"><span><i class="ph ph-browsers ph-16" aria-hidden="true"></i> Chrome on Windows <span class="tt-pill tt-pill--in" style="margin-left: 4px;">This device</span></span><span style="color: var(--text-secondary);">Active now</span></li>
+            <li style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 14px;"><span><i class="ph ph-phone ph-16" aria-hidden="true"></i> Safari on iPhone</span><span style="color: var(--text-secondary);">05/11/2026</span></li>
+          </ul>
+          <button type="button" class="tt-btn tt-btn--ghost tt-btn--sm"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out everywhere else</button>
+        </div>
+      </section>
+
+      <!-- EMAILS -->
+      <section id="s-notify" class="tt-card" aria-labelledby="h-notify" style="display: flex; flex-direction: column;">
+        <h2 id="h-notify" class="tt-h4" style="font-weight: 600; margin-bottom: 12px;">Emails</h2>
+        <sc-for list="{{toggles}}" as="t" hint-placeholder-count="3">
+          <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;" id="{{t.id}}">{{t.label}}</p><p class="tt-small">{{t.help}}</p></div><button type="button" class="tt-switch" role="switch" aria-checked="{{t.checked}}" aria-labelledby="{{t.id}}" onClick="{{t.flip}}"></button></div>
+        </sc-for>
+        <p class="tt-help" style="padding-top: 12px;">Order receipts and shipping emails always come through. They're part of buying something.</p>
+      </section>
+
+      <!-- LOOK AND MOTION -->
+      <section id="s-look" class="tt-card" aria-labelledby="h-look" style="display: flex; flex-direction: column;">
+        <h2 id="h-look" class="tt-h4" style="font-weight: 600; margin-bottom: 12px;">Look and motion</h2>
+        <div class="tt-setrow"><div><p style="font-weight: 600;" id="l-theme">Theme</p><p class="tt-small">Dark is the default.</p></div><div class="tt-seg" role="group" aria-labelledby="l-theme"><sc-for list="{{themeOpts}}" as="o" hint-placeholder-count="3"><button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}"><i class="{{o.icon}} ph-16" aria-hidden="true"></i>{{o.label}}</button></sc-for></div></div>
+        <div class="tt-setrow"><div style="max-width: 420px;"><p style="font-weight: 600;" id="l-motion">Motion</p><p class="tt-small">Reduced turns off the typing labels, card lifts and slides. "Match my device" follows your system setting.</p></div><div class="tt-seg" role="group" aria-labelledby="l-motion"><sc-for list="{{motionOpts}}" as="o" hint-placeholder-count="3"><button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
+      </section>
+
+      <!-- DELETE -->
+      <section id="s-delete" class="tt-card tt-danger-zone" aria-labelledby="h-del" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+        <div style="max-width: 560px;"><h2 id="h-del" class="tt-h4" style="font-weight: 600;">Delete account</h2><p class="tt-small">Removes your profile, pins, posts and stamps. Order records stay for tax purposes, but they're no longer linked to a login.</p></div>
+        <button type="button" class="tt-btn tt-btn--danger" onClick="{{openDelete}}"><i class="ph ph-trash" aria-hidden="true"></i>Delete my account</button>
+      </section>
+    </div>
+  </div>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+
+<sc-if value="{{delOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-modalwrap">
+    <div class="tt-scrim" onClick="{{closeDelete}}" aria-hidden="true"></div>
+    <div class="tt-modal" role="alertdialog" aria-modal="true" aria-labelledby="del-h" aria-describedby="del-d" style="width: min(460px, 100%);">
+      <span class="tt-icon-hero" style="color: var(--error);"><i class="ph ph-warning-octagon" aria-hidden="true"></i></span>
+      <h2 id="del-h" class="tt-h3">Delete your account?</h2>
+      <p id="del-d" class="tt-small">This can't be undone. Your pins, posts and stamps go for good. Type your display name to confirm.</p>
+      <div class="tt-field"><label for="del-name">Display name</label><input id="del-name" class="tt-input" value="{{delText}}" onChange="{{onDel}}" placeholder="{{name}}"></div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px;"><button type="button" class="tt-btn tt-btn--ghost" onClick="{{closeDelete}}">Keep my account</button><button type="button" class="tt-btn tt-btn--danger" disabled="{{delOff}}"><i class="ph ph-trash" aria-hidden="true"></i>Delete for good</button></div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Saved</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"view":{"editor":"enum","options":["ready","saving","saved","error","delete"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const v = props.view || 'ready';
+    this.saved = { name: 'Tommy', town: 'Helensville', bio: '' };
+    this.state = {
+      theme: null, ...this.saved,
+      saving: v === 'saving', error: v === 'error', toast: v === 'saved' ? 'Your profile is up to date.' : null,
+      tried: false, pwOpen: false, google: false,
+      emails: { replies: true, approved: true, news: false },
+      themePref: 'dark', motion: 'device',
+      delOpen: v === 'delete', delText: ''
+    };
+    if (v === 'saving' || v === 'error') this.state.bio = 'Maker of things. Stickers now, 3D prints on the way.';
+  }
+  componentWillUnmount() { clearTimeout(this.saveT); clearTimeout(this.toastT); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const nameErr = s.tried && !s.name.trim();
+    const words = s.name.replace(/[\[\]]/g, '').trim().split(/\s+/);
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    const emailDefs = [
+      ['replies', 'Replies to my Workshop threads', 'One email per thread, not one per reply.'],
+      ['approved', 'When a pin of mine is approved', 'Only while your first few pins are being checked.'],
+      ['news', 'Workshop news', 'New products and the odd update from me. Only now and then.']
+    ];
+    return {
+      theme,
+      yes: true,
+      rootClass: (P.reduceMotion || s.motion === 'reduced') ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark', themePref: dark ? 'light' : 'dark' }),
+      initials: ((words[0] || '?')[0] + ((words[1] || '')[0] || '')).toUpperCase(),
+      name: s.name, town: s.town, bio: s.bio, bioCount: s.bio.length,
+      onName: (e) => this.setState({ name: e.target.value }),
+      onTown: (e) => this.setState({ town: e.target.value }),
+      onBio: (e) => this.setState({ bio: e.target.value }),
+      nameErr, nameInv: nameErr ? 'true' : 'false', nameClass: nameErr ? 'tt-input is-error' : 'tt-input',
+      saving: s.saving, notSaving: !s.saving, isError: s.error,
+      profileClean: !s.error && s.name === this.saved.name && s.town === this.saved.town && s.bio === this.saved.bio,
+      saveProfile: () => {
+        if (!s.name.trim()) return this.setState({ tried: true });
+        this.setState({ saving: true, error: false, tried: false });
+        // Stands in for the zod-validated server action.
+        this.saveT = setTimeout(() => { this.saved = { name: this.state.name, town: this.state.town, bio: this.state.bio }; this.setState({ saving: false }); toast('Your profile is up to date.'); }, 900);
+      },
+      pwOpen: s.pwOpen, pwOpenStr: s.pwOpen ? 'true' : 'false', pwBtn: s.pwOpen ? 'Cancel' : 'Change password',
+      togglePwForm: () => this.setState({ pwOpen: !s.pwOpen }),
+      googleText: s.google ? 'Connected. You can sign in with Google.' : 'Not connected.',
+      googleBtn: s.google ? 'Disconnect' : 'Connect Google',
+      toggleGoogle: () => { this.setState({ google: !s.google }); toast(s.google ? 'Google is disconnected.' : 'Google is connected.'); },
+      toggles: emailDefs.map(([k, label, help]) => ({ id: 'em-' + k, label, help, checked: s.emails[k] ? 'true' : 'false', flip: () => this.setState({ emails: { ...s.emails, [k]: !s.emails[k] } }) })),
+      themeOpts: [['dark', 'Dark', 'ph ph-moon'], ['light', 'Light', 'ph ph-sun'], ['device', 'Match my device', 'ph ph-browsers']].map(([k, label, icon]) => ({
+        label, icon, pressed: s.themePref === k ? 'true' : 'false',
+        pick: () => this.setState({ themePref: k, theme: k === 'device' ? null : k })
+      })),
+      motionOpts: [['full', 'Full'], ['reduced', 'Reduced'], ['device', 'Match my device']].map(([k, label]) => ({ label, pressed: s.motion === k ? 'true' : 'false', pick: () => this.setState({ motion: k }) })),
+      delOpen: s.delOpen,
+      openDelete: () => this.setState({ delOpen: true, delText: '' }),
+      closeDelete: () => this.setState({ delOpen: false }),
+      delText: s.delText,
+      onDel: (e) => this.setState({ delText: e.target.value }),
+      delOff: s.delText !== s.name,
+      hasToast: !!s.toast, toastMsg: s.toast || '',
+      closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

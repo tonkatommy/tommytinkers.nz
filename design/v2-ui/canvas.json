@@ -1,0 +1,870 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Components-light.dc.html": {
+      "h": 3000,
+      "title": "Components - light",
+      "w": 1280,
+      "x": 4080,
+      "y": 5743
+    },
+    "Components.dc.html": {
+      "h": 3000,
+      "title": "Components - dark",
+      "w": 1280,
+      "x": 2720,
+      "y": 5743
+    },
+    "Home-light.dc.html": {
+      "expand": "fill",
+      "h": 3400,
+      "is_interactive": true,
+      "title": "Home - desktop, light",
+      "w": 1280,
+      "x": 1360,
+      "y": 0
+    },
+    "Home-mobile-light.dc.html": {
+      "expand": "fill",
+      "h": 5200,
+      "is_interactive": true,
+      "title": "Home - 375, light",
+      "w": 375,
+      "x": 3175,
+      "y": 0
+    },
+    "Home-mobile.dc.html": {
+      "expand": "fill",
+      "h": 5200,
+      "is_interactive": true,
+      "title": "Home - 375, dark",
+      "w": 375,
+      "x": 2720,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 3400,
+      "is_interactive": true,
+      "title": "Home - desktop, dark (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "Shell-light.dc.html": {
+      "h": 3902,
+      "title": "Shell states - light",
+      "w": 1280,
+      "x": 1360,
+      "y": 5743
+    },
+    "Shell.dc.html": {
+      "h": 3902,
+      "title": "Shell states - dark",
+      "w": 1280,
+      "x": 0,
+      "y": 5743
+    },
+    "SiteNav.dc.html": {
+      "h": 420,
+      "title": "Component: SiteNav",
+      "w": 1280,
+      "x": 0,
+      "y": 10000,
+      "is_interactive": true
+    },
+    "SiteFooter.dc.html": {
+      "h": 520,
+      "title": "Component: SiteFooter",
+      "w": 1280,
+      "x": 1360,
+      "y": 10000
+    },
+    "CartDrawer.dc.html": {
+      "h": 800,
+      "title": "Component: CartDrawer",
+      "w": 420,
+      "x": 2720,
+      "y": 10000,
+      "is_interactive": true
+    },
+    "Shop.dc.html": {
+      "expand": "fill",
+      "h": 3000,
+      "title": "Shop - desktop (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 11143,
+      "is_interactive": true
+    },
+    "Shop-mobile.dc.html": {
+      "expand": "fill",
+      "h": 4300,
+      "title": "Shop - 375",
+      "w": 375,
+      "x": 1360,
+      "y": 11143,
+      "is_interactive": true
+    },
+    "Shop-loading.dc.html": {
+      "expand": "fill",
+      "h": 2200,
+      "title": "Shop - loading",
+      "w": 1280,
+      "x": 1815,
+      "y": 11143
+    },
+    "Shop-empty.dc.html": {
+      "expand": "fill",
+      "h": 1900,
+      "title": "Shop - no results",
+      "w": 1280,
+      "x": 3175,
+      "y": 11143
+    },
+    "Shop-error.dc.html": {
+      "expand": "fill",
+      "h": 1900,
+      "title": "Shop - error",
+      "w": 1280,
+      "x": 4535,
+      "y": 11143
+    },
+    "Product.dc.html": {
+      "expand": "fill",
+      "h": 2300,
+      "title": "Product - desktop (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 15786,
+      "is_interactive": true
+    },
+    "Product-mobile.dc.html": {
+      "expand": "fill",
+      "h": 3600,
+      "title": "Product - 375",
+      "w": 375,
+      "x": 1360,
+      "y": 15786,
+      "is_interactive": true
+    },
+    "Product-out.dc.html": {
+      "expand": "fill",
+      "h": 2300,
+      "title": "Product - out of stock",
+      "w": 1280,
+      "x": 1815,
+      "y": 15786
+    },
+    "Product-loading.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "title": "Product - loading (Tweak: not found)",
+      "w": 1280,
+      "x": 3175,
+      "y": 15786
+    },
+    "Checkout.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Checkout - review (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 19729,
+      "is_interactive": true
+    },
+    "Checkout-mobile.dc.html": {
+      "expand": "fill",
+      "h": 2600,
+      "title": "Checkout - 375",
+      "w": 375,
+      "x": 1360,
+      "y": 19729,
+      "is_interactive": true
+    },
+    "Checkout-changed.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Checkout - cart changed (Tweak: cancelled, error, redirecting, empty)",
+      "w": 1280,
+      "x": 1815,
+      "y": 19729
+    },
+    "Confirmation.dc.html": {
+      "expand": "fill",
+      "h": 1800,
+      "title": "Order confirmation",
+      "w": 1280,
+      "x": 3175,
+      "y": 19729,
+      "is_interactive": true
+    },
+    "Confirmation-pending.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "title": "Order confirmation - confirming payment (Tweak: failed)",
+      "w": 1280,
+      "x": 4535,
+      "y": 19729
+    },
+    "Confirmation-mobile.dc.html": {
+      "expand": "fill",
+      "h": 2600,
+      "title": "Order confirmation - 375, light",
+      "w": 375,
+      "x": 5895,
+      "y": 19729
+    },
+    "Codebench.dc.html": {
+      "expand": "fill",
+      "h": 3600,
+      "title": "Codebench - desktop (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 22672,
+      "is_interactive": true
+    },
+    "Codebench-mobile.dc.html": {
+      "expand": "fill",
+      "h": 5600,
+      "title": "Codebench - 375",
+      "w": 375,
+      "x": 1360,
+      "y": 22672,
+      "is_interactive": true
+    },
+    "Codebench-result.dc.html": {
+      "expand": "fill",
+      "h": 4200,
+      "title": "Codebench - build sheet result (Tweak: other steps)",
+      "w": 1280,
+      "x": 1815,
+      "y": 22672,
+      "is_interactive": true
+    },
+    "Codebench-form.dc.html": {
+      "expand": "fill",
+      "h": 4200,
+      "title": "Codebench - send to Tommy: invalid (Tweak: sending, sent, failed)",
+      "w": 1280,
+      "x": 3175,
+      "y": 22672,
+      "is_interactive": true
+    },
+    "Shed.dc.html": {
+      "expand": "fill",
+      "h": 2800,
+      "title": "Pinboard - signed out (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 28615,
+      "is_interactive": true
+    },
+    "Shed-mobile.dc.html": {
+      "expand": "fill",
+      "h": 4800,
+      "title": "Pinboard - 375",
+      "w": 375,
+      "x": 1360,
+      "y": 28615,
+      "is_interactive": true
+    },
+    "Shed-compose.dc.html": {
+      "expand": "fill",
+      "h": 2800,
+      "title": "Pinboard - compose a pin (Tweak: photo added, photo error, posting)",
+      "w": 1280,
+      "x": 1815,
+      "y": 28615,
+      "is_interactive": true
+    },
+    "Shed-pending.dc.html": {
+      "expand": "fill",
+      "h": 2800,
+      "title": "Pinboard - waiting for approval",
+      "w": 1280,
+      "x": 3175,
+      "y": 28615,
+      "is_interactive": true
+    },
+    "Shed-loading.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Pinboard - loading (Tweak: empty, error)",
+      "w": 1280,
+      "x": 4535,
+      "y": 28615
+    },
+    "Workshop.dc.html": {
+      "expand": "fill",
+      "h": 2200,
+      "title": "Workshop forum (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 33758,
+      "is_interactive": true
+    },
+    "Workshop-mobile.dc.html": {
+      "expand": "fill",
+      "h": 3600,
+      "title": "Workshop forum - 375",
+      "w": 375,
+      "x": 1360,
+      "y": 33758,
+      "is_interactive": true
+    },
+    "Thread.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "title": "Thread - signed out (Tweak: signed in, posting, error)",
+      "w": 1280,
+      "x": 1815,
+      "y": 33758,
+      "is_interactive": true
+    },
+    "Profile.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "title": "Member profile",
+      "w": 1280,
+      "x": 3175,
+      "y": 33758,
+      "is_interactive": true
+    },
+    "Achievements.dc.html": {
+      "expand": "fill",
+      "h": 3000,
+      "title": "Achievements (interactive)",
+      "w": 1280,
+      "x": 4535,
+      "y": 33758,
+      "is_interactive": true
+    },
+    "Achievements-mobile.dc.html": {
+      "expand": "fill",
+      "h": 4600,
+      "title": "Achievements - 375",
+      "w": 375,
+      "x": 5895,
+      "y": 33758,
+      "is_interactive": true
+    },
+    "Auth.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Sign in (interactive: every account screen is reachable from here)",
+      "w": 1280,
+      "x": 0,
+      "y": 38701,
+      "is_interactive": true
+    },
+    "Auth-mobile.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Sign in - 375",
+      "w": 375,
+      "x": 1360,
+      "y": 38701,
+      "is_interactive": true
+    },
+    "Auth-signup.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Sign up (Tweak: errors, submitting)",
+      "w": 1280,
+      "x": 1815,
+      "y": 38701,
+      "is_interactive": true
+    },
+    "Auth-verify.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Verify email (Tweak: resent, expired, verified)",
+      "w": 1280,
+      "x": 3175,
+      "y": 38701,
+      "is_interactive": true
+    },
+    "Auth-reset.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Forgot and reset password (Tweak: sent, reset, mismatch, expired, done)",
+      "w": 1280,
+      "x": 4535,
+      "y": 38701,
+      "is_interactive": true
+    },
+    "Auth-locked.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Account locked: 5 failed tries, 15 minutes",
+      "w": 1280,
+      "x": 5895,
+      "y": 38701,
+      "is_interactive": true
+    },
+    "Settings.dc.html": {
+      "expand": "fill",
+      "h": 2800,
+      "title": "Account settings (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 40567,
+      "is_interactive": true
+    },
+    "Settings-mobile.dc.html": {
+      "expand": "fill",
+      "h": 4400,
+      "title": "Account settings - 375, light",
+      "w": 375,
+      "x": 1360,
+      "y": 40567,
+      "is_interactive": true
+    },
+    "Contact.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Contact (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 45310,
+      "is_interactive": true
+    },
+    "Contact-mobile.dc.html": {
+      "expand": "fill",
+      "h": 2700,
+      "title": "Contact - 375, light",
+      "w": 375,
+      "x": 1360,
+      "y": 45310,
+      "is_interactive": true
+    },
+    "Contact-states.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Contact - invalid (Tweak: sending, sent, failed)",
+      "w": 1280,
+      "x": 1815,
+      "y": 45310,
+      "is_interactive": true
+    },
+    "Admin.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "title": "Stockroom - table (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 48533,
+      "is_interactive": true
+    },
+    "Admin-cards.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Stockroom - cards, 3 selected",
+      "w": 1280,
+      "x": 1360,
+      "y": 48533
+    },
+    "Admin-drawer.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "title": "Stockroom - edit drawer",
+      "w": 1280,
+      "x": 2720,
+      "y": 48533
+    },
+    "Admin-tablet.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Stockroom - tablet 834, light",
+      "w": 834,
+      "x": 4080,
+      "y": 48533
+    },
+    "Admin-states.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "title": "Stockroom - loading (Tweak: empty, no match, error)",
+      "w": 1280,
+      "x": 4994,
+      "y": 48533
+    },
+    "Admin-formstates.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "title": "Stockroom - drawer errors (Tweak: add, saving, save error, hide)",
+      "w": 1280,
+      "x": 6354,
+      "y": 48533
+    },
+    "AdminOrders.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Orders (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 50433,
+      "is_interactive": true
+    },
+    "AdminOrders-states.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Orders - posting (Tweak: detail, refund, loading, empty, error)",
+      "w": 1280,
+      "x": 1360,
+      "y": 50433
+    },
+    "AdminOrders-tablet.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Orders - tablet 834, light",
+      "w": 834,
+      "x": 2720,
+      "y": 50433
+    },
+    "AdminUsers.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Users (interactive)",
+      "w": 1280,
+      "x": 3634,
+      "y": 50433,
+      "is_interactive": true
+    },
+    "AdminUsers-roles.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Roles and permissions",
+      "w": 1280,
+      "x": 4994,
+      "y": 50433
+    },
+    "AdminUsers-states.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Users - new role (Tweak: suspend, saved, loading, error)",
+      "w": 1280,
+      "x": 6354,
+      "y": 50433
+    },
+    "AdminModeration.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "title": "Moderation queue (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 51833,
+      "is_interactive": true
+    },
+    "AdminModeration-light.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Moderation - rejecting, tablet 834, light",
+      "w": 834,
+      "x": 1360,
+      "y": 51833
+    },
+    "AdminModeration-states.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "title": "Moderation - reported (Tweak: empty, loading, error)",
+      "w": 1280,
+      "x": 2274,
+      "y": 51833
+    },
+    "AdminSettings.dc.html": {
+      "expand": "fill",
+      "h": 1800,
+      "title": "Shipping and motion (interactive)",
+      "w": 1280,
+      "x": 3634,
+      "y": 51833,
+      "is_interactive": true
+    },
+    "AdminSettings-flat.dc.html": {
+      "expand": "fill",
+      "h": 1800,
+      "title": "Shipping - free off, flat rate, light",
+      "w": 1280,
+      "x": 4994,
+      "y": 51833
+    },
+    "AdminSettings-states.dc.html": {
+      "expand": "fill",
+      "h": 1800,
+      "title": "Settings - invalid rate (Tweak: saving, saved, error, loading)",
+      "w": 1280,
+      "x": 6354,
+      "y": 51833
+    },
+    "AdminBar.dc.html": {
+      "h": 64,
+      "title": "AdminBar component",
+      "w": 1280,
+      "x": 7714,
+      "y": 51833
+    },
+    "AdminSide.dc.html": {
+      "h": 720,
+      "title": "AdminSide component",
+      "w": 248,
+      "x": 7714,
+      "y": 51977
+    },
+    "AdminDiscounts.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Discounts (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 54602,
+      "is_interactive": true
+    },
+    "AdminDiscounts-edit.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "title": "Discounts - editing the multi-buy",
+      "w": 1280,
+      "x": 1360,
+      "y": 54602
+    },
+    "AdminDiscounts-code.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "title": "Discounts - new one-time code, tablet 834, light",
+      "w": 834,
+      "x": 2720,
+      "y": 54602
+    },
+    "AdminDiscounts-states.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "title": "Discounts - errors (Tweak: saving, empty, loading, error)",
+      "w": 1280,
+      "x": 3634,
+      "y": 54602
+    },
+    "Checkout-code.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Checkout - code applied (Tweak: code error)",
+      "w": 1280,
+      "x": 4994,
+      "y": 54602
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-02T08:40:00Z",
+    "v": 1
+  },
+  "designSystems": [
+    {
+      "artifact": "https://claude.ai/code/artifact/9800a966-637f-4c4b-86c9-f7eefbd8691d",
+      "copiedAt": "2026-11-02T08:40:00Z",
+      "namespace": "tommy-tinkers-nz",
+      "title": "tommy tinkers NZ",
+      "version": "1793424413-2c10"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "row1": {
+      "kind": "title1",
+      "maxW": 3550,
+      "text": "1-2. Shell and home",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "row2": {
+      "kind": "title1",
+      "maxW": 5360,
+      "text": "Shell states and components",
+      "w": 240,
+      "x": 0,
+      "y": 5443
+    },
+    "row3": {
+      "kind": "title1",
+      "maxW": 3140,
+      "text": "Shared parts used by every page from here on",
+      "x": 0,
+      "y": 9765
+    },
+    "row4": {
+      "kind": "title1",
+      "maxW": 5815,
+      "text": "3. Shop",
+      "x": 0,
+      "y": 10900
+    },
+    "row5": {
+      "kind": "title1",
+      "maxW": 4455,
+      "text": "4. Product page",
+      "x": 0,
+      "y": 15543
+    },
+    "row6": {
+      "kind": "title1",
+      "maxW": 6270,
+      "text": "5. Checkout hand-off and order confirmation",
+      "x": 0,
+      "y": 19486
+    },
+    "row7": {
+      "kind": "title1",
+      "maxW": 4455,
+      "text": "6. Codebench",
+      "x": 0,
+      "y": 22449
+    },
+    "row8": {
+      "kind": "title1",
+      "maxW": 5815,
+      "text": "7. The Shed: Pinboard",
+      "x": 0,
+      "y": 28392
+    },
+    "row9": {
+      "kind": "title1",
+      "maxW": 6270,
+      "text": "7. The Shed: Workshop, profile and achievements",
+      "x": 0,
+      "y": 33535
+    },
+    "row10": {
+      "kind": "title1",
+      "maxW": 7175,
+      "text": "8. Accounts",
+      "x": 0,
+      "y": 38478
+    },
+    "row11": {
+      "kind": "title1",
+      "maxW": 1735,
+      "text": "8. Account settings",
+      "x": 0,
+      "y": 40344
+    },
+    "row12": {
+      "kind": "title1",
+      "maxW": 3095,
+      "text": "9. Contact",
+      "x": 0,
+      "y": 45087
+    },
+    "row13": {
+      "kind": "title1",
+      "maxW": 7634,
+      "text": "10. Admin: stockroom",
+      "x": 0,
+      "y": 48310
+    },
+    "row14": {
+      "kind": "title1",
+      "maxW": 7634,
+      "text": "10. Admin: orders, users and roles",
+      "x": 0,
+      "y": 50210
+    },
+    "row15": {
+      "kind": "title1",
+      "maxW": 8914,
+      "text": "10. Admin: moderation, shipping and motion",
+      "x": 0,
+      "y": 51610
+    },
+    "row16": {
+      "kind": "title1",
+      "maxW": 7634,
+      "text": "10. Admin: discounts",
+      "x": 0,
+      "y": 54379
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Home-light.dc.html",
+    "Home-mobile.dc.html",
+    "Home-mobile-light.dc.html",
+    "Shell.dc.html",
+    "Shell-light.dc.html",
+    "Components.dc.html",
+    "Components-light.dc.html",
+    "SiteNav.dc.html",
+    "SiteFooter.dc.html",
+    "CartDrawer.dc.html",
+    "Shop.dc.html",
+    "Shop-mobile.dc.html",
+    "Shop-loading.dc.html",
+    "Shop-empty.dc.html",
+    "Shop-error.dc.html",
+    "Product.dc.html",
+    "Product-mobile.dc.html",
+    "Product-out.dc.html",
+    "Product-loading.dc.html",
+    "Checkout.dc.html",
+    "Checkout-mobile.dc.html",
+    "Checkout-changed.dc.html",
+    "Confirmation.dc.html",
+    "Confirmation-pending.dc.html",
+    "Confirmation-mobile.dc.html",
+    "Codebench.dc.html",
+    "Codebench-mobile.dc.html",
+    "Codebench-result.dc.html",
+    "Codebench-form.dc.html",
+    "Shed.dc.html",
+    "Shed-mobile.dc.html",
+    "Shed-compose.dc.html",
+    "Shed-pending.dc.html",
+    "Shed-loading.dc.html",
+    "Workshop.dc.html",
+    "Workshop-mobile.dc.html",
+    "Thread.dc.html",
+    "Profile.dc.html",
+    "Achievements.dc.html",
+    "Achievements-mobile.dc.html",
+    "Auth.dc.html",
+    "Auth-mobile.dc.html",
+    "Auth-signup.dc.html",
+    "Auth-verify.dc.html",
+    "Auth-reset.dc.html",
+    "Auth-locked.dc.html",
+    "Settings.dc.html",
+    "Settings-mobile.dc.html",
+    "Contact.dc.html",
+    "Contact-mobile.dc.html",
+    "Contact-states.dc.html",
+    "Admin.dc.html",
+    "Admin-cards.dc.html",
+    "Admin-drawer.dc.html",
+    "Admin-tablet.dc.html",
+    "Admin-states.dc.html",
+    "Admin-formstates.dc.html",
+    "AdminOrders.dc.html",
+    "AdminOrders-states.dc.html",
+    "AdminOrders-tablet.dc.html",
+    "AdminUsers.dc.html",
+    "AdminUsers-roles.dc.html",
+    "AdminUsers-states.dc.html",
+    "AdminModeration.dc.html",
+    "AdminModeration-light.dc.html",
+    "AdminModeration-states.dc.html",
+    "AdminSettings.dc.html",
+    "AdminSettings-flat.dc.html",
+    "AdminSettings-states.dc.html",
+    "AdminBar.dc.html",
+    "AdminSide.dc.html",
+    "AdminDiscounts.dc.html",
+    "AdminDiscounts-edit.dc.html",
+    "AdminDiscounts-code.dc.html",
+    "AdminDiscounts-states.dc.html",
+    "Checkout-code.dc.html"
+  ],
+  "pages": [],
+  "title": "tommy tinkers NZ v2"
+}
