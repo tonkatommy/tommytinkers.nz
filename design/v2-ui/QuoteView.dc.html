@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Quote for a club - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+.tt-qdoc{max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.tt-qtable{width:100%;border-collapse:collapse;font-size:15px}
+.tt-qtable th{text-align:left;font-weight:500;color:var(--text-secondary);font-size:13px;padding:8px 0;border-bottom:1px solid var(--border-subtle)}
+.tt-qtable td{padding:12px 0;border-bottom:1px solid var(--border-subtle);vertical-align:top}
+.tt-qtable .n{text-align:right;white-space:nowrap;padding-left:16px}
+@media print{.tt-noprint{display:none !important}}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="" count="0" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main" class="tt-container" style="padding-block: 32px 96px;">
+  <div class="tt-qdoc">
+    <header style="display: flex; flex-direction: column; gap: 12px;">
+      <span class="tt-label">&gt; {{docLabel}}</span>
+      <h1 class="tt-h2">{{heading}}</h1>
+      <p class="tt-lead">{{lead}}</p>
+    </header>
+
+    <sc-if value="{{isGone}}" hint-placeholder-val="{{false}}">
+      <div class="tt-banner tt-banner--info" role="status"><i class="ph ph-info ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">{{goneTitle}}</p><p class="tt-small">{{goneText}} <a href="Contact.dc.html">Get in touch</a> and I'll sort it out.</p></div></div>
+    </sc-if>
+    <sc-if value="{{isAccepted}}" hint-placeholder-val="{{false}}">
+      <div class="tt-banner tt-banner--ok" role="status"><i class="ph ph-check-circle ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Accepted, thank you</p><p class="tt-small">I'll get started. The invoice comes with the stickers, due 14 days after you get them.</p></div></div>
+    </sc-if>
+    <sc-if value="{{isPaid}}" hint-placeholder-val="{{false}}">
+      <div class="tt-banner tt-banner--ok" role="status"><i class="ph ph-check-circle ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Paid, thank you</p><p class="tt-small">A receipt is in your inbox. I'll start printing and let you know when it's ready.</p></div></div>
+    </sc-if>
+
+    <section class="tt-card tt-card--feature" aria-labelledby="doc-h" style="display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: flex-start;">
+        <div><h2 id="doc-h" class="tt-h4" style="font-weight: 600;">{{docTitle}} <span class="tt-mono" style="font-size: 16px;">{{docNo}}</span></h2><p class="tt-small">For Test club A · {{docFor}}</p></div>
+        <span class="{{pillCls}}">{{pillText}}</span>
+      </div>
+      <dl class="tt-dl"><dt>From</dt><dd>tommy tinkers NZ, Helensville · hello@tommytinkers.nz</dd><dt>{{dateLabel}}</dt><dd>{{dateText}}</dd><dt>Payment</dt><dd>{{termsText}}</dd><dt>Getting it to you</dt><dd>Free NZ Post, with tracking</dd></dl>
+      <table class="tt-qtable">
+        <thead><tr><th scope="col">What</th><th scope="col" class="n">Qty</th><th scope="col" class="n">Each</th><th scope="col" class="n">Amount</th></tr></thead>
+        <tbody>
+          <sc-for list="{{lines}}" as="l" hint-placeholder-count="2"><tr><td>{{l.desc}}</td><td class="n">{{l.qty}}</td><td class="n">{{l.each}}</td><td class="n">{{l.total}}</td></tr></sc-for>
+        </tbody>
+      </table>
+      <div style="display: flex; flex-direction: column; gap: 8px; align-self: flex-end; min-width: 260px;">
+        <div class="tt-row" style="border-top: 0;"><span style="font-weight: 600;">{{totalLabel}}</span><span style="font-size: 22px; font-weight: 700;">{{total}}</span></div>
+        <p class="tt-help" style="font-size: 13px; text-align: right;">No GST. I'm not registered for GST.</p>
+      </div>
+      <sc-if value="{{hasNote}}" hint-placeholder-val="{{true}}"><div class="tt-card" style="background: var(--bg-raised);"><p class="tt-small" style="font-weight: 600;">A note from Tommy</p><p class="tt-small">I need your club logo as a vector file (SVG or PDF). Reply to the quote email with it attached.</p></div></sc-if>
+    </section>
+
+    <!-- accept or decline -->
+    <sc-if value="{{isQuote}}" hint-placeholder-val="{{true}}">
+      <section class="tt-card tt-noprint" aria-labelledby="ok-h" style="display: flex; flex-direction: column; gap: 16px;">
+        <h2 id="ok-h" class="tt-h4" style="font-weight: 600;">Happy with it?</h2>
+        <p class="tt-small">{{acceptHelp}}</p>
+        <div class="tt-field" style="max-width: 360px;"><label for="qv-name">Your name</label><input id="qv-name" class="{{nameCls}}" value="{{name}}" onChange="{{onName}}" aria-invalid="{{nameInv}}" aria-describedby="qv-name-h" autocomplete="name"><p id="qv-name-h" class="tt-help">So I know who said yes for the club.</p></div>
+        <sc-if value="{{nameErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i>Add your name to accept.</p></sc-if>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+          <button type="button" class="tt-btn tt-btn--primary" onClick="{{accept}}" aria-disabled="{{busyStr}}"><sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Accepting</sc-if><sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><i class="ph ph-check" aria-hidden="true"></i>Accept quote</sc-if></button>
+          <button type="button" class="tt-btn tt-btn--ghost" onClick="{{decline}}">No thanks</button>
+          <a href="Contact.dc.html" class="tt-btn tt-btn--ghost"><i class="ph ph-chats-circle" aria-hidden="true"></i>Ask a question</a>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- pay -->
+    <sc-if value="{{isInvoice}}" hint-placeholder-val="{{false}}">
+      <section class="tt-card tt-noprint" aria-labelledby="pay-h" style="display: flex; flex-direction: column; gap: 20px;">
+        <h2 id="pay-h" class="tt-h4" style="font-weight: 600;">Two ways to pay</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+          <div class="tt-card" style="background: var(--bg-raised); display: flex; flex-direction: column; gap: 12px;">
+            <p style="font-weight: 600; display: flex; gap: 8px; align-items: center;"><i class="ph ph-wallet ph-20" aria-hidden="true"></i>Card</p>
+            <p class="tt-small">On Stripe's secure checkout. It's marked paid straight away, and the receipt comes by email.</p>
+            <button type="button" class="tt-btn tt-btn--primary" onClick="{{payCard}}"><sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Taking you to Stripe</sc-if><sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><i class="ph ph-lock-simple" aria-hidden="true"></i>Pay {{total}} by card</sc-if></button>
+          </div>
+          <div class="tt-card" style="background: var(--bg-raised); display: flex; flex-direction: column; gap: 12px;">
+            <p style="font-weight: 600; display: flex; gap: 8px; align-items: center;"><i class="ph ph-receipt ph-20" aria-hidden="true"></i>Bank transfer</p>
+            <dl class="tt-dl" style="font-size: 14px;"><dt>Name</dt><dd>tommy tinkers NZ</dd><dt>Account</dt><dd class="tt-mono">00-0000-0000000-00</dd><dt>Reference</dt><dd class="tt-mono">{{docNo}}</dd></dl>
+            <p class="tt-help" style="font-size: 13px;">Transfers can take a day or two to clear. I'll email a receipt when it lands.</p>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <div class="tt-noprint" style="display: flex; flex-wrap: wrap; gap: 12px;">
+      <button type="button" class="tt-btn tt-btn--secondary" onClick="{{download}}"><i class="ph ph-download-simple" aria-hidden="true"></i>Download PDF</button>
+    </div>
+    <p class="tt-help">This page is private to your club. Anyone with the link can see it, so keep the link to the people who need it.</p>
+  </div>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Done</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["quote","invalid","accepted","invoice","paid","declined","expired","replaced"],"default":"quote"},"terms":{"editor":"enum","options":["split","full","after"],"default":"split"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1700}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    // The page behind an unguessable link: /quote/<token>. No sign-in, so clubs don't need an account.
+    this.state = { theme: null, view: props.state === 'invalid' ? 'quote' : props.state || 'quote', name: '', tried: props.state === 'invalid', busy: false, toast: null };
+  }
+  componentWillUnmount() { clearTimeout(this.t1); clearTimeout(this.toastT); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const terms = P.terms || 'split';
+    const money = (c) => '$' + (c / 100).toFixed(2);
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    // Sample quote Q-0002. The invoice view shows whatever is due now under the quote's terms.
+    const all = [{ kind: 'setup', desc: 'Artwork setup: club logo and grid layout', qty: 1, cents: 5000 }, { kind: 'item', desc: 'Grid number sheets, 1 to 40', qty: 6, cents: 1500 }];
+    const v = s.view;
+    const inv = v === 'invoice' || v === 'paid';
+    const due = inv && terms === 'split' ? all.filter((l) => l.kind === 'setup') : all;
+    const shown = inv ? due : all;
+    const sum = shown.reduce((n, l) => n + l.cents * l.qty, 0);
+    const termsText = terms === 'full' ? 'Pay in full when you accept. I start printing once it’s paid.'
+      : terms === 'split' ? 'Artwork setup is paid when you accept. The sticker sheets are invoiced when you get them, due in 14 days.'
+      : 'One invoice when you get the stickers, due in 14 days.';
+    const acceptHelp = terms === 'full' ? 'Accepting sends you an invoice for the full amount straight away. You can pay by card or bank transfer, and I’ll start once it’s paid.'
+      : terms === 'split' ? 'Accepting sends you an invoice for the artwork setup (' + money(5000) + '). I start the artwork once it’s paid, and the sheets are invoiced on delivery.'
+      : 'Accepting is all you need to do now. I’ll get started, and the invoice comes with the stickers.';
+    const nameBad = !s.name.trim();
+    const gone = { declined: ['You said no thanks', 'This quote is closed. If you change your mind, I can send a fresh one.'], expired: ['This quote has expired', 'It was valid until 20/11/2026. Prices and timing may have changed since.'], replaced: ['There’s a newer version of this quote', 'I’ve sent an updated quote to your club’s email, so use that one instead.'] }[v];
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      docLabel: inv ? 'invoice' : 'quote',
+      heading: inv ? (v === 'paid' ? 'All paid up' : 'Your invoice') : gone ? 'Your quote' : 'A quote for Test club A',
+      lead: inv ? (v === 'paid' ? 'Thanks for sorting it so quickly.' : 'Thanks for saying yes. Here’s what’s due now.') : 'Grid stickers for the club champs, printed here in Helensville on waterproof vinyl.',
+      isGone: !!gone, goneTitle: gone ? gone[0] : '', goneText: gone ? gone[1] : '',
+      isPaid: v === 'paid', isAccepted: v === 'accepted', isQuote: v === 'quote', isInvoice: v === 'invoice',
+      docTitle: inv ? 'Invoice' : 'Quote', docNo: inv ? 'INV-0002' : 'Q-0002',
+      docFor: inv && terms === 'split' ? 'Artwork setup, part 1 of 2' : 'Club champs grid stickers',
+      pillCls: v === 'paid' ? 'tt-pill tt-pill--in' : v === 'invoice' ? 'tt-pill tt-pill--low' : v === 'accepted' ? 'tt-pill tt-pill--in' : gone ? 'tt-pill tt-pill--out' : 'tt-pill tt-pill--low',
+      pillText: v === 'paid' ? 'Paid' : v === 'invoice' ? 'Due now' : v === 'accepted' ? 'Accepted' : gone ? (v === 'declined' ? 'Declined' : v === 'expired' ? 'Expired' : 'Replaced') : 'Waiting for you',
+      dateLabel: inv ? 'Issued' : 'Valid until', dateText: inv ? '09/11/2026, due on receipt' : '20/11/2026',
+      termsText,
+      lines: shown.map((l) => ({ desc: l.desc, qty: l.qty, each: money(l.cents), total: money(l.cents * l.qty) })),
+      totalLabel: inv ? 'Due now' : 'Total', total: 'NZ' + money(sum),
+      hasNote: !inv,
+      acceptHelp,
+      name: s.name, onName: (e) => this.setState({ name: e.target.value, tried: false }),
+      nameErr: s.tried && nameBad, nameInv: s.tried && nameBad ? 'true' : 'false', nameCls: s.tried && nameBad ? 'tt-input is-error' : 'tt-input',
+      busy: s.busy, notBusy: !s.busy, busyStr: s.busy ? 'true' : 'false',
+      accept: () => {
+        if (s.busy) return;
+        if (nameBad) return this.setState({ tried: true });
+        this.setState({ busy: true });
+        // Stands in for a server action: checks the token and expiry, records who accepted and when,
+        // then creates the first invoice if the terms need one now.
+        this.t1 = setTimeout(() => { this.setState({ busy: false, view: terms === 'after' ? 'accepted' : 'invoice' }); toast(terms === 'after' ? 'Accepted. I’ll let you know when it’s ready.' : 'Accepted. The invoice is below and in your inbox.'); }, 900);
+      },
+      decline: () => { this.setState({ view: 'declined' }); toast('Thanks for letting me know.'); },
+      payCard: () => { if (s.busy) return; this.setState({ busy: true }); this.t1 = setTimeout(() => this.setState({ busy: false, view: 'paid' }), 1500); },
+      download: () => toast((inv ? 'Invoice' : 'Quote') + ' PDF downloaded.'),
+      hasToast: !!s.toast, toastMsg: s.toast || '', closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

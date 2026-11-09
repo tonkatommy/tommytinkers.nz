@@ -36,6 +36,7 @@ body{margin:0}
         <li><a href="#s-notify" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-bell ph-20" aria-hidden="true"></i>Emails</span></a></li>
         <li><a href="#s-look" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-palette ph-20" aria-hidden="true"></i>Look and motion</span></a></li>
         <li><a href="#orders" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-receipt ph-20" aria-hidden="true"></i>Orders</span></a></li>
+        <li><a href="#s-data" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-download-simple ph-20" aria-hidden="true"></i>Your data</span></a></li>
         <li><a href="#s-delete" class="tt-catbtn" style="text-decoration: none;"><span><i class="ph ph-trash ph-20" aria-hidden="true"></i>Delete account</span></a></li>
       </ul>
     </nav>
@@ -99,6 +100,17 @@ body{margin:0}
         <div class="tt-setrow"><div style="max-width: 420px;"><p style="font-weight: 600;" id="l-motion">Motion</p><p class="tt-small">Reduced turns off the typing labels, card lifts and slides. "Match my device" follows your system setting.</p></div><div class="tt-seg" role="group" aria-labelledby="l-motion"><sc-for list="{{motionOpts}}" as="o" hint-placeholder-count="3"><button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
       </section>
 
+      <!-- YOUR DATA -->
+      <section id="s-data" class="tt-card" aria-labelledby="h-data" style="display: flex; flex-direction: column; gap: 4px;">
+        <h2 id="h-data" class="tt-h4" style="font-weight: 600; margin-bottom: 12px;">Your data</h2>
+        <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;">Download everything I hold about you</p><p class="tt-small">Your profile, orders, pins, posts, stamps and email settings, in one file you can open or keep. Artwork you uploaded comes as links that work for 7 days.</p></div>
+          <sc-if value="{{exportIdle}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--secondary" onClick="{{startExport}}"><i class="ph ph-download-simple" aria-hidden="true"></i>Get my data</button></sc-if>
+          <sc-if value="{{exportBusy}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--secondary" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Putting it together</button></sc-if>
+          <sc-if value="{{exportReady}}" hint-placeholder-val="{{false}}"><a href="#download" class="tt-btn tt-btn--primary"><i class="ph ph-download-simple" aria-hidden="true"></i>Download tommytinkers-data.json</a></sc-if>
+        </div>
+        <p class="tt-help" style="padding-top: 12px;">Want something corrected, or a copy of something that isn't here? Email <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a>. More in my <a href="Policies.dc.html">privacy policy</a>.</p>
+      </section>
+
       <!-- DELETE -->
       <section id="s-delete" class="tt-card tt-danger-zone" aria-labelledby="h-del" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
         <div style="max-width: 560px;"><h2 id="h-del" class="tt-h4" style="font-weight: 600;">Delete account</h2><p class="tt-small">Removes your profile, pins, posts and stamps. Order records stay for tax purposes, but they're no longer linked to a login.</p></div>
@@ -128,7 +140,7 @@ body{margin:0}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"view":{"editor":"enum","options":["ready","saving","saved","error","delete"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"view":{"editor":"enum","options":["ready","saving","saved","error","delete","export"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2800}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -140,11 +152,11 @@ class Component extends DCLogic {
       tried: false, pwOpen: false, google: false,
       emails: { replies: true, approved: true, news: false },
       themePref: 'dark', motion: 'device',
-      delOpen: v === 'delete', delText: ''
+      delOpen: v === 'delete', delText: '', exp: v === 'export' ? 'ready' : 'idle'
     };
     if (v === 'saving' || v === 'error') this.state.bio = 'Maker of things. Stickers now, 3D prints on the way.';
   }
-  componentWillUnmount() { clearTimeout(this.saveT); clearTimeout(this.toastT); }
+  componentWillUnmount() { clearTimeout(this.saveT); clearTimeout(this.toastT); clearTimeout(this.expT); }
   renderVals() {
     const s = this.state;
     const P = this.props;
@@ -156,7 +168,7 @@ class Component extends DCLogic {
     const emailDefs = [
       ['replies', 'Replies to my Workshop threads', 'One email per thread, not one per reply.'],
       ['approved', 'When a pin of mine is approved', 'Only while your first few pins are being checked.'],
-      ['news', 'Workshop news', 'New products and the odd update from me. Only now and then.']
+      ['news', 'News from tommy tinkers NZ', 'New stickers and the odd update, only now and then. Off unless you turn it on, and every email has an unsubscribe link.']
     ];
     return {
       theme,
@@ -190,6 +202,10 @@ class Component extends DCLogic {
       motionOpts: [['full', 'Full'], ['reduced', 'Reduced'], ['device', 'Match my device']].map(([k, label]) => ({ label, pressed: s.motion === k ? 'true' : 'false', pick: () => this.setState({ motion: k }) })),
       delOpen: s.delOpen,
       openDelete: () => this.setState({ delOpen: true, delText: '' }),
+      exportIdle: s.exp === 'idle', exportBusy: s.exp === 'busy', exportReady: s.exp === 'ready',
+      // A server action builds the file from every table that holds this user's rows. It's made
+      // on request and kept for 7 days, so nothing sits around longer than it needs to.
+      startExport: () => { this.setState({ exp: 'busy' }); clearTimeout(this.expT); this.expT = setTimeout(() => this.setState({ exp: 'ready' }), 1500); },
       closeDelete: () => this.setState({ delOpen: false }),
       delText: s.delText,
       onDel: (e) => this.setState({ delText: e.target.value }),

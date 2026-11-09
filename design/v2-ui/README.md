@@ -1,6 +1,6 @@
 # v2 UI design (exported boards)
 
-A snapshot of the `tommy tinkers NZ v2` design canvas on claude.ai, version 83, exported 08/11/2026:
+A snapshot of the `tommy tinkers NZ v2` design canvas on claude.ai, version 92, exported 09/11/2026:
 https://claude.ai/artifact/9uCGiFfBAyfo1yeKShipHw
 
 This is the visual and behavioural spec for the v2 rebuild in `site/tommytinkers.nz.v2.0`. It has every page and state, in both themes, at 1280px desktop, 375px mobile and 834px tablet (admin).
@@ -10,6 +10,7 @@ This is the visual and behavioural spec for the v2 rebuild in `site/tommytinkers
 - **`CLAUDE.md` wins on facts.** If a board and `CLAUDE.md` disagree on a rate, price, rule or decision, follow `CLAUDE.md` and note the mismatch so the design gets fixed.
 - **Port the look and behaviour, not the code.** These files run on the canvas's own template runtime. Rebuild each screen idiomatically in Next.js, TypeScript and Tailwind, following the architecture rules in `CLAUDE.md`.
 - **Data in the boards is sample data.** Products, prices, discounts and rates match `CLAUDE.md`. Every customer and member name is invented; real customer details never go in this public repo. The 22 imported Shopify orders show their real numbers, dates and totals with invented names.
+- **Policy wording comes from the policy doc.** `Policies.dc.html` copies the claude.ai doc "tommytinkers.nz privacy policy and terms". Port the doc, not the board, if they differ.
 - **The canvas is the live copy.** If it changes, export it again rather than editing these files by hand.
 
 ## How to read a board
@@ -69,7 +70,7 @@ These files only render inside the claude.ai canvas (fonts and the runtime load 
 |---|---|---|
 | `Product.dc.html` | Product - desktop (interactive) | 1280 |
 | `Product-mobile.dc.html` | Product - 375 | 375 |
-| `Product-out.dc.html` | Product - out of stock | 1280 |
+| `Product-out.dc.html` | Product - out of stock with back-in-stock sign-up | 1280 |
 | `Product-loading.dc.html` | Product - loading (Tweak: not found) | 1280 |
 
 ### 5. Checkout hand-off and order confirmation
@@ -168,7 +169,7 @@ These files only render inside the claude.ai canvas (fonts and the runtime load 
 | `AdminModeration.dc.html` | Moderation queue (interactive) | 1280 |
 | `AdminModeration-light.dc.html` | Moderation - rejecting, tablet 834, light | 834 |
 | `AdminModeration-states.dc.html` | Moderation - reported (Tweak: empty, loading, error) | 1280 |
-| `AdminSettings.dc.html` | Shipping and motion (interactive) | 1280 |
+| `AdminSettings.dc.html` | Settings: shipping, invoices and motion (interactive) | 1280 |
 | `AdminSettings-flat.dc.html` | Shipping - free off, flat rate, light | 1280 |
 | `AdminSettings-states.dc.html` | Settings - invalid rate (Tweak: saving, saved, error, loading) | 1280 |
 | `AdminBar.dc.html` | AdminBar component | 1280 |
@@ -183,3 +184,43 @@ These files only render inside the claude.ai canvas (fonts and the runtime load 
 | `AdminDiscounts-code.dc.html` | Discounts - new one-time code, tablet 834, light | 834 |
 | `AdminDiscounts-states.dc.html` | Discounts - errors (Tweak: saving, empty, loading, error) | 1280 |
 | `Checkout-code.dc.html` | Checkout - code applied (Tweak: code error) | 1280 |
+
+### 11. Race-day and Helensville pickup
+
+| File | Board | Width |
+|---|---|---|
+| `Checkout-pickup.dc.html` | Checkout - collect at a race day, light | 1280 |
+| `Confirmation-pickup.dc.html` | Order confirmation - race-day pickup | 1280 |
+| `AdminRaceDays.dc.html` | Race days (interactive) | 1280 |
+| `AdminRaceDays-list.dc.html` | Race days - pickup list | 1280 |
+| `AdminRaceDays-edit.dc.html` | Race days - add one, invalid, tablet 834, light (Tweak: new, empty, loading, error) | 834 |
+
+### 12. Club quotes and invoices
+
+| File | Board | Width |
+|---|---|---|
+| `AdminQuotes.dc.html` | Quotes and invoices (interactive) | 1280 |
+| `AdminQuotes-new.dc.html` | Quotes - new quote (Tweak: invalid, sent and locked) | 1280 |
+| `AdminQuotes-invoice.dc.html` | Invoices - mark paid by bank transfer (Tweak: open invoice, list) | 1280 |
+| `AdminQuotes-clubs.dc.html` | Clubs and their usual terms, tablet 834, light (Tweak: empty, loading, error) | 834 |
+| `QuoteView.dc.html` | Club quote page (interactive: accept, decline, pay) | 1280 |
+| `QuoteView-invoice.dc.html` | Club invoice page, light (Tweak: paid, accepted, declined, expired, replaced) | 1280 |
+| `QuoteView-mobile.dc.html` | Club quote page - 375 | 375 |
+
+### 13. Terms and privacy, proofs, order lookup, back in stock and holiday mode
+
+| File | Board | Width |
+|---|---|---|
+| `Policies.dc.html` | Privacy policy and terms (interactive: two pages as tabs) | 1280 |
+| `Policies-mobile.dc.html` | Terms - 375, light (Tweak: privacy) | 375 |
+| `Product-custom.dc.html` | Product - custom sheet: artwork rights and proof note | 1280 |
+| `ProofView.dc.html` | Proof for the customer (interactive: approve or ask for changes) | 1280 |
+| `ProofView-states.dc.html` | Proof - asking for changes, light (Tweak: approved, changes sent, invalid, older version) | 1280 |
+| `AdminOrders-proof.dc.html` | Orders - proof waiting blocks packing | 1280 |
+| `OrderLookup.dc.html` | Find my order (interactive) | 1280 |
+| `OrderLookup-view.dc.html` | Find my order - order page from the email link, 375 (Tweak: sent, invalid, expired) | 375 |
+| `Shop-holiday.dc.html` | Shop - holiday notice, keep selling, light | 1280 |
+| `Checkout-paused.dc.html` | Checkout - paused for holiday | 1280 |
+| `AdminSettings-holiday.dc.html` | Settings - holiday mode on, pause checkout | 1280 |
+| `Settings-data.dc.html` | Account settings - your data, export ready, light | 1280 |
+| `SiteNotice.dc.html` | Component: SiteNotice (holiday banner) | 1280 |

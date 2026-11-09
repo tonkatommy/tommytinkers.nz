@@ -22,13 +22,13 @@ body{margin:0}
 
 <div class="tt-admpage">
 <div class="tt-adm">
-<dc-import name="AdminSide" theme="{{theme}}" active="settings" orders="1" queue="5" hint-size="100%,720px"></dc-import>
+<dc-import name="AdminSide" theme="{{theme}}" active="settings" orders="2" queue="5" hint-size="100%,720px"></dc-import>
 
 <main id="main" class="tt-admmain" style="max-width: 960px;">
   <header class="tt-admhead">
     <div style="display: flex; flex-direction: column; gap: 8px;">
       <span class="tt-label">&gt; admin / settings</span>
-      <h1 class="tt-h2">Shipping and motion</h1>
+      <h1 class="tt-h2">Shipping, invoices and motion</h1>
       <p class="tt-small">These are site-wide and saved to the database. They apply on the next page load.</p>
     </div>
   </header>
@@ -69,6 +69,33 @@ body{margin:0}
       <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;"><label for="low">Low stock at</label></p><p class="tt-small">Products at or under this count get the "Low stock" pill in the shop and the stockroom.</p></div><div class="tt-affix" style="width: 140px;"><input id="low" class="tt-input has-post" type="number" min="1" inputmode="numeric" value="{{low}}" onChange="{{onLow}}"><span class="post" aria-hidden="true">units</span></div></div>
     </section>
 
+    <!-- HOLIDAY -->
+    <section id="holiday" class="tt-card" aria-labelledby="h-hol" style="display: flex; flex-direction: column; gap: 4px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i class="ph ph-calendar-blank ph-24" aria-hidden="true" style="color: var(--text-secondary);"></i><h2 id="h-hol" class="tt-h4" style="font-weight: 600;">Holiday mode</h2></div>
+      <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;" id="l-hol">I'm away</p><p class="tt-small">Shows a notice across the shop with the date you're back.</p></div><button type="button" class="tt-switch" role="switch" aria-checked="{{holStr}}" aria-labelledby="l-hol" onClick="{{flipHol}}"></button></div>
+      <sc-if value="{{holOn}}" hint-placeholder-val="{{false}}">
+        <div class="tt-setrow"><div class="tt-field" style="flex: 1 1 200px; max-width: 240px;"><label for="hol-back">Back on</label><input id="hol-back" class="{{holCls}}" value="{{holBack}}" onChange="{{onHolBack}}" aria-invalid="{{holInv}}" aria-describedby="hol-h" placeholder="DD/MM/YYYY">
+          <sc-if value="{{holErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" id="hol-h"><i class="ph ph-warning-circle" aria-hidden="true"></i>Add a date that's still coming up, as DD/MM/YYYY.</p></sc-if>
+          <sc-if value="{{holOk}}" hint-placeholder-val="{{true}}"><p class="tt-help" id="hol-h">Holiday mode turns itself off at midnight that day.</p></sc-if></div>
+          <div class="tt-field" style="flex: 1 1 280px;"><span class="tt-field-label" id="l-holmode">While you're away</span><div class="tt-seg" role="group" aria-labelledby="l-holmode"><sc-for list="{{holModes}}" as="o" hint-placeholder-count="2"><button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
+        </div>
+        <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;">What customers see</p><p class="tt-small">{{holHelp}}</p></div><div style="min-width: 260px; max-width: 360px; padding: 12px 16px; border-radius: 12px; background: var(--bg-raised); border: 1px solid var(--border-subtle);"><p class="tt-small"><strong>{{holTitle}}</strong> {{holText}}</p></div></div>
+      </sc-if>
+      <p class="tt-help" style="padding-top: 12px; border-top: 1px solid var(--border-subtle);">Club quotes, race-day pickups and orders already paid aren't affected. Their dates are up to you.</p>
+    </section>
+
+    <!-- INVOICES -->
+    <section id="invoices" class="tt-card" aria-labelledby="h-inv" style="display: flex; flex-direction: column; gap: 4px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i class="ph ph-notepad ph-24" aria-hidden="true" style="color: var(--text-secondary);"></i><h2 id="h-inv" class="tt-h4" style="font-weight: 600;">Quotes and invoices</h2></div>
+      <div class="tt-setrow"><div class="tt-field" style="flex: 1 1 260px; max-width: 320px;"><label for="bank-name">Bank account name</label><input id="bank-name" class="tt-input" value="{{bankName}}" onChange="{{onBankName}}"></div>
+        <div class="tt-field" style="flex: 1 1 260px; max-width: 320px;"><label for="bank-no">Account number</label><input id="bank-no" class="{{bankCls}}" style="font-family: var(--font-mono);" value="{{bankNo}}" onChange="{{onBankNo}}" aria-invalid="{{bankInv}}" aria-describedby="bank-h" placeholder="00-0000-0000000-00">
+          <sc-if value="{{bankErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" id="bank-h"><i class="ph ph-warning-circle" aria-hidden="true"></i>Use the NZ format: 2-4-7-2 or 2-4-7-3 digits.</p></sc-if>
+          <sc-if value="{{bankOk}}" hint-placeholder-val="{{true}}"><p class="tt-help" id="bank-h">Shown on every invoice next to the card option. The invoice number is the reference.</p></sc-if>
+        </div></div>
+      <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;"><label for="qvalid">Quotes are valid for</label></p><p class="tt-small">The default "valid until" on a new quote. You can change it on each one.</p></div><div class="tt-affix" style="width: 140px;"><input id="qvalid" class="tt-input has-post" type="number" min="1" inputmode="numeric" value="{{qValid}}" onChange="{{onQValid}}"><span class="post" aria-hidden="true">days</span></div></div>
+      <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;">GST</p><p class="tt-small">Not registered, so quotes and invoices say "Invoice" and show no GST. If you register, this becomes a GST number and every document becomes a tax invoice.</p></div><span class="tt-tag tt-tag--muted">Not registered</span></div>
+    </section>
+
     <!-- MOTION -->
     <section id="motion" class="tt-card" aria-labelledby="h-motion" style="display: flex; flex-direction: column; gap: 4px;">
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i class="ph ph-sparkle ph-24" aria-hidden="true" style="color: var(--text-secondary);"></i><h2 id="h-motion" class="tt-h4" style="font-weight: 600;">Site motion defaults</h2></div>
@@ -104,20 +131,21 @@ body{margin:0}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","flatRate","invalid","saving","saved","error","loading"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","flatRate","holiday","invalid","saving","saved","error","loading"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1800}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
     const st = props.state || 'ready';
-    this.saved = { free: true, rate: '', low: '3', card: 'socket', link: 'caret', scroll: 'swing', btn: 'sweep', speed: 'normal' };
+    this.saved = { free: true, rate: '', low: '3', holiday: false, holBack: '24/11/2026', holMode: 'later', bankName: 'tommy tinkers NZ', bankNo: '00-0000-0000000-00', qValid: '14', card: 'socket', link: 'caret', scroll: 'swing', btn: 'sweep', speed: 'normal' };
     this.state = {
       theme: null, ...this.saved,
       status: st === 'loading' ? 'loading' : 'ready',
       error: st === 'error', saving: st === 'saving', tried: st === 'invalid',
-      toast: st === 'saved' ? 'Shipping and motion are saved. New page loads use them.' : null
+      toast: st === 'saved' ? 'Settings are saved. New page loads use them.' : null
     };
     if (st === 'flatRate' || st === 'saving' || st === 'error') Object.assign(this.state, { free: false, rate: '8.50' });
     if (st === 'invalid') Object.assign(this.state, { free: false, rate: '' });
+    if (st === 'holiday') Object.assign(this.state, { holiday: true, holMode: 'paused' });
   }
   componentWillUnmount() { clearTimeout(this.t1); clearTimeout(this.toastT); }
   renderVals() {
@@ -128,16 +156,20 @@ class Component extends DCLogic {
     const keys = Object.keys(this.saved);
     const changed = keys.filter((k) => String(s[k]) !== String(this.saved[k]));
     const rateC = Math.round((parseFloat(s.rate) || 0) * 100);
+    // NZ bank accounts are bank-branch-account-suffix: 2-4-7 digits, then a 2 or 3 digit suffix.
+    const key = (d) => (/^\d{2}\/\d{2}\/\d{4}$/.test(d) ? d.slice(6) + d.slice(3, 5) + d.slice(0, 2) : '');
+    const holBad = s.holiday && (!key(s.holBack.trim()) || key(s.holBack.trim()) <= '20261109');
+    const bankOkFmt = /^\d{2}-\d{4}-\d{7}-\d{2,3}$/.test(s.bankNo.trim());
     const rateBad = !s.free && rateC <= 0;
     const rateErr = s.tried && rateBad;
     const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
     const scales = { slow: '1.5', normal: '1', fast: '0.62' };
     const save = () => {
       if (s.saving) return;
-      if (rateBad) return this.setState({ tried: true });
+      if (rateBad || !bankOkFmt || holBad) return this.setState({ tried: true });
       this.setState({ saving: true, error: false, tried: false });
       // Stands in for a server action that checks manage_content, then revalidates the layout.
-      this.t1 = setTimeout(() => { keys.forEach((k) => { this.saved[k] = this.state[k]; }); this.setState({ saving: false }); toast('Shipping and motion are saved. New page loads use them.'); }, 900);
+      this.t1 = setTimeout(() => { keys.forEach((k) => { this.saved[k] = this.state[k]; }); this.setState({ saving: false }); toast('Settings are saved. New page loads use them.'); }, 900);
     };
     return {
       theme,
@@ -152,6 +184,16 @@ class Component extends DCLogic {
       shipPreview: s.free ? 'Free' : rateC > 0 ? '$' + (rateC / 100).toFixed(2) : '$0.00',
       shipPreviewNote: s.free ? 'Free shipping anywhere in NZ.' : 'Flat rate, anywhere in NZ.',
       low: s.low, onLow: (e) => this.setState({ low: e.target.value }),
+      holStr: s.holiday ? 'true' : 'false', holOn: s.holiday, flipHol: () => this.setState({ holiday: !s.holiday, tried: false }),
+      holBack: s.holBack, onHolBack: (e) => this.setState({ holBack: e.target.value }),
+      holErr: holBad && s.tried, holOk: !(holBad && s.tried), holInv: holBad && s.tried ? 'true' : 'false', holCls: holBad && s.tried ? 'tt-input is-error' : 'tt-input',
+      holModes: [['later', 'Keep selling, post later'], ['paused', 'Pause checkout']].map(([k, label]) => ({ label, pressed: s.holMode === k ? 'true' : 'false', pick: () => this.setState({ holMode: k }) })),
+      holHelp: s.holMode === 'paused' ? 'The shop stays open to browse and carts are kept, but nobody can pay until you\u2019re back.' : 'People can still buy. Product pages and receipts say when it\u2019ll be posted.',
+      holTitle: s.holMode === 'paused' ? 'Orders are paused until ' + s.holBack + '.' : 'I\u2019m away until ' + s.holBack + '.',
+      holText: s.holMode === 'paused' ? 'Have a look around, and the cart will keep what you add.' : 'You can still order. Anything you buy now gets posted after that.',
+      bankName: s.bankName, onBankName: (e) => this.setState({ bankName: e.target.value }),
+      bankNo: s.bankNo, onBankNo: (e) => this.setState({ bankNo: e.target.value }), bankErr: !bankOkFmt, bankOk: bankOkFmt, bankInv: bankOkFmt ? 'false' : 'true', bankCls: bankOkFmt ? 'tt-input' : 'tt-input is-error',
+      qValid: s.qValid, onQValid: (e) => this.setState({ qValid: e.target.value }),
       cardV: s.card, cardSet: (e) => this.setState({ card: e.target.value }),
       linkV: s.link, linkSet: (e) => this.setState({ link: e.target.value }),
       scrollV: s.scroll, scrollSet: (e) => this.setState({ scroll: e.target.value }),

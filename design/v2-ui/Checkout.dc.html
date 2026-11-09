@@ -21,6 +21,7 @@ body{margin:0}
 <dc-import name="SiteNav" theme="{{theme}}" active="shop" count="{{count}}" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
 
 <div class="tt-page">
+<sc-if value="{{isPaused}}" hint-placeholder-val="{{false}}"><dc-import name="SiteNotice" theme="{{theme}}" mode="paused" hint-size="100%,56px"></dc-import></sc-if>
 <main id="main" class="tt-container" style="padding-block: 32px 96px; display: flex; flex-direction: column; gap: 32px;">
 
   <header style="display: flex; flex-direction: column; gap: 16px;">
@@ -113,13 +114,29 @@ body{margin:0}
         </ul>
       </section>
 
-      <!-- shipping: free anywhere in NZ -->
-      <section class="tt-card" aria-labelledby="ship-h" style="display: flex; align-items: flex-start; gap: 16px;">
-        <span style="width: 44px; height: 44px; flex: none; border-radius: 10px; background: var(--bg-raised); display: grid; place-items: center;"><i class="ph ph-truck ph-24" aria-hidden="true"></i></span>
+      <!-- how it gets to you: post, a race day, or Helensville -->
+      <section class="tt-card" aria-labelledby="ship-h" style="display: flex; flex-direction: column; gap: 16px;">
         <div style="display: flex; flex-direction: column; gap: 4px;">
-          <h2 id="ship-h" class="tt-h4" style="font-weight: 600;">Free shipping anywhere in New Zealand</h2>
-          <p class="tt-small">No minimum spend. I send everything with NZ Post, and you'll get a tracking link by email when it's on its way. You add your delivery address on the next step.</p>
+          <h2 id="ship-h" class="tt-h4" style="font-weight: 600;">How do you want it?</h2>
+          <p class="tt-small">Posting is free anywhere in New Zealand. If you'll be at a race day I'm going to, you can collect it there instead.</p>
         </div>
+        <div role="group" aria-labelledby="ship-h" style="display: grid; gap: 12px;">
+          <sc-for list="{{fulfilOpts}}" as="o" hint-placeholder-count="3">
+            <button type="button" class="tt-choice" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}"><span class="tt-choice-ic"><i class="{{o.icon}}" aria-hidden="true"></i></span><span><strong>{{o.label}}</strong><span class="b">{{o.help}}</span></span><span class="tt-choice-tick"><i class="ph ph-check" aria-hidden="true"></i></span></button>
+          </sc-for>
+        </div>
+        <sc-if value="{{isEvent}}" hint-placeholder-val="{{false}}">
+          <fieldset class="tt-edset" style="border-top: 0; padding-top: 0;">
+            <legend class="tt-field-label" style="font-size: 14px; font-weight: 500; margin-bottom: 8px;">Which race day?</legend>
+            <sc-for list="{{eventOpts}}" as="e" hint-placeholder-count="3">
+              <label class="tt-check" style="{{e.style}}"><input type="radio" name="co-event" checked="{{e.on}}" disabled="{{e.closed}}" onChange="{{e.pick}}"><span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600;">{{e.name}}</span><span class="tt-small">{{e.meta}}</span></span></label>
+            </sc-for>
+            <p class="tt-help">Orders close a few days before each race day so there's time to print. I'll bring your order to the pits and you'll get an email the day before with where to find me.</p>
+          </fieldset>
+        </sc-if>
+        <sc-if value="{{isHelensville}}" hint-placeholder-val="{{false}}">
+          <p class="tt-help" style="display: flex; gap: 8px;"><i class="ph ph-envelope-simple ph-20" aria-hidden="true" style="flex: none;"></i>Once it's printed I'll email you to set a time. Helensville only, and there's no shop to walk into, so please don't turn up unannounced.</p>
+        </sc-if>
       </section>
     </div>
 
@@ -130,7 +147,7 @@ body{margin:0}
         <div class="tt-row"><span style="color: var(--text-secondary);">Subtotal ({{count}} items)</span><span>{{gross}}</span></div>
         <sc-if value="{{hasDeal}}" hint-placeholder-val="{{true}}"><div class="tt-row"><span style="color: var(--text-secondary);">2+ name sticker sheets</span><span>-$5.00</span></div></sc-if>
         <sc-if value="{{hasCode}}" hint-placeholder-val="{{false}}"><div class="tt-row"><span style="color: var(--text-secondary); display: inline-flex; align-items: center; gap: 8px;">Code <span class="tt-tag">{{codeApplied}}</span><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="width: 32px; min-height: 32px;" aria-label="Remove the code" onClick="{{removeCode}}"><i class="ph ph-x ph-16" aria-hidden="true"></i></button></span><span>-{{codeOff}}</span></div></sc-if>
-        <div class="tt-row"><span style="color: var(--text-secondary);">Shipping in NZ</span><span>Free</span></div>
+        <div class="tt-row"><span style="color: var(--text-secondary);">{{fulfilLabel}}</span><span>Free</span></div>
         <sc-if value="{{noCode}}" hint-placeholder-val="{{true}}">
           <div class="tt-field" style="gap: 6px;"><label for="co-code" style="font-size: 14px;">Discount code</label><div style="display: flex; gap: 8px;"><input id="co-code" class="{{codeCls}}" style="font-family: var(--font-mono); text-transform: uppercase;" value="{{codeDraft}}" onChange="{{onCode}}" aria-invalid="{{codeInv}}" aria-describedby="co-code-h" autocomplete="off"><button type="button" class="tt-btn tt-btn--secondary" onClick="{{applyCode}}">Apply</button></div>
             <sc-if value="{{codeErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" id="co-code-h" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i>That code isn't valid, or it's run out.</p></sc-if>
@@ -141,10 +158,13 @@ body{margin:0}
           <button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Taking you to Stripe</button>
           <p class="tt-help" role="status" style="text-align: center;">Hang tight. Don't close this tab.</p>
         </sc-if>
+        <label class="tt-check" style="font-size: 14px; align-items: flex-start;"><input type="checkbox" checked="{{news}}" onChange="{{flipNews}}"><span>Email me now and then about new stickers. Unsubscribe any time.</span></label>
         <sc-if value="{{notRedirecting}}" hint-placeholder-val="{{true}}">
-          <button type="button" class="tt-btn tt-btn--primary tt-btn--block" onClick="{{pay}}"><i class="ph ph-lock-simple" aria-hidden="true"></i>{{payText}}</button>
+          <sc-if value="{{isPaused}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true"><i class="ph ph-calendar-blank" aria-hidden="true"></i>Orders open again 24/11/2026</button></sc-if>
+          <sc-if value="{{notPaused}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" onClick="{{pay}}"><i class="ph ph-lock-simple" aria-hidden="true"></i>{{payText}}</button></sc-if>
         </sc-if>
-        <p class="tt-small" style="display: flex; gap: 8px; align-items: flex-start;"><i class="ph ph-shield-check ph-20" aria-hidden="true" style="flex: none;"></i>You'll add your address and pay on Stripe's secure checkout, then come straight back here. I never see your card details.</p>
+        <p class="tt-help" style="font-size: 13px;">By paying, you agree to my <a href="Policies.dc.html">terms and conditions</a>, including <a href="Policies.dc.html#returns">returns and refunds</a>. Here's <a href="Policies.dc.html">what I do with your details</a>.</p>
+        <p class="tt-small" style="display: flex; gap: 8px; align-items: flex-start;"><i class="ph ph-shield-check ph-20" aria-hidden="true" style="flex: none;"></i>{{stripeNote}}</p>
         <sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}">
           <p class="tt-small" style="border-top: 1px solid var(--border-subtle); padding-top: 16px;">Checking out as a guest. <a href="Auth.dc.html">Sign in</a> to keep this order in your account.</p>
         </sc-if>
@@ -157,7 +177,7 @@ body{margin:0}
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["review","code","codeError","redirecting","changed","cancelled","error","empty"],"default":"review"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1600}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["review","pickup","code","codeError","redirecting","changed","cancelled","error","empty","paused"],"default":"review"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1600}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -167,6 +187,9 @@ class Component extends DCLogic {
       redirecting: props.state === 'redirecting',
       code: props.state === 'code' ? 'THANKS5' : null,
       codeDraft: props.state === 'codeError' ? 'SUMMER99' : '', codeErr: props.state === 'codeError',
+      fulfil: props.state === 'pickup' ? 'event' : 'post', eventId: 'e1',
+      // Unticked by default: marketing email needs a clear yes (Unsolicited Electronic Messages Act).
+      news: false,
       lines: empty ? [] : [
         { id: 'a', name: 'RC name window stickers', option: 'Mixed sheet', cents: 2000, deal: true, qty: 2, max: 20 },
         { id: 'b', name: 'Waikato Champs grid stickers', option: 'Event sheet', cents: 1500, qty: 1, max: 20 }
@@ -187,6 +210,14 @@ class Component extends DCLogic {
     const deal = s.lines.filter((l) => l.deal).reduce((n, l) => n + l.qty, 0) >= 2 ? 500 : 0;
     // The code is checked by a server action (validity, dates, use limits) and re-checked when the Stripe session is made.
     const codeOff = s.code ? Math.min(500, gross - deal) : 0;
+    // Race days come from admin (Race days). A day stops taking pickup orders at its cutoff, and the
+    // server checks the cutoff again when it makes the Stripe session.
+    const events = [
+      { id: 'e1', name: 'Indoor club round 4', venue: 'Club track, Auckland', date: 'Sat 14/11/2026', cutoff: '11/11/2026', closed: false },
+      { id: 'e2', name: 'Summer series round 1', venue: 'Outdoor track, Waikato', date: 'Sat 28/11/2026', cutoff: '25/11/2026', closed: false },
+      { id: 'e0', name: 'Indoor club round 3', venue: 'Club track, Auckland', date: 'Sat 07/11/2026', cutoff: '04/11/2026', closed: true }
+    ];
+    const ev = events.find((e) => e.id === s.eventId) || events[0];
     const setQty = (id, q) => this.setState({ lines: s.lines.map((l) => (l.id === id ? { ...l, qty: q } : l)) });
     return {
       theme,
@@ -217,6 +248,17 @@ class Component extends DCLogic {
         remove: () => this.setState({ lines: s.lines.filter((x) => x.id !== l.id) }),
         removeLabel: 'Remove ' + l.name
       })),
+      fulfilOpts: [
+        ['post', 'ph ph-truck ph-20', 'Post it to me', 'Free NZ Post anywhere in New Zealand, with tracking.'],
+        ['event', 'ph ph-flag-checkered ph-20', 'Collect at a race day', 'Pick it up at the track. Free.'],
+        ['helensville', 'ph ph-map-pin ph-20', 'Collect from Helensville', "Free. I'll email you to arrange a time."]
+      ].map(([k, icon, label, help]) => ({ icon, label, help, pressed: s.fulfil === k ? 'true' : 'false', pick: () => this.setState({ fulfil: k }) })),
+      isEvent: s.fulfil === 'event', isHelensville: s.fulfil === 'helensville',
+      eventOpts: events.map((e) => ({ name: e.name, meta: e.date + ' · ' + e.venue + (e.closed ? ' · orders closed' : ' · order by ' + e.cutoff), on: e.id === s.eventId, closed: e.closed, style: 'font-size: 15px; align-items: flex-start;' + (e.closed ? ' opacity: 0.6;' : ''), pick: () => this.setState({ eventId: e.id }) })),
+      fulfilLabel: s.fulfil === 'post' ? 'Shipping in NZ' : s.fulfil === 'event' ? 'Collect at ' + ev.name : 'Collect from Helensville',
+      stripeNote: s.fulfil === 'post' ? "You'll add your address and pay on Stripe's secure checkout, then come straight back here. I never see your card details." : "You'll pay on Stripe's secure checkout, with no address needed, then come straight back here. I never see your card details.",
+      isPaused: view === 'paused', notPaused: view !== 'paused',
+      news: s.news, flipNews: () => this.setState({ news: !s.news }),
       redirecting: s.redirecting,
       notRedirecting: !s.redirecting,
       payText: view === 'error' || view === 'cancelled' ? 'Try paying again' : 'Pay securely with Stripe',

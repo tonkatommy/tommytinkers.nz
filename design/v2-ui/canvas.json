@@ -152,7 +152,7 @@
     "Product-out.dc.html": {
       "expand": "fill",
       "h": 2300,
-      "title": "Product - out of stock",
+      "title": "Product - out of stock with back-in-stock sign-up",
       "w": 1280,
       "x": 1815,
       "y": 15786
@@ -576,7 +576,7 @@
     "AdminSettings.dc.html": {
       "expand": "fill",
       "h": 1800,
-      "title": "Shipping and motion (interactive)",
+      "title": "Settings: shipping, invoices and motion (interactive)",
       "w": 1280,
       "x": 3634,
       "y": 51833,
@@ -652,6 +652,212 @@
       "w": 1280,
       "x": 4994,
       "y": 54602
+    },
+    "Checkout-pickup.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Checkout - collect at a race day, light",
+      "w": 1280,
+      "x": 0,
+      "y": 56723
+    },
+    "Confirmation-pickup.dc.html": {
+      "expand": "fill",
+      "h": 1800,
+      "title": "Order confirmation - race-day pickup",
+      "w": 1280,
+      "x": 1360,
+      "y": 56723
+    },
+    "AdminRaceDays.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Race days (interactive)",
+      "w": 1280,
+      "x": 2720,
+      "y": 56723,
+      "is_interactive": true
+    },
+    "AdminRaceDays-list.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Race days - pickup list",
+      "w": 1280,
+      "x": 4080,
+      "y": 56723
+    },
+    "AdminRaceDays-edit.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Race days - add one, invalid, tablet 834, light (Tweak: new, empty, loading, error)",
+      "w": 834,
+      "x": 5440,
+      "y": 56723
+    },
+    "AdminQuotes.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Quotes and invoices (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 59046,
+      "is_interactive": true
+    },
+    "AdminQuotes-new.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Quotes - new quote (Tweak: invalid, sent and locked)",
+      "w": 1280,
+      "x": 1360,
+      "y": 59046
+    },
+    "AdminQuotes-invoice.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Invoices - mark paid by bank transfer (Tweak: open invoice, list)",
+      "w": 1280,
+      "x": 2720,
+      "y": 59046
+    },
+    "AdminQuotes-clubs.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Clubs and their usual terms, tablet 834, light (Tweak: empty, loading, error)",
+      "w": 834,
+      "x": 4080,
+      "y": 59046
+    },
+    "QuoteView.dc.html": {
+      "expand": "fill",
+      "h": 1700,
+      "title": "Club quote page (interactive: accept, decline, pay)",
+      "w": 1280,
+      "x": 4994,
+      "y": 59046,
+      "is_interactive": true
+    },
+    "QuoteView-invoice.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Club invoice page, light (Tweak: paid, accepted, declined, expired, replaced)",
+      "w": 1280,
+      "x": 6354,
+      "y": 59046
+    },
+    "QuoteView-mobile.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "title": "Club quote page - 375",
+      "w": 375,
+      "x": 7714,
+      "y": 59046
+    },
+    "Policies.dc.html": {
+      "expand": "fill",
+      "h": 3600,
+      "title": "Privacy policy and terms (interactive: two pages as tabs)",
+      "w": 1280,
+      "x": 0,
+      "y": 62223,
+      "is_interactive": true
+    },
+    "Policies-mobile.dc.html": {
+      "expand": "fill",
+      "h": 5200,
+      "title": "Terms - 375, light (Tweak: privacy)",
+      "w": 375,
+      "x": 1360,
+      "y": 62223
+    },
+    "Product-custom.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "title": "Product - custom sheet: artwork rights and proof note",
+      "w": 1280,
+      "x": 1815,
+      "y": 62223
+    },
+    "ProofView.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Proof for the customer (interactive: approve or ask for changes)",
+      "w": 1280,
+      "x": 3175,
+      "y": 62223,
+      "is_interactive": true
+    },
+    "ProofView-states.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Proof - asking for changes, light (Tweak: approved, changes sent, invalid, older version)",
+      "w": 1280,
+      "x": 4535,
+      "y": 62223
+    },
+    "AdminOrders-proof.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Orders - proof waiting blocks packing",
+      "w": 1280,
+      "x": 5895,
+      "y": 62223
+    },
+    "OrderLookup.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Find my order (interactive)",
+      "w": 1280,
+      "x": 7255,
+      "y": 62223,
+      "is_interactive": true
+    },
+    "OrderLookup-view.dc.html": {
+      "expand": "fill",
+      "h": 1800,
+      "title": "Find my order - order page from the email link, 375 (Tweak: sent, invalid, expired)",
+      "w": 375,
+      "x": 8615,
+      "y": 62223
+    },
+    "Shop-holiday.dc.html": {
+      "expand": "fill",
+      "h": 2700,
+      "title": "Shop - holiday notice, keep selling, light",
+      "w": 1280,
+      "x": 9070,
+      "y": 62223
+    },
+    "Checkout-paused.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Checkout - paused for holiday",
+      "w": 1280,
+      "x": 10430,
+      "y": 62223
+    },
+    "AdminSettings-holiday.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "title": "Settings - holiday mode on, pause checkout",
+      "w": 1280,
+      "x": 11790,
+      "y": 62223
+    },
+    "Settings-data.dc.html": {
+      "expand": "fill",
+      "h": 2200,
+      "title": "Account settings - your data, export ready, light",
+      "w": 1280,
+      "x": 13150,
+      "y": 62223
+    },
+    "SiteNotice.dc.html": {
+      "expand": "fill",
+      "h": 64,
+      "title": "Component: SiteNotice (holiday banner)",
+      "w": 1280,
+      "x": 14510,
+      "y": 62223
     }
   },
   "createdOnFiles": {
@@ -784,6 +990,27 @@
       "text": "10. Admin: discounts",
       "x": 0,
       "y": 54379
+    },
+    "row17": {
+      "kind": "title1",
+      "maxW": 6274,
+      "text": "11. Race-day and Helensville pickup",
+      "x": 0,
+      "y": 56500
+    },
+    "row18": {
+      "kind": "title1",
+      "maxW": 8089,
+      "text": "12. Club quotes and invoices",
+      "x": 0,
+      "y": 58823
+    },
+    "row19": {
+      "kind": "title1",
+      "maxW": 15790,
+      "text": "13. Terms and privacy, proofs, order lookup, back in stock and holiday mode",
+      "x": 0,
+      "y": 62000
     }
   },
   "order": [
@@ -863,7 +1090,32 @@
     "AdminDiscounts-edit.dc.html",
     "AdminDiscounts-code.dc.html",
     "AdminDiscounts-states.dc.html",
-    "Checkout-code.dc.html"
+    "Checkout-code.dc.html",
+    "Checkout-pickup.dc.html",
+    "Confirmation-pickup.dc.html",
+    "AdminRaceDays.dc.html",
+    "AdminRaceDays-list.dc.html",
+    "AdminRaceDays-edit.dc.html",
+    "AdminQuotes.dc.html",
+    "AdminQuotes-new.dc.html",
+    "AdminQuotes-invoice.dc.html",
+    "AdminQuotes-clubs.dc.html",
+    "QuoteView.dc.html",
+    "QuoteView-invoice.dc.html",
+    "QuoteView-mobile.dc.html",
+    "Policies.dc.html",
+    "Policies-mobile.dc.html",
+    "Product-custom.dc.html",
+    "ProofView.dc.html",
+    "ProofView-states.dc.html",
+    "AdminOrders-proof.dc.html",
+    "OrderLookup.dc.html",
+    "OrderLookup-view.dc.html",
+    "Shop-holiday.dc.html",
+    "Checkout-paused.dc.html",
+    "AdminSettings-holiday.dc.html",
+    "Settings-data.dc.html",
+    "SiteNotice.dc.html"
   ],
   "pages": [],
   "title": "tommy tinkers NZ v2"
