@@ -29,7 +29,7 @@ body{margin:0}
     <div style="display: flex; flex-direction: column; gap: 8px;">
       <span class="tt-label">&gt; admin / orders</span>
       <h1 class="tt-h2">Orders</h1>
-      <p class="tt-admnote">22 orders imported from the closed Shopify store, plus three test orders, one for race-day pickup. New orders arrive from the Stripe webhook.</p>
+      <p class="tt-admnote">22 orders imported from the closed Shopify store, plus four test orders, two for race-day pickup and two needing a proof. New orders arrive from the Stripe webhook.</p>
     </div>
     <button type="button" class="tt-btn tt-btn--secondary"><i class="ph ph-download-simple" aria-hidden="true"></i>Export CSV</button>
   </header>
@@ -124,7 +124,19 @@ body{margin:0}
               <div class="tt-row" style="align-items: center;"><span class="tt-label" style="font-size: 11px;">&gt; print this</span><button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" style="min-height: 32px;" aria-label="{{it.copyLabel}}" onClick="{{it.copy}}"><i class="ph ph-copy" aria-hidden="true"></i>{{it.copyText}}</button></div>
               <dl class="tt-pzdl"><sc-for list="{{it.pz}}" as="f" hint-placeholder-count="4"><div><dt>{{f.k}}</dt><dd>{{f.v}}</dd></div></sc-for></dl>
               <sc-if value="{{it.hasArt}}" hint-placeholder-val="{{false}}"><a href="#artwork" class="tt-btn tt-btn--secondary tt-btn--sm" style="align-self: flex-start;"><i class="ph ph-download-simple" aria-hidden="true"></i>{{it.art}}</a></sc-if>
+              <sc-if value="{{it.hasRights}}" hint-placeholder-val="{{false}}"><p class="tt-help" style="font-size: 13px; display: flex; gap: 6px;"><i class="ph ph-seal-check ph-16" aria-hidden="true" style="flex: none; margin-top: 2px;"></i>{{it.rightsText}}</p></sc-if>
             </div>
+            <sc-if value="{{it.hasProof}}" hint-placeholder-val="{{false}}">
+              <div class="tt-card" style="background: var(--bg-raised); padding: 16px; display: flex; flex-direction: column; gap: 12px;" role="group" aria-label="{{it.proofLabel}}">
+                <div class="tt-row" style="align-items: center;"><span class="tt-label" style="font-size: 11px;">&gt; proof</span><span class="{{it.proofPill}}">{{it.proofStatus}}</span></div>
+                <p class="tt-small">{{it.proofText}}</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                  <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{it.newProof}}"><i class="ph ph-upload-simple" aria-hidden="true"></i>{{it.newProofText}}</button>
+                  <button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" onClick="{{it.copyProof}}"><i class="ph ph-copy" aria-hidden="true"></i>Copy proof link</button>
+                  <a href="ProofView.dc.html" class="tt-btn tt-btn--ghost tt-btn--sm"><i class="ph ph-eye" aria-hidden="true"></i>See what they see</a>
+                </div>
+              </div>
+            </sc-if>
           </sc-if>
         </sc-for>
         <dl class="tt-dl" style="margin-top: 8px;"><dt>Subtotal</dt><dd class="num">{{dSub}}</dd><dt>Shipping</dt><dd>{{dShip}}</dd><dt style="font-weight: 600; color: var(--text-primary);">Total paid</dt><dd style="font-weight: 600;">{{dTotal}}</dd></dl>
@@ -152,7 +164,7 @@ body{margin:0}
     </div>
     <div class="tt-drawer-foot" style="flex-direction: row; flex-wrap: wrap;">
       <sc-if value="{{canRefund}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--danger" onClick="{{openRefund}}"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Refund</button></sc-if>
-      <sc-if value="{{hasNext}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--primary" style="flex: 1;" aria-disabled="{{busyStr}}" onClick="{{advance}}"><sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</sc-if><sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><i class="{{nextIcon}}" aria-hidden="true"></i>{{nextText}}</sc-if></button></sc-if>
+      <sc-if value="{{hasNext}}" hint-placeholder-val="{{true}}"><button type="button" class="{{nextCls}}" style="flex: 1;" aria-disabled="{{busyStr}}" onClick="{{advance}}"><sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</sc-if><sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><i class="{{nextIcon}}" aria-hidden="true"></i>{{nextText}}</sc-if></button></sc-if>
       <sc-if value="{{noNext}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--secondary" style="flex: 1;" onClick="{{closeDrawer}}">Close</button></sc-if>
     </div>
   </aside>
@@ -177,12 +189,12 @@ body{margin:0}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","loading","empty","error","detail","posting","refund"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1100}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","loading","empty","error","detail","proof","posting","refund"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1100}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
     const st = props.state || 'ready';
-    // The 22 orders imported from the Shopify export (the store is closed), newest first, plus three
+    // The 22 orders imported from the Shopify export (the store is closed), newest first, plus four
     // test orders so the pack and post flow can be shown. v2 shows every order as TT####NZ and keeps
     // Shopify's own name in `ref` (it used TT-1001-NZ style up to 1015). Tommy's own test orders
     // 1001 and 1011 are skipped on import. Customer names here are invented: the design never shows
@@ -199,7 +211,8 @@ class Component extends DCLogic {
     ].map(([n, ref, date, customer, total, count]) => ({ id: 'TT' + n + 'NZ', ref, date, customer, total, count, items: null, test: false, shopify: true, status: 'posted' }));
     const tests = [
       { id: 'TT1028NZ', date: '08/11/2026', customer: 'Test member A', status: 'packing', test: true, pickup: 'Indoor club round 4, Sat 14/11/2026', items: [{ name: 'RC name window stickers', sku: 'RCWS-MXD-01', qty: 2, each: 2000, deal: true, pz: [['Sheet', 'Mixed'], ['Name', 'TEST A'], ['Flag', 'New Zealand'], ['Colours', 'Black on white'], ['Font', 'Not given']] }] },
-      { id: 'TT1027NZ', date: '07/11/2026', customer: 'Tommy G.', status: 'packing', test: true, items: [{ name: 'Custom sticker sheet A4', sku: 'No SKU yet', qty: 1, each: 3500, pz: [['Design brief', 'Test order. Club grid numbers 1 to 12, black on yellow, about 60 mm high.']], art: 'grid-numbers.svg, 84 KB' }] },
+      { id: 'TT1029NZ', date: '08/11/2026', customer: 'Test member B', status: 'paid', test: true, pickup: 'Indoor club round 4, Sat 14/11/2026', items: [{ name: 'Custom sticker sheet A4', sku: 'No SKU yet', qty: 1, each: 3500, rights: '08/11/2026', proof: { v: 1, status: 'waiting', sent: '08/11/2026' }, pz: [['Design brief', 'Test order. Club grid numbers 1 to 12, black on yellow, about 60 mm high.']], art: 'grid-numbers.svg, 84 KB' }] },
+      { id: 'TT1027NZ', date: '07/11/2026', customer: 'Tommy G.', status: 'packing', test: true, items: [{ name: 'Custom sticker sheet A4', sku: 'No SKU yet', qty: 1, each: 3500, rights: '07/11/2026', proof: { v: 2, status: 'approved', sent: '08/11/2026', approved: '09/11/2026' }, pz: [['Design brief', 'Test order. Club grid numbers 1 to 12, black on yellow, about 60 mm high.']], art: 'grid-numbers.svg, 84 KB' }] },
       { id: 'TT1026NZ', date: '07/11/2026', customer: 'Tommy G.', status: 'paid', test: true, items: [{ name: 'RC name window stickers', sku: 'RCWS-MXD-01', qty: 2, each: 2000, deal: true, pz: [['Sheet', 'Mixed'], ['Name', 'TOMMY G'], ['Flag', 'New Zealand'], ['Colours', 'White on black'], ['Font', 'Not given']] }, { name: 'Waikato Champs grid stickers', sku: 'WCGS-2025', qty: 1, each: 1500 }] }
     ];
     const seed = [...tests, ...old];
@@ -208,7 +221,7 @@ class Component extends DCLogic {
       status: ['loading', 'empty', 'error'].includes(st) ? st : 'ready',
       orders: st === 'empty' ? [] : seed,
       filter: 'all', query: '',
-      open: ['detail', 'posting', 'refund'].includes(st) ? (st === 'detail' ? 'TT1026NZ' : 'TT1027NZ') : null,
+      open: ['detail', 'proof', 'posting', 'refund'].includes(st) ? (st === 'detail' ? 'TT1026NZ' : st === 'proof' ? 'TT1029NZ' : 'TT1027NZ') : null,
       posting: st === 'posting', track: '', trackTried: false, busy: false,
       refund: st === 'refund', restock: true, toast: null
     };
@@ -258,10 +271,12 @@ class Component extends DCLogic {
     const steps = (d && d.pickup ? ['Paid', 'Packing', 'Collected'] : ['Paid', 'Packing', 'Posted']).map((label, i) => ({ label, cls: i < at || (i === at && at === 2) ? 'is-done' : i === at ? 'is-now' : '', cur: i === at ? 'step' : 'false' }));
     const trackErr = s.trackTried && !s.track.trim();
     let nextText = '', nextIcon = '';
-    if (d && d.status === 'paid') { nextText = 'Start packing'; nextIcon = 'ph ph-package'; }
+    const proofWait = !!d && !!d.items && d.items.some((i) => i.proof && i.proof.status !== 'approved');
+    if (d && d.status === 'paid') { nextText = proofWait ? 'Waiting on proof approval' : 'Start packing'; nextIcon = proofWait ? 'ph ph-hourglass' : 'ph ph-package'; }
     if (d && d.status === 'packing') { nextText = d.pickup ? 'Mark collected' : s.posting ? 'Save and email tracking' : 'Mark as posted'; nextIcon = d.pickup ? 'ph ph-check' : s.posting ? 'ph ph-paper-plane-tilt' : 'ph ph-truck'; }
     const advance = () => {
       if (s.busy || !d) return;
+      if (proofWait && d.status === 'paid') return toast('Nothing gets printed until the customer approves the proof.');
       if (d.status === 'packing' && !d.pickup && !s.posting) return this.setState({ posting: true });
       if (d.status === 'packing' && !d.pickup && !s.track.trim()) return this.setState({ trackTried: true });
       this.setState({ busy: true });
@@ -291,7 +306,8 @@ class Component extends DCLogic {
       closeDrawer: () => this.setState({ open: null, posting: false, refund: false }),
       dId: d ? d.id : '', dDate: d ? d.date : '', dCustomer: d ? d.customer : '',
       dAddr: d && d.pickup ? 'Collect at ' + d.pickup : d && d.shopify ? 'Address not in the Shopify export' : 'Helensville 0800, New Zealand',
-      dContact: d && d.shopify ? 'Imported as Shopify ' + d.ref : 'hello@tommytinkers.nz',
+      dContact: d && d.shopify ? 'Imported as Shopify ' + d.ref : d && d.customer.indexOf('Test member') === 0 ? 'test+' + d.customer.slice(-1).toLowerCase() + '@tommytinkers.nz' : 'hello@tommytinkers.nz',
+      nextCls: proofWait && d && d.status === 'paid' ? 'tt-btn tt-btn--secondary' : 'tt-btn tt-btn--primary',
       dPaid: d && d.shopify ? 'Paid through Shopify (store now closed)' : 'Paid by card through Stripe',
       dLink: 'Open in Stripe', hasLink: !!d && !d.shopify,
       noItems: !!d && !d.items, dCount: d ? units(d) + (units(d) === 1 ? ' item' : ' items') : '',
@@ -301,6 +317,15 @@ class Component extends DCLogic {
       dItems: d && d.items ? d.items.map((i, n) => ({ ...i, each: money(i.each), line: money(i.each * i.qty), grams: 'weight not set',
         hasPz: !!i.pz, pz: (i.pz || []).map(([k, v]) => ({ k, v })), pzLabel: 'Print details for ' + i.name,
         hasArt: !!i.art, art: 'Download artwork, ' + (i.art || ''),
+        hasRights: !!i.rights, rightsText: 'Customer confirmed the artwork is theirs or they have permission, ' + (i.rights || '') + '.',
+        // Lines for custom products need an approved proof before the order can move to packing.
+        hasProof: !!i.proof, proofLabel: 'Proof for ' + i.name,
+        proofPill: i.proof && i.proof.status === 'approved' ? 'tt-pill tt-pill--in' : i.proof && i.proof.status === 'changes' ? 'tt-pill tt-pill--out' : 'tt-pill tt-pill--low',
+        proofStatus: !i.proof ? '' : i.proof.status === 'approved' ? 'Approved' : i.proof.status === 'changes' ? 'Changes asked for' : 'Waiting for customer',
+        proofText: !i.proof ? '' : i.proof.status === 'approved' ? 'Version ' + i.proof.v + ' approved on ' + i.proof.approved + '. Print exactly that.' : 'Version ' + i.proof.v + ' sent on ' + i.proof.sent + '. A reminder goes out if they haven\u2019t answered in 3 days.',
+        newProofText: i.proof && i.proof.status === 'approved' ? 'Download approved proof' : 'Upload a new version',
+        newProof: () => toast(i.proof && i.proof.status === 'approved' ? 'Proof downloaded.' : 'Pick the new proof file. Sending it emails the customer and closes the old version.'),
+        copyProof: () => toast('Proof link copied.'),
         copyLabel: 'Copy print details for ' + i.name, copyText: s.copied === d.id + n ? 'Copied' : 'Copy',
         copy: () => { clearTimeout(this.cpT); this.setState({ copied: d.id + n }); this.cpT = setTimeout(() => this.setState({ copied: null }), 1800); } })) : [],
       dSub: d ? money(gross(d)) + (dealOff(d) ? ' less $5.00 multi-buy' : '') : '', dShip: d && d.shopify ? 'Included in the Shopify total' : d && d.pickup ? 'Free, race-day pickup' : FREE_SHIPPING ? 'Free, NZ wide' : 'Flat rate', dTotal: d ? money(sub(d)) : '',

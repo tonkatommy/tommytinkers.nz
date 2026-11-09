@@ -21,6 +21,7 @@ body{margin:0}
 <dc-import name="SiteNav" theme="{{theme}}" active="shop" count="{{count}}" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" on-open-cart="{{openCart}}" hint-size="100%,64px"></dc-import>
 
 <div class="tt-page">
+<sc-if value="{{holiday}}" hint-placeholder-val="{{false}}"><dc-import name="SiteNotice" theme="{{theme}}" mode="later" hint-size="100%,56px"></dc-import></sc-if>
 <main id="main">
 
   <!-- category hero: this page's one full-bleed gradient surface -->
@@ -177,7 +178,7 @@ body{margin:0}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","loading","empty","error"],"default":"ready"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2700}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","loading","empty","error"],"default":"ready"},"signedIn":{"editor":"boolean","default":false},"holiday":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2700}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -236,6 +237,7 @@ class Component extends DCLogic {
     const ready = view === 'ready' || view === 'empty';
     return {
       theme,
+      holiday: !!P.holiday,
       rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
       signedIn: !!P.signedIn,
       toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),

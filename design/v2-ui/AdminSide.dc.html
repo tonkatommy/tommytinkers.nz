@@ -28,12 +28,12 @@ body{margin:0}
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"active":{"editor":"enum","options":["stock","orders","quotes","racedays","discounts","users","moderation","settings"],"default":"stock"},"orders":{"editor":"int","default":1},"queue":{"editor":"int","default":5},"$preview":{"width":248,"height":720}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"active":{"editor":"enum","options":["stock","orders","quotes","racedays","discounts","users","moderation","settings"],"default":"stock"},"orders":{"editor":"int","default":2},"queue":{"editor":"int","default":5},"$preview":{"width":248,"height":720}}'>
 class Component extends DCLogic {
   renderVals() {
     const p = this.props;
     const active = p.active || 'stock';
-    const orders = p.orders == null ? 1 : p.orders;
+    const orders = p.orders == null ? 2 : p.orders;
     const queue = p.queue == null ? 5 : p.queue;
     // Each item maps to one permission string, so the server can hide a whole section.
     const defs = [

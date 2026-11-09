@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Terms, returns and privacy - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+.tt-policy{max-width:720px;display:flex;flex-direction:column;gap:32px}
+.tt-policy section{display:flex;flex-direction:column;gap:12px;scroll-margin-top:96px}
+.tt-policy h2{font-size:22px;font-weight:600;line-height:1.25}
+.tt-policy p,.tt-policy li{font-size:16px;line-height:1.65}
+.tt-policy ul{display:flex;flex-direction:column;gap:8px;padding-left:20px;list-style:disc}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="" count="0" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main" class="tt-container" style="padding-block: 40px 96px; display: flex; flex-direction: column; gap: 32px;">
+  <header style="display: flex; flex-direction: column; gap: 12px; max-width: 720px;">
+    <span class="tt-label">&gt; the fine print</span>
+    <h1 class="tt-h2 tt-underline">Terms, returns and privacy</h1>
+    <p class="tt-lead">The plain-English version of how buying from me works, what happens if something goes wrong, and what I do with your details.</p>
+    <p class="tt-small" style="color: var(--text-secondary);">Last updated {{updated}}</p>
+  </header>
+
+  <div class="tt-banner tt-banner--info" style="max-width: 720px;"><i class="ph ph-note-pencil ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Design note: draft wording</p><p class="tt-small">Tommy writes or approves the final text before launch. In the build, these pages are Markdown files in the repo with a version date, not admin-editable content.</p></div></div>
+
+  <div class="tt-seg" role="tablist" aria-label="Policies" style="align-self: flex-start;">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button type="button" role="tab" id="{{t.tid}}" aria-selected="{{t.pressed}}" aria-pressed="{{t.pressed}}" aria-controls="pol-panel" onClick="{{t.pick}}"><i class="{{t.icon}} ph-16" aria-hidden="true"></i>{{t.label}}</button></sc-for>
+  </div>
+
+  <div id="pol-panel" role="tabpanel" aria-labelledby="{{panelBy}}" class="tt-policy">
+    <!-- TERMS OF SALE -->
+    <sc-if value="{{isTerms}}" hint-placeholder-val="{{true}}">
+      <section id="who"><h2>Who you're buying from</h2><p>tommy tinkers NZ is me, Tommy Goodman, working on my own from Helensville, Auckland. You can reach me at <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a>.</p></section>
+      <section id="prices"><h2>Prices and payment</h2><ul><li>Prices are in New Zealand dollars. I'm not registered for GST, so there's no GST to add or claim.</li><li>You pay by card through Stripe. I never see or store your card number.</li><li>If a price on the site is clearly wrong, I'll get in touch before printing and you can cancel for a full refund.</li></ul></section>
+      <section id="made"><h2>Made to order</h2><ul><li>Most things are printed after you order. I aim to post within 5 working days. Custom sheets that need a proof take longer, because the clock starts when you approve it.</li><li>If I'm away, a notice at the top of the site says so, with the date I'll be back.</li><li>Check names, numbers and spelling before you pay. I print what you type.</li></ul></section>
+      <section id="delivery"><h2>Delivery and pickup</h2><ul><li>Posting is free anywhere in New Zealand, with tracking from NZ Post. I only post to New Zealand addresses.</li><li>You can collect free at a race day I'm going to, or from Helensville at a time we arrange by email.</li><li>Once it's posted, it's yours. If NZ Post loses or damages it, tell me and I'll sort it with them and reprint or refund you.</li></ul></section>
+      <section id="artwork"><h2>Your artwork and designs</h2><ul><li>When you send me a design, logo or photo to print, you're confirming it's yours or you have permission to use it.</li><li>I won't print other people's logos, brands or characters without their permission, or anything offensive. If an order crosses that line, I'll cancel it and refund you in full.</li><li>Your artwork stays yours. I only use it to make your order, and I don't show it anywhere without asking first.</li></ul></section>
+      <section id="proofs"><h2>Proofs</h2><p>For custom sheets I email you a proof to approve before printing. Ask for changes as many times as you need. Once you approve it, I print exactly that, so check it carefully.</p></section>
+      <section id="clubs"><h2>Club quotes</h2><p>Club orders, like grid sticker sets, are quoted. The quote sets the price, what's included and when you pay. It's valid until the date on it.</p></section>
+    </sc-if>
+
+    <!-- RETURNS -->
+    <sc-if value="{{isReturns}}" hint-placeholder-val="{{false}}">
+      <section id="faults"><h2>If something's wrong</h2><p>If your order arrives faulty, damaged, or not what you ordered, I'll put it right. Email me a photo and your order number as soon as you notice. Depending on the problem, I'll reprint it or refund you. Your rights under the Consumer Guarantees Act always apply, and nothing on this page takes them away.</p></section>
+      <section id="mind"><h2>Changing your mind</h2><ul><li>Personalised and custom stickers are made just for you, so I can't take them back if you change your mind. If you spot a mistake in your order before I print, email me straight away and I'll fix it.</li><li>{{mindText}}</li></ul></section>
+      <section id="cancel"><h2>Cancelling</h2><p>You can cancel for a full refund any time before I start printing. If you're waiting on a proof, nothing's printed yet, so it's a full refund too.</p></section>
+      <section id="how"><h2>How refunds work</h2><p>Refunds go back to the card you paid with, through Stripe. They usually show up in 5 to 10 days, depending on your bank.</p></section>
+    </sc-if>
+
+    <!-- PRIVACY -->
+    <sc-if value="{{isPrivacy}}" hint-placeholder-val="{{false}}">
+      <section id="collect"><h2>What I collect, and why</h2><ul><li><strong>Orders:</strong> your name, email, delivery address and what you bought, so I can make and send it.</li><li><strong>Artwork and briefs:</strong> the files and notes you send, so I can print them.</li><li><strong>A Shed account,</strong> if you make one: your display name, email, and anything you post.</li><li><strong>Messages</strong> you send me through the contact form or the Codebench planner.</li></ul></section>
+      <section id="keep"><h2>How long I keep it</h2><ul><li>Order records are kept for 7 years, because the IRD requires it.</li><li>Artwork is deleted {{artDays}} days after your order is done, unless you ask me to keep it for a reorder.</li><li>Back-in-stock requests are deleted once I've sent the email.</li></ul></section>
+      <section id="where"><h2>Where it's kept, and who else sees it</h2><p>The site and its database run on my own server in New Zealand. A few services handle parts of the job, and some are overseas: Stripe takes payments, Resend sends emails, and Cloudflare sits in front of the site. Each only gets what it needs. I never sell your details or share them with anyone for marketing.</p></section>
+      <section id="emails"><h2>Emails</h2><p>Order, proof and shipping emails come with buying something. Anything else, like news about new stickers, you only get if you tick the box for it, and every one has an unsubscribe link.</p></section>
+      <section id="cookies"><h2>Cookies</h2><p>Two small cookies: one keeps you signed in, and one remembers light or dark theme. No advertising or tracking cookies.</p></section>
+      <section id="rights"><h2>Your rights</h2><p>You can ask to see or correct anything I hold about you. With a Shed account you can download your data or delete your account from <a href="Settings.dc.html">account settings</a>. For anything else, email <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a>. If you're not happy with how I've handled it, you can complain to the Privacy Commissioner.</p></section>
+    </sc-if>
+  </div>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["terms","returns","privacy"],"default":"terms"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2600}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { theme: null, tab: props.state || 'terms' }; }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const tabs = [['terms', 'Terms of sale', 'ph ph-receipt'], ['returns', 'Returns and faults', 'ph ph-arrow-counter-clockwise'], ['privacy', 'Privacy', 'ph ph-shield-check']];
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      updated: '09/11/2026',
+      tabs: tabs.map(([k, label, icon]) => ({ label, icon, tid: 'tab-' + k, pressed: s.tab === k ? 'true' : 'false', pick: () => this.setState({ tab: k }) })),
+      panelBy: 'tab-' + s.tab,
+      isTerms: s.tab === 'terms', isReturns: s.tab === 'returns', isPrivacy: s.tab === 'privacy',
+      // Two policy choices left for Tommy, shown as drafts.
+      mindText: 'Event sheets that aren\u2019t personalised can come back unused within 14 days if you change your mind. You pay the postage back, and I refund the price. (Draft: Tommy to decide.)',
+      artDays: '90'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -21,6 +21,7 @@ body{margin:0}
 <dc-import name="SiteNav" theme="{{theme}}" active="shop" count="{{count}}" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
 
 <div class="tt-page">
+<sc-if value="{{isPaused}}" hint-placeholder-val="{{false}}"><dc-import name="SiteNotice" theme="{{theme}}" mode="paused" hint-size="100%,56px"></dc-import></sc-if>
 <main id="main" class="tt-container" style="padding-block: 32px 96px; display: flex; flex-direction: column; gap: 32px;">
 
   <header style="display: flex; flex-direction: column; gap: 16px;">
@@ -157,9 +158,12 @@ body{margin:0}
           <button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Taking you to Stripe</button>
           <p class="tt-help" role="status" style="text-align: center;">Hang tight. Don't close this tab.</p>
         </sc-if>
+        <label class="tt-check" style="font-size: 14px; align-items: flex-start;"><input type="checkbox" checked="{{news}}" onChange="{{flipNews}}"><span>Email me now and then about new stickers. Unsubscribe any time.</span></label>
         <sc-if value="{{notRedirecting}}" hint-placeholder-val="{{true}}">
-          <button type="button" class="tt-btn tt-btn--primary tt-btn--block" onClick="{{pay}}"><i class="ph ph-lock-simple" aria-hidden="true"></i>{{payText}}</button>
+          <sc-if value="{{isPaused}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true"><i class="ph ph-calendar-blank" aria-hidden="true"></i>Orders open again 24/11/2026</button></sc-if>
+          <sc-if value="{{notPaused}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" onClick="{{pay}}"><i class="ph ph-lock-simple" aria-hidden="true"></i>{{payText}}</button></sc-if>
         </sc-if>
+        <p class="tt-help" style="font-size: 13px;">By paying, you agree to my <a href="Policies.dc.html">terms of sale</a> and <a href="Policies.dc.html">returns policy</a>. Here's <a href="Policies.dc.html">what I do with your details</a>.</p>
         <p class="tt-small" style="display: flex; gap: 8px; align-items: flex-start;"><i class="ph ph-shield-check ph-20" aria-hidden="true" style="flex: none;"></i>{{stripeNote}}</p>
         <sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}">
           <p class="tt-small" style="border-top: 1px solid var(--border-subtle); padding-top: 16px;">Checking out as a guest. <a href="Auth.dc.html">Sign in</a> to keep this order in your account.</p>
@@ -173,7 +177,7 @@ body{margin:0}
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["review","pickup","code","codeError","redirecting","changed","cancelled","error","empty"],"default":"review"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1600}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["review","pickup","code","codeError","redirecting","changed","cancelled","error","empty","paused"],"default":"review"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1600}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -184,6 +188,8 @@ class Component extends DCLogic {
       code: props.state === 'code' ? 'THANKS5' : null,
       codeDraft: props.state === 'codeError' ? 'SUMMER99' : '', codeErr: props.state === 'codeError',
       fulfil: props.state === 'pickup' ? 'event' : 'post', eventId: 'e1',
+      // Unticked by default: marketing email needs a clear yes (Unsolicited Electronic Messages Act).
+      news: false,
       lines: empty ? [] : [
         { id: 'a', name: 'RC name window stickers', option: 'Mixed sheet', cents: 2000, deal: true, qty: 2, max: 20 },
         { id: 'b', name: 'Waikato Champs grid stickers', option: 'Event sheet', cents: 1500, qty: 1, max: 20 }
@@ -251,6 +257,8 @@ class Component extends DCLogic {
       eventOpts: events.map((e) => ({ name: e.name, meta: e.date + ' · ' + e.venue + (e.closed ? ' · orders closed' : ' · order by ' + e.cutoff), on: e.id === s.eventId, closed: e.closed, style: 'font-size: 15px; align-items: flex-start;' + (e.closed ? ' opacity: 0.6;' : ''), pick: () => this.setState({ eventId: e.id }) })),
       fulfilLabel: s.fulfil === 'post' ? 'Shipping in NZ' : s.fulfil === 'event' ? 'Collect at ' + ev.name : 'Collect from Helensville',
       stripeNote: s.fulfil === 'post' ? "You'll add your address and pay on Stripe's secure checkout, then come straight back here. I never see your card details." : "You'll pay on Stripe's secure checkout, with no address needed, then come straight back here. I never see your card details.",
+      isPaused: view === 'paused', notPaused: view !== 'paused',
+      news: s.news, flipNews: () => this.setState({ news: !s.news }),
       redirecting: s.redirecting,
       notRedirecting: !s.redirecting,
       payText: view === 'error' || view === 'cancelled' ? 'Try paying again' : 'Pay securely with Stripe',

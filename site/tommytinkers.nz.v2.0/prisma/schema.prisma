@@ -34,6 +34,13 @@ datasource db {
 //   invoice.bankAccountName  string, shown on invoices for bank transfer
 //   invoice.bankAccountNo    string, NZ format 00-0000-0000000-00(0)
 //   quote.validDays          integer, default 14 (default "valid until" on a new quote)
+//   holiday                  { on, backOn: "YYYY-MM-DD", mode: "LATER" | "PAUSED" }
+//                            LATER keeps selling and shows a later dispatch date;
+//                            PAUSED blocks checkout (checked again when the Stripe
+//                            session is made). Turns itself off at midnight NZ time
+//                            on backOn, by comparing dates on each request.
+//   policies.version         "YYYY-MM-DD" of the current terms, returns and privacy
+//                            pages. The pages themselves are Markdown in the repo.
 // Not GST registered: quotes and invoices carry no GST. Registering later means
 // adding a GST number setting and a gstCents column on QuoteLine and Invoice.
 model SiteSetting {
@@ -116,6 +123,9 @@ model Product {
   orderLines    OrderLine[]
   discounts     DiscountProduct[]
   stockMoves    StockMovement[]
+  stockAlerts   StockAlert[]
+  // Custom products need an approved Proof before an order line can be printed.
+  needsProof    Boolean                @default(false)
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @updatedAt
 
@@ -237,6 +247,14 @@ model Order {
   paidAt                  DateTime?
   postedAt                DateTime?
   collectedAt             DateTime?
+  // The policies.version the customer agreed to by paying, for the record.
+  termsVersion            String?
+  // Ticked "email me about new stickers" at checkout. Copied into
+  // MarketingContact by the webhook; never ticked by default.
+  marketingOptIn          Boolean              @default(false)
+  // Hashed token for the emailed "see my order" link used by guests. 24 hours.
+  lookupTokenHash         String?              @unique
+  lookupTokenExpiresAt    DateTime?
   lines                   OrderLine[]
   redemptions             DiscountRedemption[]
   createdAt               DateTime             @default(now())
@@ -268,6 +286,10 @@ model OrderLine {
   // FILE answers point at an OrderUpload id instead of holding the file.
   personalisation Json?
   uploads         OrderUpload[]
+  // When the customer ticked "this design is mine, or I have permission".
+  // Required for products with an artwork or brief field.
+  artworkRightsAt DateTime?
+  proofs          Proof[]
 
   @@index([orderId])
 }
@@ -536,6 +558,7 @@ model Quote {
   replaces       Quote?       @relation("QuoteReplacement")
   lines          QuoteLine[]
   invoices       Invoice[]
+  proofs         Proof[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -611,4 +634,88 @@ model InvoicePayment {
   createdAt             DateTime      @default(now())
 
   @@index([invoiceId])
+}
+
+// ---------------------------------------------------------------------------
+// Proofs
+// ---------------------------------------------------------------------------
+
+enum ProofStatus {
+  WAITING // sent, waiting for the customer
+  APPROVED // print exactly this version
+  CHANGES_REQUESTED
+  SUPERSEDED // a newer version was sent
+}
+
+// A preview the customer approves before a custom line is printed. Each new
+// version supersedes the last. Belongs to an order line or a club quote.
+model Proof {
+  id           String      @id @default(cuid())
+  orderLineId  String?
+  orderLine    OrderLine?  @relation(fields: [orderLineId], references: [id], onDelete: Cascade)
+  quoteId      String?
+  quote        Quote?      @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  version      Int
+  storageKey   String // private uploads volume
+  // Hashed; the customer opens /proof/<token> with no sign-in.
+  tokenHash    String      @unique
+  status       ProofStatus @default(WAITING)
+  sentAt       DateTime    @default(now())
+  respondedAt  DateTime?
+  customerNote String? // what they want changed
+  // A reminder email goes out once if there's no answer after 3 days.
+  remindedAt   DateTime?
+
+  @@unique([orderLineId, version])
+  @@unique([quoteId, version])
+  @@index([status, sentAt])
+}
+
+// ---------------------------------------------------------------------------
+// Back in stock and marketing email
+// ---------------------------------------------------------------------------
+
+// "Email me when it's back". One email, then the row is deleted, so this is
+// never a mailing list.
+model StockAlert {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  email     String // lower-cased
+  createdAt DateTime @default(now())
+
+  @@unique([productId, email])
+}
+
+// People who said yes to news emails (checkout tick box or account settings).
+// Consent is recorded with when and where, as the Unsolicited Electronic
+// Messages Act expects. Unsubscribing sets unsubscribedAt; the row stays so a
+// later import can't re-add them by accident.
+model MarketingContact {
+  id               String    @id @default(cuid())
+  email            String    @unique // lower-cased
+  userId           String?
+  consentAt        DateTime
+  consentSource    String // "checkout", "account_settings"
+  unsubscribeToken String    @unique
+  unsubscribedAt   DateTime?
+  createdAt        DateTime  @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Privacy requests
+// ---------------------------------------------------------------------------
+
+// A "download my data" export. The file is built on request, kept for 7 days,
+// then deleted along with this row's storageKey.
+model DataExport {
+  id          String    @id @default(cuid())
+  userId      String
+  status      String    @default("BUILDING") // BUILDING, READY, FAILED
+  storageKey  String?
+  requestedAt DateTime  @default(now())
+  readyAt     DateTime?
+  expiresAt   DateTime?
+
+  @@index([userId])
 }

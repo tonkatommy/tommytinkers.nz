@@ -21,6 +21,7 @@ body{margin:0}
 <dc-import name="SiteNav" theme="{{theme}}" active="shop" count="{{count}}" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" on-open-cart="{{openCart}}" hint-size="100%,64px"></dc-import>
 
 <div class="tt-page">
+<sc-if value="{{holiday}}" hint-placeholder-val="{{false}}"><dc-import name="SiteNotice" theme="{{theme}}" mode="later" hint-size="100%,56px"></dc-import></sc-if>
 <main id="main" class="tt-container" style="padding-block: 24px 96px; display: flex; flex-direction: column; gap: 32px;">
 
   <nav aria-label="Breadcrumb">
@@ -116,6 +117,10 @@ body{margin:0}
                 <sc-if value="{{briefOk}}" hint-placeholder-val="{{true}}"><p class="tt-help" id="pz-brief-h">Any design. Names, numbers, logos, sizes and colours all help.</p></sc-if>
               </div>
               <div class="tt-field"><span class="tt-field-label" id="art-l">Artwork <span style="color: var(--text-secondary); font-weight: 400;">(optional)</span></span><button type="button" class="tt-drop" aria-labelledby="art-l" style="min-height: 120px; width: 100%; cursor: pointer; color: var(--text-secondary);"><i class="ph ph-upload-simple ph-24" aria-hidden="true"></i><span>Add a logo, sketch or photo</span><span class="tt-help" style="font-size: 13px;">PNG, JPG, SVG or PDF, up to 10 MB</span></button></div>
+              <label class="tt-check" style="font-size: 15px; align-items: flex-start;"><input type="checkbox" checked="{{rights}}" onChange="{{flipRights}}" aria-invalid="{{rightsInv}}" aria-describedby="rights-h"><span>This design is mine, or I have permission to use any logos, names or pictures in it.</span></label>
+              <sc-if value="{{rightsErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" id="rights-h" style="margin-top: -8px;"><i class="ph ph-warning-circle" aria-hidden="true"></i>Tick this so I know I can print it. <a href="Policies.dc.html">Why I ask</a></p></sc-if>
+              <sc-if value="{{rightsOk}}" hint-placeholder-val="{{true}}"><p class="tt-help" id="rights-h" style="margin-top: -8px;">I can't print other people's logos or brands without their OK. <a href="Policies.dc.html">More in my terms</a>.</p></sc-if>
+              <div class="tt-banner tt-banner--info"><i class="ph ph-eye ph-20" aria-hidden="true"></i><p class="tt-small"><strong>You'll get a proof first.</strong> I email you a preview to approve before anything is printed, and you can ask for changes.</p></div>
             </sc-if>
 
             <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px;">
@@ -133,8 +138,17 @@ body{margin:0}
           </form>
         </sc-if>
         <sc-if value="{{soldOut}}" hint-placeholder-val="{{false}}">
-          <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
             <button type="button" class="tt-btn tt-btn--primary tt-btn--block" disabled="disabled">Out of stock</button>
+            <sc-if value="{{alertForm}}" hint-placeholder-val="{{true}}">
+              <div class="tt-card" style="background: var(--bg-raised); display: flex; flex-direction: column; gap: 12px;">
+                <div class="tt-field"><label for="bis-email">Email me when it's back</label><div style="display: flex; gap: 8px; flex-wrap: wrap;"><input id="bis-email" type="email" class="{{bisCls}}" style="flex: 1 1 220px;" value="{{bisEmail}}" onChange="{{onBis}}" aria-invalid="{{bisInv}}" aria-describedby="bis-h" autocomplete="email"><button type="button" class="tt-btn tt-btn--secondary" onClick="{{saveBis}}"><i class="ph ph-bell" aria-hidden="true"></i>Notify me</button></div>
+                  <sc-if value="{{bisErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" id="bis-h"><i class="ph ph-warning-circle" aria-hidden="true"></i>That email doesn't look right.</p></sc-if>
+                  <sc-if value="{{bisOk}}" hint-placeholder-val="{{true}}"><p class="tt-help" id="bis-h">One email when it's back in stock, then I delete your address. No newsletter.</p></sc-if>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{alertDone}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--ok" role="status"><i class="ph ph-check-circle ph-20" aria-hidden="true"></i><p class="tt-small"><strong>You're on the list.</strong> I'll email {{bisEmail}} once, when these are back.</p></div></sc-if>
             <p class="tt-small">These were made for the event and they've all gone. Racing somewhere with a grid? <a href="Contact.dc.html">Ask me</a> about a set.</p>
           </div>
         </sc-if>
@@ -186,11 +200,11 @@ body{margin:0}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","custom","out","loading","notfound"],"default":"ready"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2300}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","custom","out","loading","notfound"],"default":"ready"},"signedIn":{"editor":"boolean","default":false},"holiday":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2300}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { theme: null, sheet: 0, qty: 1, cart: [], drawer: false, toast: null, adding: false, tried: false, pz: { name: '', flag: '', col: '', font: '', brief: '' } };
+    this.state = { theme: null, sheet: 0, qty: 1, cart: [], drawer: false, toast: null, adding: false, tried: false, rights: false, bisEmail: '', bisTried: false, bisDone: false, pz: { name: '', flag: '', col: '', font: '', brief: '' } };
   }
   componentWillUnmount() { clearTimeout(this.addT); clearTimeout(this.toastT); }
   products() {
@@ -223,12 +237,15 @@ class Component extends DCLogic {
     const setPz = (k) => (e) => this.setState({ pz: { ...this.state.pz, [k]: e.target.value } });
     const nameErr = s.tried && prod.kind === 'sheets' && !pz.name.trim();
     const briefErr = s.tried && prod.kind === 'brief' && !pz.brief.trim();
+    // Custom work needs the artwork-rights box ticked; the time it was ticked is saved on the order line.
+    const rightsErr = s.tried && prod.kind === 'brief' && !s.rights;
+    const bisOkFmt = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.bisEmail.trim());
     const MAX = 20; // made to order: a sensible cap per line, not a stock count
     const count = s.cart.reduce((n, c) => n + c.qty, 0);
     const addToCart = (e) => {
       if (e && e.preventDefault) e.preventDefault();
       if (s.adding) return;
-      if ((prod.kind === 'sheets' && !pz.name.trim()) || (prod.kind === 'brief' && !pz.brief.trim())) return this.setState({ tried: true });
+      if ((prod.kind === 'sheets' && !pz.name.trim()) || (prod.kind === 'brief' && (!pz.brief.trim() || !s.rights))) return this.setState({ tried: true });
       // In the real build this is a server action; the short wait stands in for the round trip.
       this.setState({ adding: true, tried: false });
       this.addT = setTimeout(() => {
@@ -268,6 +285,14 @@ class Component extends DCLogic {
       pillText: out ? 'Out of stock' : 'Made to order',
       stockLine: out ? 'None left. The event has been and gone.' : 'Printed to order, so it never sells out',
       canBuy: !out, soldOut: out,
+      holiday: !!P.holiday,
+      rights: s.rights, flipRights: () => this.setState({ rights: !s.rights }), rightsErr, rightsOk: !rightsErr, rightsInv: rightsErr ? 'true' : 'false',
+      alertForm: !s.bisDone, alertDone: s.bisDone,
+      bisEmail: s.bisEmail, onBis: (e) => this.setState({ bisEmail: e.target.value, bisTried: false }),
+      bisErr: s.bisTried && !bisOkFmt, bisOk: !(s.bisTried && !bisOkFmt), bisInv: s.bisTried && !bisOkFmt ? 'true' : 'false', bisCls: s.bisTried && !bisOkFmt ? 'tt-input is-error' : 'tt-input',
+      // A server action saves one StockAlert per product and email. It's rate limited, and the
+      // restock action emails everyone waiting, then deletes the rows.
+      saveBis: () => { if (!bisOkFmt) return this.setState({ bisTried: true }); this.setState({ bisDone: true }); },
       hasSheets: prod.kind === 'sheets', hasBrief: prod.kind === 'brief',
       sheets: sheets.map((label, i) => ({ label, pressed: i === s.sheet ? 'true' : 'false', pick: () => this.setState({ sheet: i }) })),
       pzName: pz.name, onPzName: setPz('name'), pzFlag: pz.flag, onPzFlag: setPz('flag'), pzCol: pz.col, onPzCol: setPz('col'), pzFont: pz.font, onPzFont: setPz('font'),

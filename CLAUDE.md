@@ -129,11 +129,23 @@ Also modelled: `StockMovement` (every stock change, tracked products only), `Aud
 - **No GST.** Tommy isn't GST registered, so documents say "Invoice", never "Tax invoice", and show no GST. Registering later means a GST number setting and GST columns.
 - **Numbers**: quotes are `Q-0001`, invoices `INV-0001`, both from their own sequences. Quote and invoice tokens are random secrets: never log them.
 
+## Store essentials (decided 09/11/2026)
+
+- **Terms of sale, returns and privacy** are one page with three tabs (`/policies`), written as Markdown in the repo with a version date (`policies.version`). Tommy writes or approves the final wording; the design has a draft. Links sit in the footer Help column and under the pay button ("By paying, you agree to..."), and each order saves the `termsVersion` it was placed under. The returns policy never limits Consumer Guarantees Act rights: faulty, damaged or wrong orders are reprinted or refunded. Personalised and custom items can't be returned for a change of mind. Still to decide: change of mind on non-personalised event sheets (draft says 14 days, unused, customer pays return postage).
+- **Artwork rights.** Products with an artwork or brief field need a ticked "this design is mine, or I have permission" box before they go in the cart; the time is saved as `OrderLine.artworkRightsAt`. The terms say Tommy won't print other people's logos, brands or characters without permission, and cancels and refunds orders that cross that line.
+- **Privacy.** Data is kept on Tommy's server in NZ, with Stripe, Resend and Cloudflare as the overseas services. Order records are kept 7 years for the IRD; artwork is deleted 90 days after the order is done (draft, Tommy to confirm). Account settings has "Download my data" (a `DataExport` file kept 7 days) alongside the existing account deletion. Only two cookies: the session and the theme.
+- **Marketing email needs a clear yes.** The checkout tick box ("Email me now and then about new stickers") is unticked by default, and the account settings news toggle is off by default. Consent goes in `MarketingContact` with when and where it was given, and every marketing email has an unsubscribe link (Unsolicited Electronic Messages Act). Order, proof, pickup and invoice emails are transactional and always send.
+- **Proofs.** Products with `needsProof` (the custom A4 sheet, and club quotes when Tommy wants) get a `Proof` the customer approves at `/proof/<token>` with no sign-in, or asks for changes with a note. Each new version supersedes the last, and one reminder goes out after 3 days. An order line can't move to packing until its latest proof is approved.
+- **Find my order** (`/orders/find`) is for guests: order number plus email, and the site always says a link was sent, match or not, so it can't be used to check whose orders exist. The emailed link opens the order's status page for 24 hours (`Order.lookupTokenHash`). Rate limited per IP and per email.
+- **Back in stock.** A sold-out product shows "Email me when it's back". A `StockAlert` row gets one email when the product is restocked, then it's deleted. It's never added to marketing.
+- **Holiday mode** is a setting (`holiday`) with a back-on date and a mode: keep selling with later dispatch, or pause checkout. A notice runs across the shop pages, and the pay button says when orders open again. It turns itself off on the back-on date. Club quotes, race-day pickups and orders already paid aren't affected.
+- **Tokens.** Proof, order lookup, quote and invoice links all use random tokens. Store only a hash where the schema says `tokenHash`, never log them, and expire the lookup ones.
+
 ## Phase status
 
 | Phase | Status |
 |---|---|
-| 0. Foundations | In progress: scaffold, Dockerfile and Compose done. Catalogue, order, discount, stock history, audit, enquiry, pickup and quote schema added (migrations `20261107090000_catalogue_orders_discounts`, `20261108090000_order_external_ref` and `20261109090000_pickup_quotes_invoices`); Better Auth tables come in Phase 2. Still to do: run the Docker stack and confirm `/api/health`, add a v2 CI job. |
+| 0. Foundations | In progress: scaffold, Dockerfile and Compose done. Catalogue, order, discount, stock history, audit, enquiry, pickup, quote, proof, stock alert and consent schema added (migrations `20261107090000_catalogue_orders_discounts`, `20261108090000_order_external_ref`, `20261109090000_pickup_quotes_invoices` and `20261109120000_proofs_alerts_consent`); Better Auth tables come in Phase 2. Still to do: run the Docker stack and confirm `/api/health`, add a v2 CI job. |
 | 1. Design system and shell | Next |
 | 2. Accounts (Better Auth) | |
 | 3. Catalogue and stockroom | |

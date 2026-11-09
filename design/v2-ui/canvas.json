@@ -152,7 +152,7 @@
     "Product-out.dc.html": {
       "expand": "fill",
       "h": 2300,
-      "title": "Product - out of stock",
+      "title": "Product - out of stock with back-in-stock sign-up",
       "w": 1280,
       "x": 1815,
       "y": 15786
@@ -751,6 +751,113 @@
       "w": 375,
       "x": 7714,
       "y": 59046
+    },
+    "Policies.dc.html": {
+      "expand": "fill",
+      "h": 2600,
+      "title": "Terms, returns and privacy (interactive: tabs)",
+      "w": 1280,
+      "x": 0,
+      "y": 62223,
+      "is_interactive": true
+    },
+    "Policies-mobile.dc.html": {
+      "expand": "fill",
+      "h": 2600,
+      "title": "Policies - 375, light (Tweak: terms, privacy)",
+      "w": 375,
+      "x": 1360,
+      "y": 62223
+    },
+    "Product-custom.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "title": "Product - custom sheet: artwork rights and proof note",
+      "w": 1280,
+      "x": 1815,
+      "y": 62223
+    },
+    "ProofView.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Proof for the customer (interactive: approve or ask for changes)",
+      "w": 1280,
+      "x": 3175,
+      "y": 62223,
+      "is_interactive": true
+    },
+    "ProofView-states.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Proof - asking for changes, light (Tweak: approved, changes sent, invalid, older version)",
+      "w": 1280,
+      "x": 4535,
+      "y": 62223
+    },
+    "AdminOrders-proof.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Orders - proof waiting blocks packing",
+      "w": 1280,
+      "x": 5895,
+      "y": 62223
+    },
+    "OrderLookup.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Find my order (interactive)",
+      "w": 1280,
+      "x": 7255,
+      "y": 62223,
+      "is_interactive": true
+    },
+    "OrderLookup-view.dc.html": {
+      "expand": "fill",
+      "h": 1800,
+      "title": "Find my order - order page from the email link, 375 (Tweak: sent, invalid, expired)",
+      "w": 375,
+      "x": 8615,
+      "y": 62223
+    },
+    "Shop-holiday.dc.html": {
+      "expand": "fill",
+      "h": 2700,
+      "title": "Shop - holiday notice, keep selling, light",
+      "w": 1280,
+      "x": 9070,
+      "y": 62223
+    },
+    "Checkout-paused.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Checkout - paused for holiday",
+      "w": 1280,
+      "x": 10430,
+      "y": 62223
+    },
+    "AdminSettings-holiday.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "title": "Settings - holiday mode on, pause checkout",
+      "w": 1280,
+      "x": 11790,
+      "y": 62223
+    },
+    "Settings-data.dc.html": {
+      "expand": "fill",
+      "h": 2200,
+      "title": "Account settings - your data, export ready, light",
+      "w": 1280,
+      "x": 13150,
+      "y": 62223
+    },
+    "SiteNotice.dc.html": {
+      "expand": "fill",
+      "h": 64,
+      "title": "Component: SiteNotice (holiday banner)",
+      "w": 1280,
+      "x": 14510,
+      "y": 62223
     }
   },
   "createdOnFiles": {
@@ -897,6 +1004,13 @@
       "text": "12. Club quotes and invoices",
       "x": 0,
       "y": 58823
+    },
+    "row19": {
+      "kind": "title1",
+      "maxW": 15790,
+      "text": "13. Terms and privacy, proofs, order lookup, back in stock and holiday mode",
+      "x": 0,
+      "y": 62000
     }
   },
   "order": [
@@ -988,7 +1102,20 @@
     "AdminQuotes-clubs.dc.html",
     "QuoteView.dc.html",
     "QuoteView-invoice.dc.html",
-    "QuoteView-mobile.dc.html"
+    "QuoteView-mobile.dc.html",
+    "Policies.dc.html",
+    "Policies-mobile.dc.html",
+    "Product-custom.dc.html",
+    "ProofView.dc.html",
+    "ProofView-states.dc.html",
+    "AdminOrders-proof.dc.html",
+    "OrderLookup.dc.html",
+    "OrderLookup-view.dc.html",
+    "Shop-holiday.dc.html",
+    "Checkout-paused.dc.html",
+    "AdminSettings-holiday.dc.html",
+    "Settings-data.dc.html",
+    "SiteNotice.dc.html"
   ],
   "pages": [],
   "title": "tommy tinkers NZ v2"
