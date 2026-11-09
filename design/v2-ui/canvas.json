@@ -754,8 +754,8 @@
     },
     "Policies.dc.html": {
       "expand": "fill",
-      "h": 2600,
-      "title": "Terms, returns and privacy (interactive: tabs)",
+      "h": 3600,
+      "title": "Privacy policy and terms (interactive: two pages as tabs)",
       "w": 1280,
       "x": 0,
       "y": 62223,
@@ -763,8 +763,8 @@
     },
     "Policies-mobile.dc.html": {
       "expand": "fill",
-      "h": 2600,
-      "title": "Policies - 375, light (Tweak: terms, privacy)",
+      "h": 5200,
+      "title": "Terms - 375, light (Tweak: privacy)",
       "w": 375,
       "x": 1360,
       "y": 62223

@@ -2,7 +2,7 @@
 <html lang="en-NZ">
 <head>
 <meta charset="utf-8">
-<title>Terms, returns and privacy - tommy tinkers NZ</title>
+<title>Privacy and terms - tommy tinkers NZ</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="tt.css">
 </head>
@@ -14,11 +14,14 @@
 @font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
 @font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
 body{margin:0}
-.tt-policy{max-width:720px;display:flex;flex-direction:column;gap:32px}
-.tt-policy section{display:flex;flex-direction:column;gap:12px;scroll-margin-top:96px}
-.tt-policy h2{font-size:22px;font-weight:600;line-height:1.25}
-.tt-policy p,.tt-policy li{font-size:16px;line-height:1.65}
+.tt-policy{max-width:760px;display:flex;flex-direction:column;gap:16px}
+.tt-policy h2{font-size:22px;font-weight:600;line-height:1.25;margin-top:24px;scroll-margin-top:96px}
+.tt-policy p,.tt-policy li,.tt-policy td,.tt-policy th{font-size:16px;line-height:1.65}
 .tt-policy ul{display:flex;flex-direction:column;gap:8px;padding-left:20px;list-style:disc}
+.tt-poltable{overflow-x:auto}
+.tt-poltable table{width:100%;border-collapse:collapse;min-width:560px}
+.tt-poltable th{text-align:left;font-weight:600;font-size:14px;color:var(--text-secondary);padding:12px 16px;background:var(--bg-raised);border-bottom:1px solid var(--border-subtle)}
+.tt-poltable td{padding:12px 16px;border-top:1px solid var(--border-subtle);vertical-align:top}
 </style>
 </helmet>
 <div class="{{rootClass}}" data-theme="{{theme}}">
@@ -26,48 +29,91 @@ body{margin:0}
 <dc-import name="SiteNav" theme="{{theme}}" active="" count="0" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
 
 <div class="tt-page">
-<main id="main" class="tt-container" style="padding-block: 40px 96px; display: flex; flex-direction: column; gap: 32px;">
-  <header style="display: flex; flex-direction: column; gap: 12px; max-width: 720px;">
-    <span class="tt-label">&gt; the fine print</span>
-    <h1 class="tt-h2 tt-underline">Terms, returns and privacy</h1>
-    <p class="tt-lead">The plain-English version of how buying from me works, what happens if something goes wrong, and what I do with your details.</p>
+<main id="main" class="tt-container" style="padding-block: 40px 96px; display: flex; flex-direction: column; gap: 24px;">
+  <header style="display: flex; flex-direction: column; gap: 12px; max-width: 760px;">
+    <span class="tt-label">&gt; {{route}}</span>
+    <h1 class="tt-h2 tt-underline">{{heading}}</h1>
     <p class="tt-small" style="color: var(--text-secondary);">Last updated {{updated}}</p>
   </header>
 
-  <div class="tt-banner tt-banner--info" style="max-width: 720px;"><i class="ph ph-note-pencil ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Design note: draft wording</p><p class="tt-small">Tommy writes or approves the final text before launch. In the build, these pages are Markdown files in the repo with a version date, not admin-editable content.</p></div></div>
+  <div class="tt-banner tt-banner--info" style="max-width: 760px;"><i class="ph ph-note-pencil ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Design note: copy comes from the policy doc</p><p class="tt-small">The words here are copied from the "tommytinkers.nz privacy policy and terms" doc, including the suggestions laid on 09/11/2026. In the build these are two routes, <code>/privacy</code> and <code>/terms</code>, rendered from Markdown in the repo. The doc wins if they differ.</p></div></div>
 
-  <div class="tt-seg" role="tablist" aria-label="Policies" style="align-self: flex-start;">
-    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button type="button" role="tab" id="{{t.tid}}" aria-selected="{{t.pressed}}" aria-pressed="{{t.pressed}}" aria-controls="pol-panel" onClick="{{t.pick}}"><i class="{{t.icon}} ph-16" aria-hidden="true"></i>{{t.label}}</button></sc-for>
-  </div>
+  <nav class="tt-seg" aria-label="Policies" style="align-self: flex-start;">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="2"><button type="button" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}"><i class="{{t.icon}} ph-16" aria-hidden="true"></i>{{t.label}}</button></sc-for>
+  </nav>
 
-  <div id="pol-panel" role="tabpanel" aria-labelledby="{{panelBy}}" class="tt-policy">
-    <!-- TERMS OF SALE -->
-    <sc-if value="{{isTerms}}" hint-placeholder-val="{{true}}">
-      <section id="who"><h2>Who you're buying from</h2><p>tommy tinkers NZ is me, Tommy Goodman, working on my own from Helensville, Auckland. You can reach me at <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a>.</p></section>
-      <section id="prices"><h2>Prices and payment</h2><ul><li>Prices are in New Zealand dollars. I'm not registered for GST, so there's no GST to add or claim.</li><li>You pay by card through Stripe. I never see or store your card number.</li><li>If a price on the site is clearly wrong, I'll get in touch before printing and you can cancel for a full refund.</li></ul></section>
-      <section id="made"><h2>Made to order</h2><ul><li>Most things are printed after you order. I aim to post within 5 working days. Custom sheets that need a proof take longer, because the clock starts when you approve it.</li><li>If I'm away, a notice at the top of the site says so, with the date I'll be back.</li><li>Check names, numbers and spelling before you pay. I print what you type.</li></ul></section>
-      <section id="delivery"><h2>Delivery and pickup</h2><ul><li>Posting is free anywhere in New Zealand, with tracking from NZ Post. I only post to New Zealand addresses.</li><li>You can collect free at a race day I'm going to, or from Helensville at a time we arrange by email.</li><li>Once it's posted, it's yours. If NZ Post loses or damages it, tell me and I'll sort it with them and reprint or refund you.</li></ul></section>
-      <section id="artwork"><h2>Your artwork and designs</h2><ul><li>When you send me a design, logo or photo to print, you're confirming it's yours or you have permission to use it.</li><li>I won't print other people's logos, brands or characters without their permission, or anything offensive. If an order crosses that line, I'll cancel it and refund you in full.</li><li>Your artwork stays yours. I only use it to make your order, and I don't show it anywhere without asking first.</li></ul></section>
-      <section id="proofs"><h2>Proofs</h2><p>For custom sheets I email you a proof to approve before printing. Ask for changes as many times as you need. Once you approve it, I print exactly that, so check it carefully.</p></section>
-      <section id="clubs"><h2>Club quotes</h2><p>Club orders, like grid sticker sets, are quoted. The quote sets the price, what's included and when you pay. It's valid until the date on it.</p></section>
+  <div class="tt-policy">
+    <sc-if value="{{isPrivacy}}" hint-placeholder-val="{{true}}">
+<p>tommy tinkers NZ is a one-person workshop in Helensville, run by me, Tommy Goodman. I collect only what I need to make and post your order, run the Shed and reply to you. I don&#x27;t sell your information, I don&#x27;t run ads, and I don&#x27;t use tracking or analytics scripts. This policy follows the New Zealand Privacy Act 2020.</p>
+<h2>What I collect and why</h2>
+<div class="tt-tablewrap tt-poltable"><table><thead><tr><th scope="col">When you...</th><th scope="col">I collect</th><th scope="col">So I can</th></tr></thead><tbody><tr><td>Buy something</td><td>Your name, email, delivery address, phone number if you give one, what you ordered and your personalisation answers</td><td>Make your order, post it, send your receipt and tracking link, and keep business records</td></tr><tr><td>Upload artwork with an order</td><td>The file you send</td><td>Print what you asked for</td></tr><tr><td>Pay</td><td>Nothing about your card. Stripe handles payment on its own secure page, and I only see the card type and last four digits</td><td>Confirm you&#x27;ve paid and issue refunds</td></tr><tr><td>Make an account</td><td>Your email, a display name, your password (stored scrambled, never readable), and optionally your town and an about-you line</td><td>Sign you in, show your orders and run your Shed profile</td></tr><tr><td>Sign in with Google</td><td>Your name and email from Google</td><td>Create or match your account. I don&#x27;t get your Google password or access to anything else</td></tr><tr><td>Post in the Shed</td><td>Your posts, replies, reactions and images</td><td>Show them to other members. Photos have their location and camera details stripped when you upload them</td></tr><tr><td>Send an enquiry or use the Codebench build sheet</td><td>Your name, email, message and your build sheet answers</td><td>Reply and work out a price</td></tr><tr><td>Approve a proof</td><td>Your answer, and any changes you ask for</td><td>Print the version you approved</td></tr><tr><td>Look up an order without an account</td><td>Your order number and email</td><td>Email you a link to your order. The link stops working after 24 hours</td></tr><tr><td>Ask to hear when something&#x27;s back in stock</td><td>Your email</td><td>Send you one email when it&#x27;s back, then delete your address</td></tr><tr><td>Tick &quot;email me about new stickers&quot;</td><td>Your email, and when and where you said yes</td><td>Send the odd news email. Each one has an unsubscribe link</td></tr><tr><td>Order for a club</td><td>The club&#x27;s name, a contact name and email, and the name of whoever accepts a quote</td><td>Send quotes and invoices, and keep a record of who said yes and what was paid</td></tr><tr><td>Visit the site</td><td>Your IP address, browser type and the pages you request, in short-lived server logs</td><td>Keep the site running, block abuse and stop spam</td></tr></tbody></table></div>
+<p>If you order something to be posted to someone else, I collect their name and address from you. I use them only to deliver that order, and your shipping email tells them it came through you.</p>
+<h2>Who else sees it</h2>
+<p>I use a few trusted services to run the site. Each one only gets what it needs for its job:</p>
+<ul><li><strong>Stripe</strong> processes payments. You enter your card on Stripe&#x27;s page, not mine.</li><li><strong>Resend</strong> sends emails such as receipts, password resets and shipping updates.</li><li><strong>Cloudflare</strong> carries traffic to the site, protects it from attacks, and runs the Turnstile check on sign-up to keep bots out.</li><li><strong>Google</strong>, only if you choose to sign in with Google.</li><li><strong>NZ Post</strong> gets your name and address on the parcel.</li></ul>
+<p>Some of these companies store information outside New Zealand, mainly in the United States. I only use services that protect personal information to a standard comparable to New Zealand law. I&#x27;ll also share information if the law requires it, for example with Inland Revenue or the police with a proper legal request.</p>
+<h2>Where it&#x27;s kept and how long</h2>
+<p>The site and its database run on a server I manage in New Zealand. Access is limited to me, and backups are encrypted and kept for 30 days.</p>
+<ul><li><strong>Orders and receipts:</strong> 7 years, because New Zealand tax law requires it.</li><li><strong>Artwork uploads:</strong> kept with your order for 7 years, so I can reprint or reorder for you. Ask me any time and I&#x27;ll delete them sooner.</li><li><strong>Accounts and Shed posts:</strong> until you delete your account.</li><li><strong>Enquiries:</strong> 2 years, then deleted unless we&#x27;re working together.</li><li><strong>Back-in-stock requests:</strong> until I&#x27;ve sent the email.</li><li><strong>News emails:</strong> until you unsubscribe. I keep a note that you did, so you&#x27;re never added again by mistake.</li><li><strong>Data downloads:</strong> the file is deleted after 7 days.</li><li><strong>Server logs:</strong> 30 days.</li></ul>
+<h2>Cookies and storage</h2>
+<p>The site uses a small number of cookies that it needs to work: one that keeps you signed in, one that remembers your light or dark theme, and the ones Cloudflare uses to protect the site. Your motion and effects setting is saved in your own browser. There are no advertising or tracking cookies. Stripe sets its own cookies on its payment page.</p>
+<h2>Your account and emails</h2>
+<p>You can change your profile, email and password in your account settings at any time. Receipts and shipping emails always go out because they&#x27;re part of your order. Shed notifications you can turn off in settings. News about new stickers only comes if you tick the box at checkout or turn it on in settings, and every non-essential email has an unsubscribe link.</p>
+<p>If you delete your account, your profile, posts, pins and badges go for good. Your order records stay for tax purposes, but they&#x27;re no longer linked to a login.</p>
+<h2>Your rights</h2>
+<p>You can ask me what personal information I hold about you, and ask me to correct it. Email <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a> and I&#x27;ll reply within 20 working days, usually much sooner. It&#x27;s free. With a Shed account, you can also download a copy of everything I hold about you from your <a href="Settings.dc.html">account settings</a>.</p>
+<p>If you&#x27;re not happy with how I&#x27;ve handled your information, please tell me first so I can fix it. You can also complain to the <a href="https://www.privacy.org.nz">Office of the Privacy Commissioner</a>.</p>
+<h2>If something goes wrong</h2>
+<p>If there&#x27;s a privacy breach that could seriously harm you, I&#x27;ll tell you and the Privacy Commissioner as soon as I can, as the law requires.</p>
+<h2>Children</h2>
+<p>Anyone can browse and buy. You need to be 13 or older to make a Shed account, or have a parent or guardian&#x27;s OK.</p>
+<h2>Changes</h2>
+<p>If I change how I handle your information, I&#x27;ll update this page and the date at the top. If it&#x27;s a big change, I&#x27;ll email account holders first.</p>
+<h2>Contact</h2>
+<p>Tommy Goodman, tommy tinkers NZ, Helensville, Auckland, New Zealand. <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a></p>
     </sc-if>
-
-    <!-- RETURNS -->
-    <sc-if value="{{isReturns}}" hint-placeholder-val="{{false}}">
-      <section id="faults"><h2>If something's wrong</h2><p>If your order arrives faulty, damaged, or not what you ordered, I'll put it right. Email me a photo and your order number as soon as you notice. Depending on the problem, I'll reprint it or refund you. Your rights under the Consumer Guarantees Act always apply, and nothing on this page takes them away.</p></section>
-      <section id="mind"><h2>Changing your mind</h2><ul><li>Personalised and custom stickers are made just for you, so I can't take them back if you change your mind. If you spot a mistake in your order before I print, email me straight away and I'll fix it.</li><li>{{mindText}}</li></ul></section>
-      <section id="cancel"><h2>Cancelling</h2><p>You can cancel for a full refund any time before I start printing. If you're waiting on a proof, nothing's printed yet, so it's a full refund too.</p></section>
-      <section id="how"><h2>How refunds work</h2><p>Refunds go back to the card you paid with, through Stripe. They usually show up in 5 to 10 days, depending on your bank.</p></section>
-    </sc-if>
-
-    <!-- PRIVACY -->
-    <sc-if value="{{isPrivacy}}" hint-placeholder-val="{{false}}">
-      <section id="collect"><h2>What I collect, and why</h2><ul><li><strong>Orders:</strong> your name, email, delivery address and what you bought, so I can make and send it.</li><li><strong>Artwork and briefs:</strong> the files and notes you send, so I can print them.</li><li><strong>A Shed account,</strong> if you make one: your display name, email, and anything you post.</li><li><strong>Messages</strong> you send me through the contact form or the Codebench planner.</li></ul></section>
-      <section id="keep"><h2>How long I keep it</h2><ul><li>Order records are kept for 7 years, because the IRD requires it.</li><li>Artwork is deleted {{artDays}} days after your order is done, unless you ask me to keep it for a reorder.</li><li>Back-in-stock requests are deleted once I've sent the email.</li></ul></section>
-      <section id="where"><h2>Where it's kept, and who else sees it</h2><p>The site and its database run on my own server in New Zealand. A few services handle parts of the job, and some are overseas: Stripe takes payments, Resend sends emails, and Cloudflare sits in front of the site. Each only gets what it needs. I never sell your details or share them with anyone for marketing.</p></section>
-      <section id="emails"><h2>Emails</h2><p>Order, proof and shipping emails come with buying something. Anything else, like news about new stickers, you only get if you tick the box for it, and every one has an unsubscribe link.</p></section>
-      <section id="cookies"><h2>Cookies</h2><p>Two small cookies: one keeps you signed in, and one remembers light or dark theme. No advertising or tracking cookies.</p></section>
-      <section id="rights"><h2>Your rights</h2><p>You can ask to see or correct anything I hold about you. With a Shed account you can download your data or delete your account from <a href="Settings.dc.html">account settings</a>. For anything else, email <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a>. If you're not happy with how I've handled it, you can complain to the Privacy Commissioner.</p></section>
+    <sc-if value="{{isTerms}}" hint-placeholder-val="{{false}}">
+<p>These terms cover buying from the shop, using an account and posting in the Shed. tommytinkers.nz is run by Tommy Goodman, trading as tommy tinkers NZ, in Helensville, New Zealand. When these terms say &quot;I&quot; or &quot;me&quot;, that&#x27;s me. By ordering or making an account, you agree to them. Nothing here takes away your rights under the Consumer Guarantees Act 1993 or the Fair Trading Act 1986.</p>
+<h2>Prices and payment</h2>
+<p>All prices are in New Zealand dollars. I&#x27;m not registered for GST, so there&#x27;s no GST to add or claim. You pay through Stripe Checkout, and I never see your full card details. Your order is confirmed once Stripe confirms payment, and you&#x27;ll get a receipt by email.</p>
+<p>I check every price on the server when you check out. If a price on the site is clearly wrong, I&#x27;ll contact you before I make anything and you can choose to pay the right price or get a full refund.</p>
+<h2>Discounts</h2>
+<p>Discounts and codes work as shown in your cart, and only one code can be used per order unless the discount says otherwise. I can change or end a discount at any time, but never on an order you&#x27;ve already paid for.</p>
+<h2>Personalised and made-to-order items</h2>
+<p>Most of what I sell is printed to order with the details you give me, so please check your spelling, names, numbers and colours before you pay. I print exactly what you enter.</p>
+<p>If you spot a mistake, contact me straight away with your order number. If I haven&#x27;t printed it yet, I&#x27;ll fix it for free. Once it&#x27;s printed, a reprint is charged as a new order unless the mistake was mine.</p>
+<p>If you upload artwork, you&#x27;re confirming you own it or have permission to use it. I won&#x27;t print anything I think is offensive, harmful or someone else&#x27;s trademark or copyright. If that happens, I&#x27;ll tell you and refund that item in full.</p>
+<p>For custom sheets, I email you a proof to approve before I print anything. Ask for as many changes as you need. Once you approve it, I print exactly that, so check it carefully.</p>
+<p>I usually print and post made-to-order items within 5 working days. If something will take longer, I&#x27;ll email you. If I&#x27;m away, a notice at the top of the site says when I&#x27;m back and when orders will be posted.</p>
+<h2>Shipping</h2>
+<p>I post anywhere in New Zealand with NZ Post, and I only ship to New Zealand addresses. Posting is free anywhere in New Zealand. You can also collect your order free at a race day I&#x27;m going to, or from Helensville at a time we arrange by email. You&#x27;ll get a tracking link by email when your parcel is on its way.</p>
+<p>Your order is my responsibility until it reaches you. If it&#x27;s lost or damaged in the post, tell me within 14 days of the expected delivery date and I&#x27;ll reprint it or refund you.</p>
+<h2 id="returns">Returns and refunds</h2>
+<p>Your rights under the Consumer Guarantees Act always apply. If something&#x27;s faulty, damaged, or not what you ordered or what I described, I&#x27;ll repair, reprint or refund it. Just email me a photo and your order number.</p>
+<p>Because personalised and made-to-order items are made just for you, I can&#x27;t accept change-of-mind returns on them.</p>
+<p>For items that aren&#x27;t personalised, I&#x27;m happy to take a change-of-mind return within 14 days of delivery if it&#x27;s unused and in its original packaging. You pay the return postage, and I refund the item price once it&#x27;s back with me.</p>
+<p>Refunds go back to the card you paid with through Stripe. They can take 5 to 10 working days to reach your account.</p>
+<h2>Buying for a club or business</h2>
+<p>If you&#x27;re buying for a business or club, such as a set of grid stickers for a race meeting, you agree the Consumer Guarantees Act doesn&#x27;t apply to that purchase, as the Act allows. I&#x27;ll still put right anything that&#x27;s faulty or wrong.</p>
+<p>Club orders are quoted. The quote sets the price, what&#x27;s included, how long it&#x27;s valid and when you pay. You can pay an invoice by card through Stripe, or by bank transfer with the invoice number as the reference.</p>
+<h2>Your account</h2>
+<p>Keep your password to yourself and your email up to date. You&#x27;re responsible for what happens on your account. After 5 wrong passwords in a row, sign-in locks for 15 minutes to keep your account safe.</p>
+<p>You can delete your account at any time in your settings. I may suspend or close an account that breaks these terms or the house rules.</p>
+<h2>The Shed</h2>
+<p>The Shed is free to join, and anyone can read the Pinboard. To keep it friendly:</p>
+<ul><li>Be kind. No harassment, hate, threats or personal attacks.</li><li>Only post things you have the right to share, and no one else&#x27;s personal details.</li><li>No spam, scams or selling without asking me first.</li><li>Nothing illegal, explicit or dangerous.</li></ul>
+<p>The house rules page has the detail. A new account&#x27;s first 3 posts are checked by me before they go live. I can hide or remove any post, and lock threads, at any time.</p>
+<p>You own what you post. By posting it, you let me display it on tommytinkers.nz for as long as it&#x27;s up. You can delete your posts at any time.</p>
+<h2>Codebench work</h2>
+<p>The Codebench build sheet gives you a ballpark price, not a quote. Any project we agree on is covered by a written quote or agreement, which sets the price, scope and timeline. Where that agreement differs from these terms, it wins.</p>
+<h2>My content</h2>
+<p>The designs, photos, text and code on this site belong to me unless I say otherwise. Please don&#x27;t copy or resell them without asking. Your artwork stays yours. You give me permission to use it only to make your order.</p>
+<h2>If something goes wrong</h2>
+<p>I do my best to keep the site running and accurate, but I can&#x27;t promise it will always be available or free of mistakes. Where the law allows, my responsibility for any order is limited to what you paid for it. This doesn&#x27;t limit any rights you have under New Zealand consumer law.</p>
+<h2>Changes and the law</h2>
+<p>I may update these terms from time to time, and the date at the top will change when I do. The terms in place when you ordered apply to that order. These terms are governed by New Zealand law.</p>
+<h2>Contact</h2>
+<p>Questions about an order or these terms? Email <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a> or use the contact form. It&#x27;s always me who replies.</p>
     </sc-if>
   </div>
 </main>
@@ -75,26 +121,25 @@ body{margin:0}
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["terms","returns","privacy"],"default":"terms"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2600}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["privacy","terms"],"default":"privacy"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":3600}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { theme: null, tab: props.state || 'terms' }; }
+  constructor(props) { super(props); this.state = { theme: null, tab: props.state === 'terms' || props.state === 'returns' ? 'terms' : 'privacy' }; }
   renderVals() {
     const s = this.state;
     const P = this.props;
     const theme = s.theme || P.theme || 'dark';
     const dark = theme !== 'light';
-    const tabs = [['terms', 'Terms of sale', 'ph ph-receipt'], ['returns', 'Returns and faults', 'ph ph-arrow-counter-clockwise'], ['privacy', 'Privacy', 'ph ph-shield-check']];
+    const privacy = s.tab === 'privacy';
     return {
       theme,
       rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
       toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
-      updated: '09/11/2026',
-      tabs: tabs.map(([k, label, icon]) => ({ label, icon, tid: 'tab-' + k, pressed: s.tab === k ? 'true' : 'false', pick: () => this.setState({ tab: k }) })),
-      panelBy: 'tab-' + s.tab,
-      isTerms: s.tab === 'terms', isReturns: s.tab === 'returns', isPrivacy: s.tab === 'privacy',
-      // Two policy choices left for Tommy, shown as drafts.
-      mindText: 'Event sheets that aren\u2019t personalised can come back unused within 14 days if you change your mind. You pay the postage back, and I refund the price. (Draft: Tommy to decide.)',
-      artDays: '90'
+      // Two pages in the build: /privacy and /terms. Shown as tabs here so one board holds both.
+      route: privacy ? 'privacy' : 'terms',
+      heading: privacy ? 'Privacy policy' : 'Terms and conditions',
+      updated: 'DD/MM/YYYY',
+      tabs: [['privacy', 'Privacy', 'ph ph-shield-check'], ['terms', 'Terms, returns and refunds', 'ph ph-receipt']].map(([k, label, icon]) => ({ label, icon, pressed: s.tab === k ? 'true' : 'false', pick: () => this.setState({ tab: k }) })),
+      isPrivacy: privacy, isTerms: !privacy
     };
   }
 }

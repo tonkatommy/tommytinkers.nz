@@ -1,6 +1,6 @@
 # v2 UI design (exported boards)
 
-A snapshot of the `tommy tinkers NZ v2` design canvas on claude.ai, version 91, exported 09/11/2026:
+A snapshot of the `tommy tinkers NZ v2` design canvas on claude.ai, version 92, exported 09/11/2026:
 https://claude.ai/artifact/9uCGiFfBAyfo1yeKShipHw
 
 This is the visual and behavioural spec for the v2 rebuild in `site/tommytinkers.nz.v2.0`. It has every page and state, in both themes, at 1280px desktop, 375px mobile and 834px tablet (admin).
@@ -10,7 +10,7 @@ This is the visual and behavioural spec for the v2 rebuild in `site/tommytinkers
 - **`CLAUDE.md` wins on facts.** If a board and `CLAUDE.md` disagree on a rate, price, rule or decision, follow `CLAUDE.md` and note the mismatch so the design gets fixed.
 - **Port the look and behaviour, not the code.** These files run on the canvas's own template runtime. Rebuild each screen idiomatically in Next.js, TypeScript and Tailwind, following the architecture rules in `CLAUDE.md`.
 - **Data in the boards is sample data.** Products, prices, discounts and rates match `CLAUDE.md`. Every customer and member name is invented; real customer details never go in this public repo. The 22 imported Shopify orders show their real numbers, dates and totals with invented names.
-- **Policy wording is a draft.** `Policies.dc.html` shows the shape and draft text. The final wording lives as Markdown in the repo and Tommy approves it.
+- **Policy wording comes from the policy doc.** `Policies.dc.html` copies the claude.ai doc "tommytinkers.nz privacy policy and terms". Port the doc, not the board, if they differ.
 - **The canvas is the live copy.** If it changes, export it again rather than editing these files by hand.
 
 ## How to read a board
@@ -211,8 +211,8 @@ These files only render inside the claude.ai canvas (fonts and the runtime load 
 
 | File | Board | Width |
 |---|---|---|
-| `Policies.dc.html` | Terms, returns and privacy (interactive: tabs) | 1280 |
-| `Policies-mobile.dc.html` | Policies - 375, light (Tweak: terms, privacy) | 375 |
+| `Policies.dc.html` | Privacy policy and terms (interactive: two pages as tabs) | 1280 |
+| `Policies-mobile.dc.html` | Terms - 375, light (Tweak: privacy) | 375 |
 | `Product-custom.dc.html` | Product - custom sheet: artwork rights and proof note | 1280 |
 | `ProofView.dc.html` | Proof for the customer (interactive: approve or ask for changes) | 1280 |
 | `ProofView-states.dc.html` | Proof - asking for changes, light (Tweak: approved, changes sent, invalid, older version) | 1280 |

@@ -16,11 +16,11 @@
 body{margin:0}
 </style>
 </helmet>
-<dc-import name="Policies" theme="{{theme}}" state="{{state}}" hint-size="100%,2600px"></dc-import>
+<dc-import name="Policies" theme="{{theme}}" state="{{state}}" hint-size="100%,5200px"></dc-import>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["returns","privacy","terms"],"default":"returns"},"theme":{"editor":"enum","options":["dark","light"],"default":"light"},"$preview":{"width":375,"height":2600}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["terms","privacy"],"default":"terms"},"theme":{"editor":"enum","options":["dark","light"],"default":"light"},"$preview":{"width":375,"height":5200}}'>
 class Component extends DCLogic {
-  renderVals() { return { state: this.props.state || 'returns', theme: this.props.theme || 'light' }; }
+  renderVals() { return { state: this.props.state || 'terms', theme: this.props.theme || 'light' }; }
 }
 </script>
 </body>

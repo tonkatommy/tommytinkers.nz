@@ -163,7 +163,7 @@ body{margin:0}
           <sc-if value="{{isPaused}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true"><i class="ph ph-calendar-blank" aria-hidden="true"></i>Orders open again 24/11/2026</button></sc-if>
           <sc-if value="{{notPaused}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" onClick="{{pay}}"><i class="ph ph-lock-simple" aria-hidden="true"></i>{{payText}}</button></sc-if>
         </sc-if>
-        <p class="tt-help" style="font-size: 13px;">By paying, you agree to my <a href="Policies.dc.html">terms of sale</a> and <a href="Policies.dc.html">returns policy</a>. Here's <a href="Policies.dc.html">what I do with your details</a>.</p>
+        <p class="tt-help" style="font-size: 13px;">By paying, you agree to my <a href="Policies.dc.html">terms and conditions</a>, including <a href="Policies.dc.html#returns">returns and refunds</a>. Here's <a href="Policies.dc.html">what I do with your details</a>.</p>
         <p class="tt-small" style="display: flex; gap: 8px; align-items: flex-start;"><i class="ph ph-shield-check ph-20" aria-hidden="true" style="flex: none;"></i>{{stripeNote}}</p>
         <sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}">
           <p class="tt-small" style="border-top: 1px solid var(--border-subtle); padding-top: 16px;">Checking out as a guest. <a href="Auth.dc.html">Sign in</a> to keep this order in your account.</p>
