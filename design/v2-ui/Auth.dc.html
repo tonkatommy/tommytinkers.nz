@@ -91,8 +91,8 @@ body{margin:0}
             </ul>
           </div>
           <div class="tt-field">
-            <label class="tt-check" style="align-items: flex-start;"><input type="checkbox" checked="{{agree}}" onChange="{{toggleAgree}}" disabled="{{busy}}" style="margin-top: 2px;"><span style="font-size: 14px;">I've read the <a href="#rules">house rules</a> and the <a href="#privacy">privacy policy</a>.</span></label>
-            <sc-if value="{{agreeErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Tick this to carry on.</p></sc-if>
+            <label class="tt-check" style="align-items: flex-start;"><input type="checkbox" checked="{{agree}}" onChange="{{toggleAgree}}" disabled="{{busy}}" style="margin-top: 2px;"><span style="font-size: 14px;">I'm 13 or older, and I've read the <a href="#house-rules">house rules</a> and the <a href="Policies.dc.html">privacy policy</a>.</span></label>
+            <sc-if value="{{agreeErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Tick this to carry on. Shed accounts are for people 13 and over.</p></sc-if>
           </div>
           <sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary tt-btn--block" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Setting you up</button></sc-if>
           <sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><button type="submit" class="tt-btn tt-btn--primary tt-btn--block"><i class="ph ph-user-plus" aria-hidden="true"></i>Create my account</button></sc-if>
