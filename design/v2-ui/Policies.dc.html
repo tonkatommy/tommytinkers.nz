@@ -36,7 +36,7 @@ body{margin:0}
     <p class="tt-small" style="color: var(--text-secondary);">Last updated {{updated}}</p>
   </header>
 
-  <div class="tt-banner tt-banner--info" style="max-width: 760px;"><i class="ph ph-note-pencil ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Design note: copy comes from the policy doc</p><p class="tt-small">The words here are copied from the "tommytinkers.nz privacy policy and terms" doc as of 10/11/2026. In the build these are two routes, <code>/privacy</code> and <code>/terms</code>, rendered from Markdown in the repo. The doc wins if they differ.</p></div></div>
+  <div class="tt-banner tt-banner--info" style="max-width: 760px;"><i class="ph ph-note-pencil ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Design note: copy comes from the policy doc</p><p class="tt-small">The words here are copied from the "tommytinkers.nz privacy policy and terms" doc as of 10/11/2026, including the Before you publish answers. In the build these are two routes, <code>/privacy</code> and <code>/terms</code>, rendered from Markdown in the repo. The doc wins if they differ.</p></div></div>
 
   <nav class="tt-seg" aria-label="Policies" style="align-self: flex-start;">
     <sc-for list="{{tabs}}" as="t" hint-placeholder-count="2"><button type="button" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}"><i class="{{t.icon}} ph-16" aria-hidden="true"></i>{{t.label}}</button></sc-for>
@@ -54,7 +54,7 @@ body{margin:0}
 <p>Some of these companies store information outside New Zealand, mainly in the United States. I only use services that protect personal information to a standard comparable to New Zealand law. I&#x27;ll also share information if the law requires it, for example with Inland Revenue or the police with a proper legal request.</p>
 <h2>Where it&#x27;s kept and how long</h2>
 <p>The site and its database run on a server I manage in New Zealand. Access is limited to me, and backups are encrypted and kept for 30 days.</p>
-<ul><li><strong>Orders and receipts:</strong> 7 years, because New Zealand tax law requires it.</li><li><strong>Artwork uploads:</strong> kept with your order for 7 years, so I can reprint or reorder for you. Ask me any time and I&#x27;ll delete them sooner.</li><li><strong>Accounts and Shed posts:</strong> until you delete your account.</li><li><strong>Enquiries:</strong> 2 years, then deleted unless we&#x27;re working together.</li><li><strong>Back-in-stock requests:</strong> until I&#x27;ve sent the email.</li><li><strong>News emails:</strong> until you unsubscribe. I keep a note that you did, so you&#x27;re never added again by mistake.</li><li><strong>Data downloads:</strong> the file is deleted after 7 days.</li><li><strong>Server logs:</strong> 30 days.</li></ul>
+<ul><li><strong>Orders and receipts:</strong> 7 years, because New Zealand tax law requires it.</li><li><strong>Artwork uploads:</strong> kept with your order for 7 years, so I can reprint or reorder for you. Ask me any time and I&#x27;ll delete them sooner.</li><li><strong>Accounts and Shed posts:</strong> until you delete your account.</li><li><strong>Enquiries:</strong> 30 days, then deleted unless we&#x27;re working together.</li><li><strong>Back-in-stock requests:</strong> until I&#x27;ve sent the email.</li><li><strong>News emails:</strong> until you unsubscribe. I keep a note that you did, so you&#x27;re never added again by mistake.</li><li><strong>Data downloads:</strong> the file is deleted after 7 days.</li><li><strong>Server logs:</strong> 30 days.</li></ul>
 <h2>Cookies and storage</h2>
 <p>The site uses a small number of cookies that it needs to work: one that keeps you signed in, one that remembers your light or dark theme, and the ones Cloudflare uses to protect the site. Your motion and effects setting is saved in your own browser. There are no advertising or tracking cookies. Stripe sets its own cookies on its payment page.</p>
 <h2>Your account and emails</h2>
@@ -66,7 +66,7 @@ body{margin:0}
 <h2>If something goes wrong</h2>
 <p>If there&#x27;s a privacy breach that could seriously harm you, I&#x27;ll tell you and the Privacy Commissioner as soon as I can, as the law requires.</p>
 <h2>Children</h2>
-<p>Anyone can browse and buy. You need to be 13 or older to make a Shed account, or have a parent or guardian&#x27;s OK.</p>
+<p>Anyone can browse and buy. There&#x27;s no age limit for a Shed account.</p>
 <h2>Changes</h2>
 <p>If I change how I handle your information, I&#x27;ll update this page and the date at the top. If it&#x27;s a big change, I&#x27;ll email account holders first.</p>
 <h2>Contact</h2>
@@ -84,14 +84,13 @@ body{margin:0}
 <p>If you spot a mistake, contact me straight away with your order number. If I haven&#x27;t printed it yet, I&#x27;ll fix it for free. Once it&#x27;s printed, a reprint is charged as a new order unless the mistake was mine.</p>
 <p>If you upload artwork, you&#x27;re confirming you own it or have permission to use it. I won&#x27;t print anything I think is offensive, harmful or someone else&#x27;s trademark or copyright. If that happens, I&#x27;ll tell you and refund that item in full.</p>
 <p>For custom sheets, I email you a proof to approve before I print anything. Ask for as many changes as you need. Once you approve it, I print exactly that, so check it carefully.</p>
-<p>I usually print and post made-to-order items within 5 working days. If something will take longer, I&#x27;ll email you. If I&#x27;m away, a notice at the top of the site says when I&#x27;m back and when orders will be posted.</p>
+<p>I usually print and post made-to-order items within 5 to 7 working days. If something will take longer, I&#x27;ll email you. If I&#x27;m away, a notice at the top of the site says when I&#x27;m back and when orders will be posted.</p>
 <h2>Shipping</h2>
 <p>I post anywhere in New Zealand with NZ Post, and I only ship to New Zealand addresses. Posting is free anywhere in New Zealand. You can also collect your order free at a race day I&#x27;m going to, or from Helensville at a time we arrange by email. You&#x27;ll get a tracking link by email when your parcel is on its way.</p>
 <p>Your order is my responsibility until it reaches you. If it&#x27;s lost or damaged in the post, tell me within 14 days of the expected delivery date and I&#x27;ll reprint it or refund you.</p>
 <h2 id="returns">Returns and refunds</h2>
 <p>Your rights under the Consumer Guarantees Act always apply. If something&#x27;s faulty, damaged, or not what you ordered or what I described, I&#x27;ll repair, reprint or refund it. Just email me a photo and your order number.</p>
-<p>Because personalised and made-to-order items are made just for you, I can&#x27;t accept change-of-mind returns on them.</p>
-<p>For items that aren&#x27;t personalised, I&#x27;m happy to take a change-of-mind return within 14 days of delivery if it&#x27;s unused and in its original packaging. You pay the return postage, and I refund the item price once it&#x27;s back with me.</p>
+<p>I don&#x27;t offer change-of-mind returns. Most of what I sell is personalised or made to order just for you.</p>
 <p>Refunds go back to the card you paid with through Stripe. They can take 5 to 10 working days to reach your account.</p>
 <h2>Buying for a club or business</h2>
 <p>If you&#x27;re buying for a business or club, such as a set of grid stickers for a race meeting, you agree the Consumer Guarantees Act doesn&#x27;t apply to that purchase, as the Act allows. I&#x27;ll still put right anything that&#x27;s faulty or wrong.</p>
