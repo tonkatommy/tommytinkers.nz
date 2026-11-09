@@ -1,6 +1,6 @@
 # v2 UI design (exported boards)
 
-A snapshot of the `tommy tinkers NZ v2` design canvas on claude.ai, version 83, exported 08/11/2026:
+A snapshot of the `tommy tinkers NZ v2` design canvas on claude.ai, version 89, exported 09/11/2026:
 https://claude.ai/artifact/9uCGiFfBAyfo1yeKShipHw
 
 This is the visual and behavioural spec for the v2 rebuild in `site/tommytinkers.nz.v2.0`. It has every page and state, in both themes, at 1280px desktop, 375px mobile and 834px tablet (admin).
@@ -168,7 +168,7 @@ These files only render inside the claude.ai canvas (fonts and the runtime load 
 | `AdminModeration.dc.html` | Moderation queue (interactive) | 1280 |
 | `AdminModeration-light.dc.html` | Moderation - rejecting, tablet 834, light | 834 |
 | `AdminModeration-states.dc.html` | Moderation - reported (Tweak: empty, loading, error) | 1280 |
-| `AdminSettings.dc.html` | Shipping and motion (interactive) | 1280 |
+| `AdminSettings.dc.html` | Settings: shipping, invoices and motion (interactive) | 1280 |
 | `AdminSettings-flat.dc.html` | Shipping - free off, flat rate, light | 1280 |
 | `AdminSettings-states.dc.html` | Settings - invalid rate (Tweak: saving, saved, error, loading) | 1280 |
 | `AdminBar.dc.html` | AdminBar component | 1280 |
@@ -183,3 +183,25 @@ These files only render inside the claude.ai canvas (fonts and the runtime load 
 | `AdminDiscounts-code.dc.html` | Discounts - new one-time code, tablet 834, light | 834 |
 | `AdminDiscounts-states.dc.html` | Discounts - errors (Tweak: saving, empty, loading, error) | 1280 |
 | `Checkout-code.dc.html` | Checkout - code applied (Tweak: code error) | 1280 |
+
+### 11. Race-day and Helensville pickup
+
+| File | Board | Width |
+|---|---|---|
+| `Checkout-pickup.dc.html` | Checkout - collect at a race day, light | 1280 |
+| `Confirmation-pickup.dc.html` | Order confirmation - race-day pickup | 1280 |
+| `AdminRaceDays.dc.html` | Race days (interactive) | 1280 |
+| `AdminRaceDays-list.dc.html` | Race days - pickup list | 1280 |
+| `AdminRaceDays-edit.dc.html` | Race days - add one, invalid, tablet 834, light (Tweak: new, empty, loading, error) | 834 |
+
+### 12. Club quotes and invoices
+
+| File | Board | Width |
+|---|---|---|
+| `AdminQuotes.dc.html` | Quotes and invoices (interactive) | 1280 |
+| `AdminQuotes-new.dc.html` | Quotes - new quote (Tweak: invalid, sent and locked) | 1280 |
+| `AdminQuotes-invoice.dc.html` | Invoices - mark paid by bank transfer (Tweak: open invoice, list) | 1280 |
+| `AdminQuotes-clubs.dc.html` | Clubs and their usual terms, tablet 834, light (Tweak: empty, loading, error) | 834 |
+| `QuoteView.dc.html` | Club quote page (interactive: accept, decline, pay) | 1280 |
+| `QuoteView-invoice.dc.html` | Club invoice page, light (Tweak: paid, accepted, declined, expired, replaced) | 1280 |
+| `QuoteView-mobile.dc.html` | Club quote page - 375 | 375 |

@@ -20,7 +20,7 @@ body{margin:0}
 <nav class="tt-admside" aria-label="Admin sections">
   <span class="tt-label tt-admside-h" style="font-size: 12px;">&gt; admin</span>
   <ul>
-    <sc-for list="{{items}}" as="it" hint-placeholder-count="6">
+    <sc-for list="{{items}}" as="it" hint-placeholder-count="8">
       <li><a href="{{it.href}}" class="tt-catbtn" aria-current="{{it.current}}" style="text-decoration: none;"><span><i class="{{it.icon}}" aria-hidden="true"></i>{{it.label}}</span><sc-if value="{{it.hasN}}" hint-placeholder-val="{{false}}"><span class="n" aria-label="{{it.nLabel}}">{{it.n}}</span></sc-if></a></li>
     </sc-for>
   </ul>
@@ -28,7 +28,7 @@ body{margin:0}
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"active":{"editor":"enum","options":["stock","orders","discounts","users","moderation","settings"],"default":"stock"},"orders":{"editor":"int","default":1},"queue":{"editor":"int","default":5},"$preview":{"width":248,"height":720}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"active":{"editor":"enum","options":["stock","orders","quotes","racedays","discounts","users","moderation","settings"],"default":"stock"},"orders":{"editor":"int","default":1},"queue":{"editor":"int","default":5},"$preview":{"width":248,"height":720}}'>
 class Component extends DCLogic {
   renderVals() {
     const p = this.props;
@@ -39,10 +39,12 @@ class Component extends DCLogic {
     const defs = [
       ['stock', 'Stockroom', 'ph ph-package ph-20', 'Admin.dc.html', 0, ''],
       ['orders', 'Orders', 'ph ph-receipt ph-20', 'AdminOrders.dc.html', orders, ' to pack'],
+      ['quotes', 'Quotes and invoices', 'ph ph-notepad ph-20', 'AdminQuotes.dc.html', 0, ''],
+      ['racedays', 'Race days', 'ph ph-flag-checkered ph-20', 'AdminRaceDays.dc.html', 0, ''],
       ['discounts', 'Discounts', 'ph ph-tag ph-20', 'AdminDiscounts.dc.html', 0, ''],
       ['users', 'Users and roles', 'ph ph-users ph-20', 'AdminUsers.dc.html', 0, ''],
       ['moderation', 'Moderation', 'ph ph-shield-check ph-20', 'AdminModeration.dc.html', queue, ' waiting'],
-      ['settings', 'Shipping and motion', 'ph ph-sliders-horizontal ph-20', 'AdminSettings.dc.html', 0, '']
+      ['settings', 'Settings', 'ph ph-sliders-horizontal ph-20', 'AdminSettings.dc.html', 0, '']
     ];
     return {
       theme: p.theme || 'dark',

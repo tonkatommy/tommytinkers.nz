@@ -109,21 +109,31 @@ The v2 UI design lives on the claude.ai Design canvas `tommy tinkers NZ v2` (lin
 - **Order numbers** look like `TT1026NZ`. `Order.number` is a sequence that restarts at 1026, carrying on from the last Shopify order (TT1025NZ). Imported Shopify orders set `number` themselves (1002 to 1025, see the import rules below) so v2 shows every order in one format, and keep the name Shopify gave them in `Order.externalRef`, because Shopify used `TT-1001-NZ` up to TT-1015-NZ and `TT1017NZ` from then on (there was no 1016).
 - **Customer names** in admin lists show first name plus last initial (e.g. "Aroha T.", an invented name; examples never use real customers). No emails or phone numbers in lists.
 - **Services live on Codebench only**, as rates: NZ$60/hr development (a junior-to-mid freelance rate; NZ guides put that band at about NZ$42 to NZ$70), NZ$95/hr on-site, NZ$65/hr remote support. Support rates sit above the dev rate on purpose: they draw on Tommy's service desk experience, not his dev level. They are not shop products. Codebench ballpark ranges (07/11/2026, hours at NZ$60): website NZ$1,500 to NZ$4,000, online shop NZ$3,000 to NZ$8,500, internal tool NZ$2,000 to NZ$6,500, web app NZ$5,500 to NZ$17,500, automation NZ$350 to NZ$2,000. Features picked in the questionnaire push the range up.
-- **Shipping settings** and the low-stock threshold are `SiteSetting` keys (`shipping.freeEnabled`, `shipping.flatRateCents`, `stock.lowThreshold`), not their own tables.
+- **Shipping settings**, the low-stock threshold, Helensville pickup and invoice details are `SiteSetting` keys (`shipping.freeEnabled`, `shipping.flatRateCents`, `stock.lowThreshold`, `pickup.helensville`, `invoice.bankAccountName`, `invoice.bankAccountNo`, `quote.validDays`), not their own tables.
 
 Also modelled: `StockMovement` (every stock change, tracked products only), `AuditLog` (every admin write, append only) and `Enquiry` (Codebench questionnaire and contact form, saved before the email goes out).
-
-Not modelled yet, because they aren't decided: race-day pickup (orders collected at AIRCCC), and club quotes and invoices for grid sticker sets.
 
 - **Shopify order history is imported** (decided 07/11/2026) from the saved export as read-only orders with `Order.source = SHOPIFY`. That's 22 orders, TT-1002-NZ to TT1025NZ, all paid and posted. They can't be refunded from v2, and there's no link back to Shopify because the store is gone. This is separate from the v1 rule above: v1 users and data still don't migrate. Imported orders never become seed or test data.
 - **The export has limits.** It gives each order's customer, date, total and item count, but no line items, variants, personalisation or addresses. Imported orders get the total (`subtotalCents` = `totalCents`, no discount or shipping split) and no `OrderLine` rows, and the admin order view has to cope with an order that has no lines. The import script reads the export from outside the repo (e.g. `deploy/secrets/`) and runs once at cutover against production only.
 - **Import rules** (decided 08/11/2026): skip Tommy's own test orders (TT-1001-NZ at $25 and TT-1011-NZ at $0), and merge duplicate customer records in the export into one customer each (two customers appear twice). Neither skipped order takes a new number, so 1001 and 1011 stay unused.
 
+## Pickup, quotes and invoices (decided 09/11/2026)
+
+- **Three ways to get an order**, picked at checkout (`Order.fulfilment`): free NZ Post (`POST`), collect at a race day (`RACE_DAY`), or collect from Helensville (`HELENSVILLE`). Pickup is free, and Stripe Checkout skips the address step for pickup orders.
+- **Race days** are an admin section (`RaceDay`, permission `manage_orders`). Each has a name, venue, date and a cutoff in days before (default 3). A race day shows at checkout until orders close at midnight on the cutoff date (NZ time); the server checks the cutoff again when it makes the Stripe session. The pickup note goes in a reminder email to everyone collecting, the day before.
+- **Helensville pickup** is a site setting (`pickup.helensville`, on by default). Tommy emails each customer to set a time, so his address never goes on the site.
+- **Pickup orders end at `COLLECTED`**, not `POSTED`, with no tracking number. Admin marks them collected one by one or all at once from the race day's pickup list.
+- **Club quotes** are an admin section, Quotes and invoices (`Club`, `Quote`, `QuoteLine`, permission `manage_orders`). A quote has setup lines (one-off design work) and item lines, a valid-until date, how it gets to the club, and payment terms. The club opens it from an unguessable link (`/quote/<token>`) with no account, types their name and accepts or declines. Once sent, a quote can't be edited; a change means a new quote that replaces it, and the old link says so.
+- **Payment terms are per club, overridable per quote** (decided 09/11/2026). Each club has default terms, and a new quote starts with them; Tommy can change them on any quote before sending. The options: pay in full when they accept (nothing printed until paid), setup fee upfront and the rest on delivery, or one invoice on delivery. Due dates after delivery are 7 or 14 days. Terms aren't set per product, because club orders are quoted, not bought from the shop.
+- **Invoices** (`Invoice`, `InvoicePayment`) are made by the accept and deliver actions according to the quote's terms. Clubs pay by card (a Stripe Checkout session from the invoice link; the webhook records it) or bank transfer to the account in settings, with the invoice number as the reference (Tommy records it by hand, part payments allowed). An invoice is paid once its payments add up to the amount.
+- **No GST.** Tommy isn't GST registered, so documents say "Invoice", never "Tax invoice", and show no GST. Registering later means a GST number setting and GST columns.
+- **Numbers**: quotes are `Q-0001`, invoices `INV-0001`, both from their own sequences. Quote and invoice tokens are random secrets: never log them.
+
 ## Phase status
 
 | Phase | Status |
 |---|---|
-| 0. Foundations | In progress: scaffold, Dockerfile and Compose done. Catalogue, order, discount, stock history, audit and enquiry schema added (migrations `20261107090000_catalogue_orders_discounts` and `20261108090000_order_external_ref`); Better Auth tables come in Phase 2. Still to do: run the Docker stack and confirm `/api/health`, add a v2 CI job. |
+| 0. Foundations | In progress: scaffold, Dockerfile and Compose done. Catalogue, order, discount, stock history, audit, enquiry, pickup and quote schema added (migrations `20261107090000_catalogue_orders_discounts`, `20261108090000_order_external_ref` and `20261109090000_pickup_quotes_invoices`); Better Auth tables come in Phase 2. Still to do: run the Docker stack and confirm `/api/health`, add a v2 CI job. |
 | 1. Design system and shell | Next |
 | 2. Accounts (Better Auth) | |
 | 3. Catalogue and stockroom | |

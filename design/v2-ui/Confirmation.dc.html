@@ -50,7 +50,7 @@ body{margin:0}
       <span style="width: 64px; height: 64px; border-radius: 50%; background: var(--gradient-brand); display: grid; place-items: center; color: var(--on-warm); box-shadow: var(--shadow-glow);"><i class="ph ph-check ph-24" aria-hidden="true" style="font-size: 32px;"></i></span>
       <span class="tt-eyebrow">Order confirmed</span>
       <h1 class="tt-h1" style="font-size: clamp(36px, 6vw, 56px);">Thanks, your order's in.</h1>
-      <p class="tt-lead" style="max-width: 620px;">I've emailed a receipt to hello@tommytinkers.nz. Your stickers are printed to order, so I'll print them here in Helensville, then email you a tracking link when they're on the way.</p>
+      <p class="tt-lead" style="max-width: 620px;">{{lead}}</p>
     </section>
 
     <section class="tt-card tt-card--feature fade-up-2" aria-labelledby="order-h" style="display: flex; flex-direction: column; gap: 24px;">
@@ -61,8 +61,8 @@ body{margin:0}
       <dl class="tt-dl" style="grid-template-columns: auto minmax(0, 1fr);">
         <dt>Placed</dt><dd>07/11/2026</dd>
         <dt>Paid with</dt><dd>Visa ending 4242, via Stripe</dd>
-        <dt>Shipping to</dt><dd>Tommy G., Helensville 0800, New Zealand</dd>
-        <dt>Delivery</dt><dd>Free, NZ Post</dd>
+        <dt>{{whereLabel}}</dt><dd>{{whereText}}</dd>
+        <dt>Delivery</dt><dd>{{deliveryText}}</dd>
       </dl>
       <ul>
         <li class="tt-line" style="grid-template-columns: 56px minmax(0, 1fr);"><div class="tt-ph" style="border-radius: 10px; overflow: hidden;"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div><div class="tt-row"><span><span style="font-weight: 600;">RC name window stickers</span><span style="color: var(--text-secondary);"> · Mixed sheet x 2</span></span><span>$40.00</span></div></li>
@@ -71,7 +71,7 @@ body{margin:0}
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <div class="tt-row"><span style="color: var(--text-secondary);">Subtotal</span><span>$55.00</span></div>
         <div class="tt-row"><span style="color: var(--text-secondary);">2+ name sticker sheets</span><span>-$5.00</span></div>
-        <div class="tt-row"><span style="color: var(--text-secondary);">Shipping</span><span>Free</span></div>
+        <div class="tt-row"><span style="color: var(--text-secondary);">{{shipLabel}}</span><span>Free</span></div>
         <div class="tt-row" style="border-top: 1px solid var(--border-subtle); padding-top: 12px;"><span style="font-weight: 600;">Total paid</span><span style="font-size: 22px; font-weight: 700;">NZ$50.00</span></div>
       </div>
     </section>
@@ -82,7 +82,7 @@ body{margin:0}
       <ol class="tt-steps" style="list-style: none; margin: 0; padding: 0;">
         <li class="tt-step is-done"><span class="tt-step-n"><i class="ph ph-check ph-20" aria-hidden="true"></i><span class="sr-only">Done:</span></span><div><p style="font-weight: 600;">Order placed</p><p class="tt-small">Payment's through and your receipt is in your inbox.</p></div></li>
         <li class="tt-step"><span class="tt-step-n">02</span><div><p style="font-weight: 600;">I print and pack it</p><p class="tt-small">Made-to-order stickers get printed first, then everything is checked and packed by hand in Helensville.</p></div></li>
-        <li class="tt-step"><span class="tt-step-n">03</span><div><p style="font-weight: 600;">It's on its way</p><p class="tt-small">You'll get an email with the NZ Post tracking link when it ships.</p></div></li>
+        <li class="tt-step"><span class="tt-step-n">03</span><div><p style="font-weight: 600;">{{step3Title}}</p><p class="tt-small">{{step3Text}}</p></div></li>
       </ol>
     </section>
 
@@ -97,7 +97,7 @@ body{margin:0}
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["confirmed","pending","failed"],"default":"confirmed"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["confirmed","pending","failed"],"default":"confirmed"},"fulfil":{"editor":"enum","options":["post","event","helensville"],"default":"post"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1800}}'>
 class Component extends DCLogic {
   constructor(props) { super(props); this.state = { theme: null }; }
   renderVals() {
@@ -105,6 +105,14 @@ class Component extends DCLogic {
     const theme = this.state.theme || P.theme || 'dark';
     const dark = theme !== 'light';
     const view = P.state || 'confirmed';
+    // The same page for every way of getting the order. The Stripe session carries the choice, and the
+    // webhook copies it onto the order.
+    const how = P.fulfil || 'post';
+    const copy = {
+      post: ["I've emailed a receipt to hello@tommytinkers.nz. Your stickers are printed to order, so I'll print them here in Helensville, then email you a tracking link when they're on the way.", 'Shipping to', 'Tommy G., Helensville 0800, New Zealand', 'Free, NZ Post', 'Shipping', "It's on its way", "You'll get an email with the NZ Post tracking link when it ships."],
+      event: ["I've emailed a receipt to hello@tommytinkers.nz. I'll print your stickers here in Helensville and bring them to Indoor club round 4.", 'Collecting at', 'Indoor club round 4, Sat 14/11/2026, Club track, Auckland', 'Free, race-day pickup', 'Race-day pickup', 'Collect it at the track', "The day before, I'll email you where to find me in the pits. Bring your order number, TT1026NZ."],
+      helensville: ["I've emailed a receipt to hello@tommytinkers.nz. I'll print your stickers, then email you to set a time to collect them.", 'Collecting from', 'Helensville, time arranged by email', 'Free, collect from Helensville', 'Collect from Helensville', 'We set a pickup time', "Once it's ready I'll email you a few times that suit. Reply with the one that works."]
+    }[how];
     return {
       theme,
       rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
@@ -113,7 +121,8 @@ class Component extends DCLogic {
       toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
       isPending: view === 'pending',
       isFailed: view === 'failed',
-      isConfirmed: view === 'confirmed'
+      isConfirmed: view === 'confirmed',
+      lead: copy[0], whereLabel: copy[1], whereText: copy[2], deliveryText: copy[3], shipLabel: copy[4], step3Title: copy[5], step3Text: copy[6]
     };
   }
 }

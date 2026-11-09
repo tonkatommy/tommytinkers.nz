@@ -29,7 +29,7 @@ body{margin:0}
     <div style="display: flex; flex-direction: column; gap: 8px;">
       <span class="tt-label">&gt; admin / orders</span>
       <h1 class="tt-h2">Orders</h1>
-      <p class="tt-admnote">22 orders imported from the closed Shopify store, plus two test orders. New orders arrive from the Stripe webhook.</p>
+      <p class="tt-admnote">22 orders imported from the closed Shopify store, plus three test orders, one for race-day pickup. New orders arrive from the Stripe webhook.</p>
     </div>
     <button type="button" class="tt-btn tt-btn--secondary"><i class="ph ph-download-simple" aria-hidden="true"></i>Export CSV</button>
   </header>
@@ -132,7 +132,7 @@ body{margin:0}
       </section>
 
       <section aria-labelledby="od-cust" style="display: flex; flex-direction: column; gap: 8px;">
-        <h3 id="od-cust" class="tt-label" style="font-size: 12px;">&gt; ship to</h3>
+        <h3 id="od-cust" class="tt-label" style="font-size: 12px;">&gt; {{dWhereLabel}}</h3>
         <address style="font-style: normal; line-height: 1.6;">{{dCustomer}}<br>{{dAddr}}</address>
         <p class="tt-small">{{dContact}} · {{dPaid}}<sc-if value="{{hasLink}}" hint-placeholder-val="{{true}}"> · <a href="#payment">{{dLink}}<i class="ph ph-arrow-square-out ph-16" aria-hidden="true" style="vertical-align: -2px; margin-left: 4px;"></i></a></sc-if></p>
       </section>
@@ -182,7 +182,7 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     const st = props.state || 'ready';
-    // The 22 orders imported from the Shopify export (the store is closed), newest first, plus two
+    // The 22 orders imported from the Shopify export (the store is closed), newest first, plus three
     // test orders so the pack and post flow can be shown. v2 shows every order as TT####NZ and keeps
     // Shopify's own name in `ref` (it used TT-1001-NZ style up to 1015). Tommy's own test orders
     // 1001 and 1011 are skipped on import. Customer names here are invented: the design never shows
@@ -198,6 +198,7 @@ class Component extends DCLogic {
       [1003, 'TT-1003-NZ', '13/02/2025', 'Tama H.', 3000, 1], [1002, 'TT-1002-NZ', '13/02/2025', 'Mere W.', 3000, 1]
     ].map(([n, ref, date, customer, total, count]) => ({ id: 'TT' + n + 'NZ', ref, date, customer, total, count, items: null, test: false, shopify: true, status: 'posted' }));
     const tests = [
+      { id: 'TT1028NZ', date: '08/11/2026', customer: 'Test member A', status: 'packing', test: true, pickup: 'Indoor club round 4, Sat 14/11/2026', items: [{ name: 'RC name window stickers', sku: 'RCWS-MXD-01', qty: 2, each: 2000, deal: true, pz: [['Sheet', 'Mixed'], ['Name', 'TEST A'], ['Flag', 'New Zealand'], ['Colours', 'Black on white'], ['Font', 'Not given']] }] },
       { id: 'TT1027NZ', date: '07/11/2026', customer: 'Tommy G.', status: 'packing', test: true, items: [{ name: 'Custom sticker sheet A4', sku: 'No SKU yet', qty: 1, each: 3500, pz: [['Design brief', 'Test order. Club grid numbers 1 to 12, black on yellow, about 60 mm high.']], art: 'grid-numbers.svg, 84 KB' }] },
       { id: 'TT1026NZ', date: '07/11/2026', customer: 'Tommy G.', status: 'paid', test: true, items: [{ name: 'RC name window stickers', sku: 'RCWS-MXD-01', qty: 2, each: 2000, deal: true, pz: [['Sheet', 'Mixed'], ['Name', 'TOMMY G'], ['Flag', 'New Zealand'], ['Colours', 'White on black'], ['Font', 'Not given']] }, { name: 'Waikato Champs grid stickers', sku: 'WCGS-2025', qty: 1, each: 1500 }] }
     ];
@@ -224,24 +225,25 @@ class Component extends DCLogic {
     const dealOff = (o) => (o.items && o.items.filter((i) => i.deal).reduce((a, i) => a + i.qty, 0) >= 2 ? 500 : 0);
     const sub = (o) => gross(o) - dealOff(o);
     const units = (o) => (o.items ? o.items.reduce((a, i) => a + i.qty, 0) : o.count);
-    const labels = { paid: 'To pack', packing: 'Packing', posted: 'Posted', refunded: 'Refunded' };
-    const pills = { paid: 'tt-pill tt-pill--low', packing: 'tt-pill tt-pill--in', posted: 'tt-pill tt-pill--out', refunded: 'tt-pill tt-pill--out' };
+    const labels = { paid: 'To pack', packing: 'Packing', posted: 'Posted', collected: 'Collected', refunded: 'Refunded' };
+    const pills = { paid: 'tt-pill tt-pill--low', packing: 'tt-pill tt-pill--in', posted: 'tt-pill tt-pill--out', collected: 'tt-pill tt-pill--out', refunded: 'tt-pill tt-pill--out' };
     const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
     const setO = (id, patch) => this.setState({ orders: this.state.orders.map((o) => (o.id === id ? { ...o, ...patch } : o)) });
 
     let list = s.orders;
     if (s.filter === 'open') list = list.filter((o) => o.status === 'paid' || o.status === 'packing');
+    else if (s.filter === 'done') list = list.filter((o) => o.status === 'posted' || o.status === 'collected');
     else if (s.filter !== 'all') list = list.filter((o) => o.status === s.filter);
     const q = s.query.trim().toLowerCase();
     if (q) list = list.filter((o) => (o.id + ' ' + o.customer).toLowerCase().includes(q));
     const count = (fn) => s.orders.filter(fn).length;
-    const chips = [['open', 'Open', count((o) => o.status === 'paid' || o.status === 'packing')], ['paid', 'To pack', count((o) => o.status === 'paid')], ['posted', 'Posted', count((o) => o.status === 'posted')], ['refunded', 'Refunded', count((o) => o.status === 'refunded')], ['all', 'All', s.orders.length]]
+    const chips = [['open', 'Open', count((o) => o.status === 'paid' || o.status === 'packing')], ['paid', 'To pack', count((o) => o.status === 'paid')], ['done', 'Posted or collected', count((o) => o.status === 'posted' || o.status === 'collected')], ['refunded', 'Refunded', count((o) => o.status === 'refunded')], ['all', 'All', s.orders.length]]
       .map(([id, label, n]) => ({ label, n, pressed: s.filter === id ? 'true' : 'false', pick: () => this.setState({ filter: id }) }));
 
     const rows = list.map((o) => {
       const n = units(o);
       return {
-        id: o.id, date: o.date, customer: o.customer, town: o.test ? 'Test order' : 'Shopify ' + o.ref,
+        id: o.id, date: o.date, customer: o.customer, town: o.pickup ? 'Collect at ' + o.pickup.split(',')[0] : o.test ? 'Test order' : 'Shopify ' + o.ref,
         itemText: n + (n === 1 ? ' item' : ' items'), total: money(sub(o)),
         statusLabel: labels[o.status], pillCls: pills[o.status],
         openLabel: 'Open order ' + o.id,
@@ -250,24 +252,25 @@ class Component extends DCLogic {
     });
 
     const d = s.orders.find((o) => o.id === s.open);
-    const flow = ['paid', 'packing', 'posted'];
+    // Pickup orders end at Collected instead of Posted, with no tracking number.
+    const flow = d && d.pickup ? ['paid', 'packing', 'collected'] : ['paid', 'packing', 'posted'];
     const at = d ? flow.indexOf(d.status) : -1;
-    const steps = ['Paid', 'Packing', 'Posted'].map((label, i) => ({ label, cls: i < at || (i === at && at === 2) ? 'is-done' : i === at ? 'is-now' : '', cur: i === at ? 'step' : 'false' }));
+    const steps = (d && d.pickup ? ['Paid', 'Packing', 'Collected'] : ['Paid', 'Packing', 'Posted']).map((label, i) => ({ label, cls: i < at || (i === at && at === 2) ? 'is-done' : i === at ? 'is-now' : '', cur: i === at ? 'step' : 'false' }));
     const trackErr = s.trackTried && !s.track.trim();
     let nextText = '', nextIcon = '';
     if (d && d.status === 'paid') { nextText = 'Start packing'; nextIcon = 'ph ph-package'; }
-    if (d && d.status === 'packing') { nextText = s.posting ? 'Save and email tracking' : 'Mark as posted'; nextIcon = s.posting ? 'ph ph-paper-plane-tilt' : 'ph ph-truck'; }
+    if (d && d.status === 'packing') { nextText = d.pickup ? 'Mark collected' : s.posting ? 'Save and email tracking' : 'Mark as posted'; nextIcon = d.pickup ? 'ph ph-check' : s.posting ? 'ph ph-paper-plane-tilt' : 'ph ph-truck'; }
     const advance = () => {
       if (s.busy || !d) return;
-      if (d.status === 'packing' && !s.posting) return this.setState({ posting: true });
-      if (d.status === 'packing' && !s.track.trim()) return this.setState({ trackTried: true });
+      if (d.status === 'packing' && !d.pickup && !s.posting) return this.setState({ posting: true });
+      if (d.status === 'packing' && !d.pickup && !s.track.trim()) return this.setState({ trackTried: true });
       this.setState({ busy: true });
       // Stands in for a server action that checks manage_orders, updates the row and sends the email.
       this.t1 = setTimeout(() => {
-        const next = d.status === 'paid' ? 'packing' : 'posted';
+        const next = d.status === 'paid' ? 'packing' : d.pickup ? 'collected' : 'posted';
         setO(d.id, { status: next });
         this.setState({ busy: false, posting: false });
-        toast(next === 'packing' ? d.id + ' is in packing.' : d.id + ' is posted. The customer has their tracking link.');
+        toast(next === 'packing' ? d.id + ' is in packing.' : next === 'collected' ? d.id + ' is collected. Nice one.' : d.id + ' is posted. The customer has their tracking link.');
       }, 800);
     };
 
@@ -287,7 +290,7 @@ class Component extends DCLogic {
       drawerOpen: !!d,
       closeDrawer: () => this.setState({ open: null, posting: false, refund: false }),
       dId: d ? d.id : '', dDate: d ? d.date : '', dCustomer: d ? d.customer : '',
-      dAddr: d && d.shopify ? 'Address not in the Shopify export' : 'Helensville 0800, New Zealand',
+      dAddr: d && d.pickup ? 'Collect at ' + d.pickup : d && d.shopify ? 'Address not in the Shopify export' : 'Helensville 0800, New Zealand',
       dContact: d && d.shopify ? 'Imported as Shopify ' + d.ref : 'hello@tommytinkers.nz',
       dPaid: d && d.shopify ? 'Paid through Shopify (store now closed)' : 'Paid by card through Stripe',
       dLink: 'Open in Stripe', hasLink: !!d && !d.shopify,
@@ -300,13 +303,13 @@ class Component extends DCLogic {
         hasArt: !!i.art, art: 'Download artwork, ' + (i.art || ''),
         copyLabel: 'Copy print details for ' + i.name, copyText: s.copied === d.id + n ? 'Copied' : 'Copy',
         copy: () => { clearTimeout(this.cpT); this.setState({ copied: d.id + n }); this.cpT = setTimeout(() => this.setState({ copied: null }), 1800); } })) : [],
-      dSub: d ? money(gross(d)) + (dealOff(d) ? ' less $5.00 multi-buy' : '') : '', dShip: d && d.shopify ? 'Included in the Shopify total' : FREE_SHIPPING ? 'Free, NZ wide' : 'Flat rate', dTotal: d ? money(sub(d)) : '',
+      dSub: d ? money(gross(d)) + (dealOff(d) ? ' less $5.00 multi-buy' : '') : '', dShip: d && d.shopify ? 'Included in the Shopify total' : d && d.pickup ? 'Free, race-day pickup' : FREE_SHIPPING ? 'Free, NZ wide' : 'Flat rate', dTotal: d ? money(sub(d)) : '',
       dGrams: d && d.items ? 'Packed weight shows here once product weights are set. Weight is admin only.' : 'Weight is admin only.',
       showPost: !!d && d.status === 'packing' && s.posting,
       track: s.track, onTrack: (e) => this.setState({ track: e.target.value }),
       trackErr, trackInv: trackErr ? 'true' : 'false', trackCls: trackErr ? 'tt-input is-error' : 'tt-input',
       canRefund: !!d && d.status !== 'refunded' && !d.shopify,
-      hasNext: !!d && (d.status === 'paid' || d.status === 'packing'), noNext: !!d && (d.status === 'posted' || d.status === 'refunded'),
+      hasNext: !!d && (d.status === 'paid' || d.status === 'packing'), noNext: !!d && (d.status === 'posted' || d.status === 'collected' || d.status === 'refunded'), dWhereLabel: d && d.pickup ? 'pickup' : 'ship to',
       nextText, nextIcon, advance, busy: s.busy, notBusy: !s.busy, busyStr: s.busy ? 'true' : 'false',
 
       refundOpen: s.refund && !!d,

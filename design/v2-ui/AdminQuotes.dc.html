@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Admin, quotes and invoices - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+.tt-qline{display:grid;grid-template-columns:80px minmax(0,1fr) 88px 44px;gap:8px;align-items:end;padding:12px 0;border-top:1px solid var(--border-subtle)}
+.tt-qline > .desc{grid-column:1 / -1}
+.tt-qline .tot{text-align:right;font-weight:600}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="AdminBar" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-admpage">
+<div class="tt-adm">
+<dc-import name="AdminSide" theme="{{theme}}" active="quotes" orders="1" queue="5" hint-size="100%,720px"></dc-import>
+
+<main id="main" class="tt-admmain">
+  <header class="tt-admhead">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; admin / quotes and invoices</span>
+      <h1 class="tt-h2">Quotes and invoices</h1>
+      <p class="tt-admnote">for club orders like grid sticker sets. Clubs accept the quote online, and invoices go out when the club's payment terms say so. The clubs and amounts here are samples.</p>
+    </div>
+    <button type="button" class="tt-btn tt-btn--primary" onClick="{{openNew}}"><i class="ph ph-plus" aria-hidden="true"></i>New quote</button>
+  </header>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+    <div class="tt-tablewrap" aria-busy="true" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;"><div class="tt-skel" style="height: 20px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div></div>
+    <p class="sr-only" role="status">Loading quotes</p>
+  </sc-if>
+  <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+    <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div style="flex: 1;"><p style="font-weight: 600;">Quotes didn't load</p><p class="tt-small">Links you've already sent still work, and Stripe still takes payments.</p></div><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{retry}}">Try again</button></div>
+  </sc-if>
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div class="tt-card tt-ph-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px;">
+      <span class="tt-icon-hero"><i class="ph ph-notepad ph-24" aria-hidden="true"></i></span>
+      <h2 class="tt-h3">No quotes yet</h2>
+      <p class="tt-small" style="max-width: 460px;">When a club asks for grid stickers, make a quote here. They accept it from a link, and the invoice follows on the terms you pick.</p>
+      <button type="button" class="tt-btn tt-btn--primary" onClick="{{openNew}}"><i class="ph ph-plus" aria-hidden="true"></i>Make your first quote</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isReady}}" hint-placeholder-val="{{true}}">
+    <section aria-label="Money at a glance" class="tt-stats">
+      <sc-for list="{{stats}}" as="st" hint-placeholder-count="4">
+        <div class="{{st.cls}}"><i class="{{st.icon}}" aria-hidden="true"></i><span class="v">{{st.v}}</span><span class="k">{{st.k}}</span></div>
+      </sc-for>
+    </section>
+
+    <div class="tt-seg" role="group" aria-label="Show" style="align-self: flex-start;">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button type="button" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}"><i class="{{t.icon}}" aria-hidden="true"></i>{{t.label}} <span class="tt-mono" style="font-size: 12px;">{{t.n}}</span></button></sc-for>
+    </div>
+
+    <!-- quotes -->
+    <sc-if value="{{tabQuotes}}" hint-placeholder-val="{{true}}">
+      <div class="tt-tablewrap">
+        <div class="tt-table" role="table" aria-label="Quotes" style="--cols: 96px minmax(150px, 1.2fr) minmax(170px, 1.3fr) 96px 104px 140px 48px;">
+          <div class="tt-thead" role="rowgroup"><div class="tt-tr" role="row"><div role="columnheader" class="tt-th">Quote</div><div role="columnheader" class="tt-th">Club</div><div role="columnheader" class="tt-th">Terms</div><div role="columnheader" class="tt-th num">Total</div><div role="columnheader" class="tt-th">Valid until</div><div role="columnheader" class="tt-th">Status</div><div role="columnheader" class="tt-th act"><span class="sr-only">Open</span></div></div></div>
+          <div class="tt-tbody" role="rowgroup">
+            <sc-for list="{{qRows}}" as="q" hint-placeholder-count="4">
+              <div class="tt-tr" role="row">
+                <div role="cell" class="tt-td mono" style="font-weight: 500;">{{q.no}}</div>
+                <div role="cell" class="tt-td"><p style="font-weight: 600;">{{q.club}}</p><p class="mono">{{q.title}}</p></div>
+                <div role="cell" class="tt-td" style="color: var(--text-secondary);">{{q.terms}}</div>
+                <div role="cell" class="tt-td num" style="font-weight: 600;">{{q.total}}</div>
+                <div role="cell" class="tt-td mono">{{q.valid}}</div>
+                <div role="cell" class="tt-td"><span class="{{q.pillCls}}">{{q.statusLabel}}</span></div>
+                <div role="cell" class="tt-td act"><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{q.openLabel}}" onClick="{{q.open}}"><i class="ph ph-caret-right" aria-hidden="true"></i></button></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- invoices -->
+    <sc-if value="{{tabInvoices}}" hint-placeholder-val="{{false}}">
+      <div class="tt-tablewrap">
+        <div class="tt-table" role="table" aria-label="Invoices" style="--cols: 96px minmax(150px, 1.2fr) minmax(150px, 1.2fr) 96px 104px 180px 48px;">
+          <div class="tt-thead" role="rowgroup"><div class="tt-tr" role="row"><div role="columnheader" class="tt-th">Invoice</div><div role="columnheader" class="tt-th">Club</div><div role="columnheader" class="tt-th">For</div><div role="columnheader" class="tt-th num">Amount</div><div role="columnheader" class="tt-th">Due</div><div role="columnheader" class="tt-th">Status</div><div role="columnheader" class="tt-th act"><span class="sr-only">Open</span></div></div></div>
+          <div class="tt-tbody" role="rowgroup">
+            <sc-for list="{{iRows}}" as="i" hint-placeholder-count="3">
+              <div class="tt-tr" role="row">
+                <div role="cell" class="tt-td mono" style="font-weight: 500;">{{i.no}}</div>
+                <div role="cell" class="tt-td"><p style="font-weight: 600;">{{i.club}}</p><p class="mono">{{i.quote}}</p></div>
+                <div role="cell" class="tt-td" style="color: var(--text-secondary);">{{i.what}}</div>
+                <div role="cell" class="tt-td num" style="font-weight: 600;">{{i.amount}}</div>
+                <div role="cell" class="tt-td mono">{{i.due}}</div>
+                <div role="cell" class="tt-td"><span class="{{i.pillCls}}">{{i.statusLabel}}</span></div>
+                <div role="cell" class="tt-td act"><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{i.openLabel}}" onClick="{{i.open}}"><i class="ph ph-caret-right" aria-hidden="true"></i></button></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- clubs -->
+    <sc-if value="{{tabClubs}}" hint-placeholder-val="{{false}}">
+      <div class="tt-admcards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+        <sc-for list="{{cRows}}" as="c" hint-placeholder-count="3">
+          <article class="tt-card" style="display: flex; flex-direction: column; gap: 12px;">
+            <div><h2 class="tt-h4" style="font-weight: 600;">{{c.name}}</h2><p class="tt-small">{{c.contact}}</p></div>
+            <div class="tt-field" style="gap: 6px;"><label for="{{c.selId}}" style="font-size: 14px;">Usual payment terms</label><div class="tt-selectwrap"><select id="{{c.selId}}" class="tt-input" value="{{c.terms}}" onChange="{{c.onTerms}}"><option value="full">Pay in full when they accept</option><option value="split">Setup fee upfront, rest on delivery</option><option value="after">Invoice after delivery</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+            <p class="tt-help" style="font-size: 13px;">{{c.help}}</p>
+            <p class="tt-small" style="color: var(--text-secondary);">{{c.history}}</p>
+          </article>
+        </sc-for>
+      </div>
+      <p class="tt-help">New quotes start with the club's usual terms, and you can change them on any quote. A change here only affects quotes you make from now on.</p>
+    </sc-if>
+  </sc-if>
+</main>
+</div>
+</div>
+
+<!-- DRAWER -->
+<sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-scrim" onClick="{{closeDrawer}}" aria-hidden="true"></div>
+  <aside class="tt-drawer tt-drawer--wide" role="dialog" aria-modal="true" aria-labelledby="qd-h">
+    <div class="tt-drawer-head">
+      <div><span class="tt-label" style="font-size: 12px;">{{drawerEyebrow}}</span><h2 id="qd-h" class="tt-h4" style="font-weight: 600;">{{drawerTitle}}</h2></div>
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close" onClick="{{closeDrawer}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button>
+    </div>
+
+    <!-- quote editor -->
+    <sc-if value="{{isQuote}}" hint-placeholder-val="{{false}}">
+      <div class="tt-drawer-body">
+        <div class="tt-form">
+          <sc-if value="{{formErr}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">A few things to fix</p><p class="tt-small">{{formErrText}}</p></div></div></sc-if>
+          <sc-if value="{{locked}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--info"><i class="ph ph-lock-simple ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">{{lockTitle}}</p><p class="tt-small">{{lockText}}</p></div></div></sc-if>
+
+          <div class="tt-pair">
+            <div class="tt-field"><label for="q-club">Club</label><div class="tt-selectwrap"><select id="q-club" class="tt-input" value="{{fClub}}" onChange="{{onClub}}" disabled="{{locked}}"><option value="c1">Test club A</option><option value="c2">Test club B</option><option value="c3">Test club C</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+            <div class="tt-field"><label for="q-title">What it's for</label><input id="q-title" class="{{titleCls}}" value="{{fTitle}}" onChange="{{onTitle}}" aria-invalid="{{titleInv}}" disabled="{{locked}}" placeholder="e.g. Grid numbers for the club champs"></div>
+          </div>
+
+          <fieldset class="tt-edset">
+            <legend class="tt-edhead"><span style="font-weight: 600;">Lines</span><span class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">{{lineCount}}</span></legend>
+            <sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+              <div class="tt-qline">
+                <div class="desc" style="display: flex; flex-direction: column; gap: 4px; min-width: 0;"><label for="{{l.dId}}" class="sr-only">Description</label><input id="{{l.dId}}" class="tt-input" value="{{l.desc}}" onChange="{{l.onDesc}}" disabled="{{locked}}"><span class="tt-tag tt-tag--muted" style="align-self: flex-start;">{{l.kindLabel}}</span></div>
+                <div style="display: flex; flex-direction: column; gap: 2px;"><label for="{{l.qId}}" class="tt-help" style="font-size: 12px;">Qty</label><input id="{{l.qId}}" class="tt-input" type="number" min="1" inputmode="numeric" value="{{l.qty}}" onChange="{{l.onQty}}" disabled="{{locked}}"></div>
+                <div style="display: flex; flex-direction: column; gap: 2px;"><label for="{{l.pId}}" class="tt-help" style="font-size: 12px;">Each</label><div class="tt-affix"><span class="pre" aria-hidden="true">$</span><input id="{{l.pId}}" class="{{l.priceCls}}" inputmode="decimal" value="{{l.price}}" onChange="{{l.onPrice}}" disabled="{{locked}}"></div></div>
+                <span class="tot">{{l.total}}</span>
+                <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{l.removeLabel}}" onClick="{{l.remove}}" disabled="{{locked}}"><i class="ph ph-trash" aria-hidden="true"></i></button>
+              </div>
+            </sc-for>
+            <sc-if value="{{editable}}" hint-placeholder-val="{{true}}">
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{addSetup}}"><i class="ph ph-palette" aria-hidden="true"></i>Artwork setup</button>
+                <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{addSheets}}"><i class="ph ph-stack" aria-hidden="true"></i>Sticker sheets</button>
+                <button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" onClick="{{addOther}}"><i class="ph ph-plus" aria-hidden="true"></i>Other line</button>
+              </div>
+            </sc-if>
+            <p class="tt-help">Setup lines are one-off design work. Split terms invoice the setup lines first and everything else on delivery.</p>
+          </fieldset>
+
+          <div class="tt-field"><span class="tt-field-label" id="q-terms">Payment terms</span>
+            <div style="display: grid; gap: 8px;" role="group" aria-labelledby="q-terms">
+              <sc-for list="{{termOpts}}" as="o" hint-placeholder-count="3">
+                <button type="button" class="tt-choice" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" disabled="{{locked}}" style="min-height: 64px;"><span class="tt-choice-ic"><i class="{{o.icon}}" aria-hidden="true"></i></span><span><strong>{{o.label}}</strong><span class="b">{{o.help}}</span></span><span class="tt-choice-tick"><i class="ph ph-check" aria-hidden="true"></i></span></button>
+              </sc-for>
+            </div>
+            <p class="tt-help">{{termsNote}}</p>
+          </div>
+          <sc-if value="{{needsDays}}" hint-placeholder-val="{{false}}">
+            <div class="tt-field"><span class="tt-field-label" id="q-days">Due after delivery</span><div class="tt-seg" role="group" aria-labelledby="q-days"><sc-for list="{{dayOpts}}" as="o" hint-placeholder-count="2"><button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
+          </sc-if>
+
+          <div class="tt-pair">
+            <div class="tt-field"><label for="q-valid">Quote valid until</label><input id="q-valid" class="tt-input" value="{{fValid}}" onChange="{{onValid}}" disabled="{{locked}}" placeholder="DD/MM/YYYY"></div>
+            <div class="tt-field"><label for="q-how">Getting it to them</label><div class="tt-selectwrap"><select id="q-how" class="tt-input" value="{{fHow}}" onChange="{{onHow}}"><option value="post">Post, free in NZ</option><option value="event">Hand over at a race day</option><option value="helensville">Collect from Helensville</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div></div>
+          </div>
+          <div class="tt-field"><label for="q-note">Note to the club</label><textarea id="q-note" class="tt-input" rows="3" value="{{fNote}}" onChange="{{onNote}}" placeholder="Anything they should know: artwork you need from them, proofs, timing."></textarea></div>
+
+          <div class="tt-card" style="background: var(--bg-raised); display: flex; flex-direction: column; gap: 8px;">
+            <div class="tt-row"><span style="color: var(--text-secondary);">Setup</span><span>{{setupTotal}}</span></div>
+            <div class="tt-row"><span style="color: var(--text-secondary);">Stickers and other lines</span><span>{{restTotal}}</span></div>
+            <div class="tt-row" style="border-top: 1px solid var(--border-subtle); padding-top: 8px;"><span style="font-weight: 600;">Total</span><span style="font-size: 20px; font-weight: 700;">{{grand}}</span></div>
+            <p class="tt-help" style="font-size: 13px;">No GST: I'm not registered for GST, so quotes and invoices show none.</p>
+          </div>
+
+          <sc-if value="{{hasTimeline}}" hint-placeholder-val="{{false}}">
+            <ol class="tt-steps" aria-label="Quote history" style="list-style: none; margin: 0; padding: 0;">
+              <sc-for list="{{timeline}}" as="t" hint-placeholder-count="3"><li class="{{t.cls}}"><span class="tt-step-n"><i class="{{t.icon}}" aria-hidden="true"></i></span><div><p style="font-weight: 600;">{{t.title}}</p><p class="tt-small">{{t.when}}</p></div></li></sc-for>
+            </ol>
+          </sc-if>
+        </div>
+      </div>
+      <div class="tt-drawer-foot" style="flex-direction: row; flex-wrap: wrap;">
+        <sc-if value="{{editable}}" hint-placeholder-val="{{true}}">
+          <button type="button" class="tt-btn tt-btn--ghost" onClick="{{saveDraft}}">Save as draft</button>
+          <button type="button" class="tt-btn tt-btn--primary" style="flex: 1;" aria-disabled="{{savingStr}}" onClick="{{send}}"><sc-if value="{{saving}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Sending</sc-if><sc-if value="{{notSaving}}" hint-placeholder-val="{{true}}"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Send quote to {{clubEmail}}</sc-if></button>
+        </sc-if>
+        <sc-if value="{{locked}}" hint-placeholder-val="{{false}}">
+          <button type="button" class="tt-btn tt-btn--secondary" onClick="{{copyLink}}"><i class="ph ph-copy" aria-hidden="true"></i>Copy quote link</button>
+          <a href="QuoteView.dc.html" class="tt-btn tt-btn--ghost"><i class="ph ph-eye" aria-hidden="true"></i>See what they see</a>
+          <sc-if value="{{canDeliver}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary" style="flex: 1;" onClick="{{markDelivered}}"><i class="ph ph-package" aria-hidden="true"></i>Mark delivered</button></sc-if>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- invoice -->
+    <sc-if value="{{isInvoice}}" hint-placeholder-val="{{false}}">
+      <div class="tt-drawer-body" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline;"><span class="tt-mono">{{ivQuote}}</span><span class="{{ivPillCls}}">{{ivStatus}}</span></div>
+        <dl class="tt-dl"><dt>Club</dt><dd>{{ivClub}}</dd><dt>For</dt><dd>{{ivWhat}}</dd><dt>Amount</dt><dd style="font-weight: 700;">{{ivAmount}}</dd><dt>Issued</dt><dd>{{ivIssued}}</dd><dt>Due</dt><dd>{{ivDue}}</dd><dt>Paid</dt><dd>{{ivPaid}}</dd></dl>
+        <div class="tt-card" style="background: var(--bg-raised); display: flex; flex-direction: column; gap: 12px;">
+          <p style="font-weight: 600;">How they can pay</p>
+          <p class="tt-small" style="display: flex; gap: 8px;"><i class="ph ph-wallet ph-20" aria-hidden="true" style="flex: none;"></i>Card, from the Pay button on their invoice link. Stripe marks it paid by itself.</p>
+          <p class="tt-small" style="display: flex; gap: 8px;"><i class="ph ph-receipt ph-20" aria-hidden="true" style="flex: none;"></i>Bank transfer to the account in Settings, with <span class="tt-mono" style="white-space: nowrap;">{{ivNo}}</span> as the reference. You mark these paid yourself.</p>
+        </div>
+        <sc-if value="{{ivMarking}}" hint-placeholder-val="{{false}}">
+          <fieldset class="tt-edset">
+            <legend class="tt-edhead"><span style="font-weight: 600;">Mark paid by bank transfer</span></legend>
+            <div class="tt-pair">
+              <div class="tt-field"><label for="iv-date">Date it arrived</label><input id="iv-date" class="tt-input" value="{{mDate}}" onChange="{{onMDate}}" placeholder="DD/MM/YYYY"></div>
+              <div class="tt-field"><label for="iv-amt">Amount received</label><div class="tt-affix"><span class="pre" aria-hidden="true">$</span><input id="iv-amt" class="{{mAmtCls}}" inputmode="decimal" value="{{mAmt}}" onChange="{{onMAmt}}" aria-invalid="{{mAmtInv}}"></div></div>
+            </div>
+            <sc-if value="{{mShort}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>{{mShortText}}</p></sc-if>
+          </fieldset>
+        </sc-if>
+      </div>
+      <div class="tt-drawer-foot" style="flex-direction: row; flex-wrap: wrap;">
+        <sc-if value="{{ivOpen}}" hint-placeholder-val="{{true}}">
+          <button type="button" class="tt-btn tt-btn--ghost" onClick="{{remind}}"><i class="ph ph-envelope-simple" aria-hidden="true"></i>Send a reminder</button>
+          <button type="button" class="tt-btn tt-btn--secondary" onClick="{{copyPay}}"><i class="ph ph-copy" aria-hidden="true"></i>Copy invoice link</button>
+          <button type="button" class="tt-btn tt-btn--primary" style="flex: 1;" onClick="{{markPaid}}"><i class="ph ph-check" aria-hidden="true"></i>{{markText}}</button>
+        </sc-if>
+        <sc-if value="{{ivDone}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--secondary" style="flex: 1;" onClick="{{copyPay}}"><i class="ph ph-download-simple" aria-hidden="true"></i>Download receipt PDF</button></sc-if>
+      </div>
+    </sc-if>
+  </aside>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Done</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","newQuote","invalid","sentQuote","invoices","invoice","markPaid","clubs","empty","loading","error"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const st = props.state || 'ready';
+    // Sample clubs, quotes and invoices. Clubs are staging test names, amounts are made up.
+    // Money is integer cents. kind 'setup' lines are what split terms invoice first.
+    this.clubs = [
+      { id: 'c1', name: 'Test club A', contact: 'Club secretary · club-a@example.com', email: 'club-a@example.com', terms: 'split', days: 14 },
+      { id: 'c2', name: 'Test club B', contact: 'Race director · club-b@example.com', email: 'club-b@example.com', terms: 'full', days: 7 },
+      { id: 'c3', name: 'Test club C', contact: 'Treasurer · club-c@example.com', email: 'club-c@example.com', terms: 'after', days: 14 }
+    ];
+    this.state = {
+      theme: null,
+      status: ['loading', 'error'].includes(st) ? st : 'ready',
+      tab: st === 'invoices' || st === 'invoice' || st === 'markPaid' ? 'invoices' : st === 'clubs' ? 'clubs' : 'quotes',
+      clubs: this.clubs.map((c) => ({ ...c })),
+      quotes: st === 'empty' ? [] : [
+        { id: 'q3', no: 'Q-0003', club: 'c3', title: 'Grid numbers, summer series', terms: 'after', days: 14, valid: '30/11/2026', how: 'event', note: '', status: 'draft', sent: '', accepted: '',
+          lines: [{ kind: 'setup', desc: 'Artwork setup: series logo and number font', qty: 1, cents: 4000 }, { kind: 'item', desc: 'Grid number sheets, 1 to 30', qty: 4, cents: 1500 }] },
+        { id: 'q2', no: 'Q-0002', club: 'c1', title: 'Club champs grid stickers', terms: 'split', days: 14, valid: '20/11/2026', how: 'post', note: 'I need your club logo as a vector file (SVG or PDF).', status: 'accepted', sent: '02/11/2026', accepted: '04/11/2026',
+          lines: [{ kind: 'setup', desc: 'Artwork setup: club logo and grid layout', qty: 1, cents: 5000 }, { kind: 'item', desc: 'Grid number sheets, 1 to 40', qty: 6, cents: 1500 }] },
+        { id: 'q1', no: 'Q-0001', club: 'c2', title: 'Event sheets for round 2', terms: 'full', days: 7, valid: '15/11/2026', how: 'event', note: '', status: 'sent', sent: '06/11/2026', accepted: '',
+          lines: [{ kind: 'item', desc: 'Event grid sheets', qty: 10, cents: 1500 }] }
+      ],
+      invoices: st === 'empty' ? [] : [
+        { id: 'i2', no: 'INV-0002', quote: 'q2', what: 'Artwork setup (split terms)', cents: 5000, issued: '04/11/2026', due: '04/11/2026', paid: '05/11/2026', via: 'card' },
+        { id: 'i3', no: 'INV-0003', quote: 'q2', what: 'Sticker sheets, after delivery', cents: 9000, issued: '', due: 'Sent on delivery', paid: '', via: '', waiting: true }
+      ],
+      drawer: st === 'newQuote' || st === 'invalid' ? { mode: 'quote' } : st === 'sentQuote' ? { mode: 'quote' } : st === 'invoice' || st === 'markPaid' ? { mode: 'invoice', id: 'i3x' } : null,
+      form: null, tried: st === 'invalid', saving: false, marking: st === 'markPaid', mDate: '09/11/2026', mAmt: '', toast: null
+    };
+    if (st === 'newQuote') this.state.form = this.blank('c1');
+    if (st === 'invalid') this.state.form = { ...this.blank('c1'), lines: [{ kind: 'item', desc: '', qty: '1', price: '' }] };
+    if (st === 'sentQuote') this.state.form = this.toForm(this.state.quotes[2]);
+    if (st === 'invoice' || st === 'markPaid') {
+      // Show an open invoice: Q-0001 accepted on full terms.
+      this.state.quotes[2] = { ...this.state.quotes[2], status: 'accepted', accepted: '08/11/2026' };
+      this.state.invoices.unshift({ id: 'i3x', no: 'INV-0004', quote: 'q1', what: 'Full payment on acceptance', cents: 15000, issued: '08/11/2026', due: '08/11/2026', paid: '', via: '' });
+      if (st === 'markPaid') this.state.mAmt = '150.00';
+    }
+  }
+  componentWillUnmount() { clearTimeout(this.t1); clearTimeout(this.toastT); }
+  blank(clubId) {
+    const c = this.clubs.find((x) => x.id === clubId);
+    return { id: null, club: clubId, title: '', terms: c.terms, days: c.days, valid: '30/11/2026', how: 'post', note: '', status: 'draft',
+      lines: [{ kind: 'setup', desc: 'Artwork setup', qty: '1', price: '' }, { kind: 'item', desc: 'Grid number sheets', qty: '1', price: '15.00' }] };
+  }
+  toForm(q) { return { ...q, lines: q.lines.map((l) => ({ ...l, qty: String(l.qty), price: (l.cents / 100).toFixed(2) })) }; }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const money = (c) => '$' + (c / 100).toFixed(2);
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    const clubOf = (id) => s.clubs.find((c) => c.id === id) || s.clubs[0];
+    const termLabel = { full: 'Pay in full when they accept', split: 'Setup upfront, rest on delivery', after: 'Invoice after delivery' };
+    const termsText = (q) => termLabel[q.terms] + (q.terms === 'full' ? '' : ', ' + q.days + ' days');
+    const linesTotal = (ls, kind) => ls.filter((l) => !kind || l.kind === kind || (kind === 'rest' && l.kind !== 'setup')).reduce((n, l) => n + (l.cents != null ? l.cents : Math.round((parseFloat(l.price) || 0) * 100)) * (+l.qty || 0), 0);
+    const sumQ = (q) => linesTotal(q.lines);
+    const qPills = { draft: ['tt-pill tt-pill--out', 'Draft'], sent: ['tt-pill tt-pill--low', 'Sent, waiting'], accepted: ['tt-pill tt-pill--in', 'Accepted'], declined: ['tt-pill tt-pill--out', 'Declined'], expired: ['tt-pill tt-pill--out', 'Expired'], delivered: ['tt-pill tt-pill--in', 'Delivered'] };
+    const ivState = (i) => (i.paid ? 'paid' : i.waiting ? 'waiting' : 'open');
+    const iPills = { paid: ['tt-pill tt-pill--in', 'Paid'], open: ['tt-pill tt-pill--low', 'Waiting for payment'], waiting: ['tt-pill tt-pill--out', 'Not sent yet'] };
+
+    const open = s.invoices.filter((i) => ivState(i) === 'open');
+    const stats = [
+      ['ph ph-paper-plane-tilt', s.quotes.filter((q) => q.status === 'sent').length, 'Quotes waiting on a club', ''],
+      ['ph ph-hourglass', open.length, 'Invoices to be paid', open.length ? ' is-warn' : ''],
+      ['ph ph-wallet', money(open.reduce((n, i) => n + i.cents, 0)), 'Owed to you', ''],
+      ['ph ph-check-circle', money(s.invoices.filter((i) => i.paid).reduce((n, i) => n + i.cents, 0)), 'Paid this month', '']
+    ].map(([icon, v, k, tone]) => ({ icon, v, k, cls: 'tt-stattile' + tone }));
+
+    const qRows = s.quotes.map((q) => ({ no: q.no, club: clubOf(q.club).name, title: q.title, terms: termsText(q), total: money(sumQ(q)), valid: q.valid,
+      pillCls: qPills[q.status][0], statusLabel: qPills[q.status][1], openLabel: 'Open quote ' + q.no, open: () => this.setState({ drawer: { mode: 'quote' }, form: this.toForm(q), tried: false }) }));
+    const iRows = s.invoices.map((i) => { const q = s.quotes.find((x) => x.id === i.quote); const stt = ivState(i);
+      return { no: i.no, club: clubOf(q.club).name, quote: q.no, what: i.what, amount: money(i.cents), due: i.due, pillCls: iPills[stt][0], statusLabel: iPills[stt][1] + (i.paid ? ', ' + (i.via === 'card' ? 'card' : 'bank') : ''),
+        openLabel: 'Open invoice ' + i.no, open: () => this.setState({ drawer: { mode: 'invoice', id: i.id }, marking: false, mAmt: '' }) }; });
+    const cRows = s.clubs.map((c) => ({ name: c.name, contact: c.contact, terms: c.terms, selId: 'cl-' + c.id,
+      onTerms: (e) => this.setState({ clubs: this.state.clubs.map((x) => (x.id === c.id ? { ...x, terms: e.target.value } : x)) }),
+      help: c.terms === 'full' ? 'Nothing gets printed until it’s paid.' : c.terms === 'split' ? 'Setup is paid before you start. The rest is due ' + c.days + ' days after delivery.' : 'One invoice when you hand it over, due in ' + c.days + ' days.',
+      history: s.quotes.filter((q) => q.club === c.id).length + ' quotes so far' }));
+
+    // quote drawer
+    const f = s.form || this.blank('c1');
+    const locked = !!f.id && f.status !== 'draft';
+    const patch = (p) => this.setState({ form: { ...this.state.form, ...p } });
+    const setL = (idx, p) => patch({ lines: this.state.form.lines.map((l, j) => (j === idx ? { ...l, ...p, cents: undefined } : l)) });
+    const titleBad = !f.title.trim();
+    const lineBad = f.lines.length === 0 || f.lines.some((l) => !String(l.desc).trim() || !(+l.qty > 0) || !(parseFloat(l.price) > 0));
+    const problems = [];
+    if (s.tried) { if (titleBad) problems.push('what it’s for'); if (lineBad) problems.push('a description, quantity and price on every line'); }
+    const persist = (status) => () => {
+      if (s.saving) return;
+      if (status === 'sent' && (titleBad || lineBad)) return this.setState({ tried: true });
+      this.setState({ saving: true, tried: false });
+      // Stands in for a zod-validated server action (manage_orders) that saves the quote in cents,
+      // makes an unguessable link token and emails the club through Resend.
+      this.t1 = setTimeout(() => {
+        const fm = this.state.form;
+        const rec = { ...fm, title: fm.title.trim(), status, sent: status === 'sent' ? '09/11/2026' : '', lines: fm.lines.map((l) => ({ kind: l.kind, desc: String(l.desc).trim(), qty: +l.qty || 1, cents: Math.round((parseFloat(l.price) || 0) * 100) })) };
+        const quotes = fm.id ? this.state.quotes.map((q) => (q.id === fm.id ? rec : q)) : [{ ...rec, id: 'q' + (this.state.quotes.length + 10), no: 'Q-000' + (this.state.quotes.length + 1) }, ...this.state.quotes];
+        this.setState({ quotes, drawer: null, form: null, saving: false, status: 'ready', tab: 'quotes' });
+        toast(status === 'sent' ? 'Quote sent to ' + clubOf(rec.club).email + '. You’ll get an email when they accept.' : 'Quote saved as a draft.');
+      }, 800);
+    };
+    const addLine = (kind, desc, price) => patch({ lines: [...this.state.form.lines, { kind, desc, qty: '1', price }] });
+    const setupC = linesTotal(f.lines, 'setup');
+    const restC = linesTotal(f.lines, 'rest');
+    const termsNote = f.terms === 'full' ? 'The invoice goes out the moment they accept, and nothing gets printed until it’s paid.'
+      : f.terms === 'split' ? (setupC ? 'Invoice 1 (' + money(setupC) + ') goes out when they accept. Invoice 2 (' + money(restC) + ') goes out when you mark it delivered.' : 'Add a setup line, or there’s nothing to invoice upfront.')
+      : 'One invoice for ' + money(setupC + restC) + ' goes out when you mark it delivered.';
+    const fq = f.id ? s.quotes.find((q) => q.id === f.id) : null;
+    const timeline = fq && fq.status !== 'draft' ? [
+      ['tt-step is-done', 'ph ph-paper-plane-tilt', 'Sent to ' + clubOf(fq.club).email, fq.sent],
+      ['tt-step' + (fq.accepted ? ' is-done' : ''), fq.accepted ? 'ph ph-check' : 'ph ph-hourglass', fq.accepted ? 'Accepted online' : 'Waiting for the club to accept', fq.accepted || 'Valid until ' + fq.valid],
+      ['tt-step' + (fq.status === 'delivered' ? ' is-done' : ''), 'ph ph-package', fq.status === 'delivered' ? 'Delivered' : 'Print, then hand over', fq.how === 'event' ? 'At a race day' : fq.how === 'helensville' ? 'Collect from Helensville' : 'NZ Post']
+    ].map(([cls, icon, title, when]) => ({ cls, icon, title, when })) : [];
+
+    // invoice drawer
+    const iv = s.drawer && s.drawer.mode === 'invoice' ? s.invoices.find((i) => i.id === s.drawer.id) : null;
+    const ivq = iv ? s.quotes.find((q) => q.id === iv.quote) : null;
+    const mC = Math.round((parseFloat(s.mAmt) || 0) * 100);
+    const mShort = s.marking && iv && s.mAmt !== '' && mC !== iv.cents;
+    const markPaid = () => {
+      if (!s.marking) return this.setState({ marking: true, mAmt: iv ? (iv.cents / 100).toFixed(2) : '' });
+      if (!iv || mC <= 0) return;
+      // Part payments stay open with the balance showing; an exact amount closes the invoice.
+      if (mC < iv.cents) { toast(money(mC) + ' recorded. ' + money(iv.cents - mC) + ' still owing on ' + iv.no + '.'); return this.setState({ invoices: this.state.invoices.map((i) => (i.id === iv.id ? { ...i, cents: i.cents - mC } : i)), marking: false }); }
+      this.setState({ invoices: this.state.invoices.map((i) => (i.id === iv.id ? { ...i, paid: s.mDate, via: 'bank' } : i)), marking: false, drawer: null });
+      toast(iv.no + ' is paid. ' + (ivq && ivq.terms === 'full' ? 'Quote ' + ivq.no + ' is ready to print.' : 'A receipt is on its way to the club.'));
+    };
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      isLoading: s.status === 'loading', isError: s.status === 'error',
+      isEmpty: s.status === 'ready' && s.quotes.length === 0, isReady: s.status === 'ready' && s.quotes.length > 0,
+      retry: () => { this.setState({ status: 'loading' }); setTimeout(() => this.setState({ status: 'ready' }), 900); },
+      openNew: () => this.setState({ drawer: { mode: 'quote' }, form: this.blank('c1'), tried: false }),
+      stats,
+      tabs: [['quotes', 'Quotes', 'ph ph-notepad', s.quotes.length], ['invoices', 'Invoices', 'ph ph-receipt', s.invoices.length], ['clubs', 'Clubs', 'ph ph-users-three', s.clubs.length]]
+        .map(([id, label, icon, n]) => ({ label, icon: icon + ' ph-16', n, pressed: s.tab === id ? 'true' : 'false', pick: () => this.setState({ tab: id }) })),
+      tabQuotes: s.tab === 'quotes', tabInvoices: s.tab === 'invoices', tabClubs: s.tab === 'clubs',
+      qRows, iRows, cRows,
+
+      drawerOpen: !!s.drawer,
+      closeDrawer: () => this.setState({ drawer: null, form: null, tried: false, saving: false, marking: false }),
+      isQuote: !!s.drawer && s.drawer.mode === 'quote', isInvoice: !!iv,
+      drawerEyebrow: iv ? '> invoice' : f.id ? '> quote ' + f.no : '> new quote',
+      drawerTitle: iv ? iv.no : f.id ? f.title : 'New quote',
+      formErr: problems.length > 0, formErrText: 'This needs ' + problems.join(' and ') + '.',
+      locked, editable: !locked,
+      lockTitle: fq && fq.status === 'sent' ? 'Sent on ' + fq.sent + ', so it can’t change' : 'Accepted, so it can’t change',
+      lockText: 'The club has a link to this exact quote. To change it, make a new quote and the old link shows that it’s been replaced.',
+      fClub: f.club, onClub: (e) => { const c = clubOf(e.target.value); patch({ club: c.id, terms: c.terms, days: c.days }); },
+      fTitle: f.title, onTitle: (e) => patch({ title: e.target.value }), titleInv: s.tried && titleBad ? 'true' : 'false', titleCls: s.tried && titleBad ? 'tt-input is-error' : 'tt-input',
+      lineCount: f.lines.length + (f.lines.length === 1 ? ' line' : ' lines'),
+      lines: f.lines.map((l, idx) => ({ desc: l.desc, qty: l.qty, price: l.price, kindLabel: l.kind === 'setup' ? 'Setup' : 'Stickers or other',
+        dId: 'ql-d' + idx, qId: 'ql-q' + idx, pId: 'ql-p' + idx,
+        priceCls: 'tt-input has-pre' + (s.tried && !(parseFloat(l.price) > 0) ? ' is-error' : ''),
+        total: money(Math.round((parseFloat(l.price) || 0) * 100) * (+l.qty || 0)),
+        onDesc: (e) => setL(idx, { desc: e.target.value }), onQty: (e) => setL(idx, { qty: e.target.value }), onPrice: (e) => setL(idx, { price: e.target.value }),
+        removeLabel: 'Remove line ' + (idx + 1), remove: () => patch({ lines: this.state.form.lines.filter((_, j) => j !== idx) }) })),
+      addSetup: () => addLine('setup', 'Artwork setup', ''), addSheets: () => addLine('item', 'Grid number sheets', '15.00'), addOther: () => addLine('item', '', ''),
+      termOpts: [['full', 'ph ph-lock-simple ph-20', termLabel.full, 'Nothing printed until it’s paid.'], ['split', 'ph ph-rows ph-20', 'Setup fee upfront, rest on delivery', 'Two invoices.'], ['after', 'ph ph-package ph-20', termLabel.after, 'One invoice when you hand it over.']]
+        .map(([k, icon, label, help]) => ({ icon, label, help, pressed: f.terms === k ? 'true' : 'false', pick: () => patch({ terms: k }) })),
+      termsNote, needsDays: f.terms !== 'full',
+      dayOpts: [7, 14].map((d) => ({ label: d + ' days', pressed: +f.days === d ? 'true' : 'false', pick: () => patch({ days: d }) })),
+      fValid: f.valid, onValid: (e) => patch({ valid: e.target.value }),
+      fHow: f.how, onHow: (e) => patch({ how: e.target.value }), fNote: f.note, onNote: (e) => patch({ note: e.target.value }),
+      setupTotal: money(setupC), restTotal: money(restC), grand: 'NZ' + money(setupC + restC),
+      hasTimeline: timeline.length > 0, timeline,
+      clubEmail: clubOf(f.club).email,
+      saving: s.saving, notSaving: !s.saving, savingStr: s.saving ? 'true' : 'false',
+      saveDraft: persist('draft'), send: persist('sent'),
+      copyLink: () => toast('Quote link copied. Anyone with it can view and accept, so only share it with the club.'),
+      canDeliver: !!fq && fq.status === 'accepted',
+      markDelivered: () => { this.setState({ quotes: this.state.quotes.map((q) => (q.id === fq.id ? { ...q, status: 'delivered' } : q)), invoices: this.state.invoices.map((i) => (i.quote === fq.id && i.waiting ? { ...i, waiting: false, issued: '09/11/2026', due: fq.days === 7 ? '16/11/2026' : '23/11/2026' } : i)), drawer: null, form: null }); toast(fq.no + ' is delivered.' + (fq.terms !== 'full' ? ' The delivery invoice is on its way to the club.' : '')); },
+
+      ivNo: iv ? iv.no : '', ivQuote: ivq ? 'From quote ' + ivq.no + ' · ' + termsText(ivq) : '', ivClub: ivq ? clubOf(ivq.club).name : '', ivWhat: iv ? iv.what : '',
+      ivAmount: iv ? 'NZ' + money(iv.cents) + ', no GST' : '', ivIssued: iv ? iv.issued || 'Not yet' : '', ivDue: iv ? iv.due : '', ivPaid: iv ? (iv.paid ? iv.paid + ', ' + (iv.via === 'card' ? 'card via Stripe' : 'bank transfer') : 'Not yet') : '',
+      ivPillCls: iv ? iPills[ivState(iv)][0] : '', ivStatus: iv ? iPills[ivState(iv)][1] : '',
+      ivOpen: !!iv && ivState(iv) === 'open', ivDone: !!iv && ivState(iv) === 'paid',
+      ivMarking: s.marking, mDate: s.mDate, onMDate: (e) => this.setState({ mDate: e.target.value }), mAmt: s.mAmt, onMAmt: (e) => this.setState({ mAmt: e.target.value }),
+      mAmtCls: 'tt-input has-pre' + (mShort ? ' is-error' : ''), mAmtInv: mShort ? 'true' : 'false', mShort,
+      mShortText: iv && mC < iv.cents ? 'That’s ' + money(iv.cents - mC) + ' short. Saving records a part payment and leaves the rest owing.' : 'That’s more than the invoice. Check the amount before you save.',
+      markText: s.marking ? 'Save payment' : 'Mark paid by bank transfer', markPaid,
+      remind: () => toast('Reminder sent to ' + (ivq ? clubOf(ivq.club).email : 'the club') + ', with the pay link and bank details.'),
+      copyPay: () => toast(iv && iv.paid ? 'Receipt downloaded.' : 'Invoice link copied.'),
+      hasToast: !!s.toast, toastMsg: s.toast || '', closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

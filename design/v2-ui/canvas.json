@@ -576,7 +576,7 @@
     "AdminSettings.dc.html": {
       "expand": "fill",
       "h": 1800,
-      "title": "Shipping and motion (interactive)",
+      "title": "Settings: shipping, invoices and motion (interactive)",
       "w": 1280,
       "x": 3634,
       "y": 51833,
@@ -652,6 +652,105 @@
       "w": 1280,
       "x": 4994,
       "y": 54602
+    },
+    "Checkout-pickup.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "title": "Checkout - collect at a race day, light",
+      "w": 1280,
+      "x": 0,
+      "y": 56723
+    },
+    "Confirmation-pickup.dc.html": {
+      "expand": "fill",
+      "h": 1800,
+      "title": "Order confirmation - race-day pickup",
+      "w": 1280,
+      "x": 1360,
+      "y": 56723
+    },
+    "AdminRaceDays.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Race days (interactive)",
+      "w": 1280,
+      "x": 2720,
+      "y": 56723,
+      "is_interactive": true
+    },
+    "AdminRaceDays-list.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Race days - pickup list",
+      "w": 1280,
+      "x": 4080,
+      "y": 56723
+    },
+    "AdminRaceDays-edit.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Race days - add one, invalid, tablet 834, light (Tweak: new, empty, loading, error)",
+      "w": 834,
+      "x": 5440,
+      "y": 56723
+    },
+    "AdminQuotes.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Quotes and invoices (interactive)",
+      "w": 1280,
+      "x": 0,
+      "y": 59046,
+      "is_interactive": true
+    },
+    "AdminQuotes-new.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Quotes - new quote (Tweak: invalid, sent and locked)",
+      "w": 1280,
+      "x": 1360,
+      "y": 59046
+    },
+    "AdminQuotes-invoice.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Invoices - mark paid by bank transfer (Tweak: open invoice, list)",
+      "w": 1280,
+      "x": 2720,
+      "y": 59046
+    },
+    "AdminQuotes-clubs.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "title": "Clubs and their usual terms, tablet 834, light (Tweak: empty, loading, error)",
+      "w": 834,
+      "x": 4080,
+      "y": 59046
+    },
+    "QuoteView.dc.html": {
+      "expand": "fill",
+      "h": 1700,
+      "title": "Club quote page (interactive: accept, decline, pay)",
+      "w": 1280,
+      "x": 4994,
+      "y": 59046,
+      "is_interactive": true
+    },
+    "QuoteView-invoice.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "title": "Club invoice page, light (Tweak: paid, accepted, declined, expired, replaced)",
+      "w": 1280,
+      "x": 6354,
+      "y": 59046
+    },
+    "QuoteView-mobile.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "title": "Club quote page - 375",
+      "w": 375,
+      "x": 7714,
+      "y": 59046
     }
   },
   "createdOnFiles": {
@@ -784,6 +883,20 @@
       "text": "10. Admin: discounts",
       "x": 0,
       "y": 54379
+    },
+    "row17": {
+      "kind": "title1",
+      "maxW": 6274,
+      "text": "11. Race-day and Helensville pickup",
+      "x": 0,
+      "y": 56500
+    },
+    "row18": {
+      "kind": "title1",
+      "maxW": 8089,
+      "text": "12. Club quotes and invoices",
+      "x": 0,
+      "y": 58823
     }
   },
   "order": [
@@ -863,7 +976,19 @@
     "AdminDiscounts-edit.dc.html",
     "AdminDiscounts-code.dc.html",
     "AdminDiscounts-states.dc.html",
-    "Checkout-code.dc.html"
+    "Checkout-code.dc.html",
+    "Checkout-pickup.dc.html",
+    "Confirmation-pickup.dc.html",
+    "AdminRaceDays.dc.html",
+    "AdminRaceDays-list.dc.html",
+    "AdminRaceDays-edit.dc.html",
+    "AdminQuotes.dc.html",
+    "AdminQuotes-new.dc.html",
+    "AdminQuotes-invoice.dc.html",
+    "AdminQuotes-clubs.dc.html",
+    "QuoteView.dc.html",
+    "QuoteView-invoice.dc.html",
+    "QuoteView-mobile.dc.html"
   ],
   "pages": [],
   "title": "tommy tinkers NZ v2"

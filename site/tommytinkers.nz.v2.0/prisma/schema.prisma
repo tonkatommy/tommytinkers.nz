@@ -30,6 +30,12 @@ datasource db {
 //   shipping.freeEnabled     boolean, default true (free anywhere in NZ)
 //   shipping.flatRateCents   integer, used only when free shipping is off
 //   stock.lowThreshold       integer, default 3 (tracked products only)
+//   pickup.helensville       boolean, default true (offer "collect from Helensville")
+//   invoice.bankAccountName  string, shown on invoices for bank transfer
+//   invoice.bankAccountNo    string, NZ format 00-0000-0000000-00(0)
+//   quote.validDays          integer, default 14 (default "valid until" on a new quote)
+// Not GST registered: quotes and invoices carry no GST. Registering later means
+// adding a GST number setting and a gstCents column on QuoteLine and Invoice.
 model SiteSetting {
   key       String   @id
   value     Json
@@ -179,9 +185,18 @@ enum OrderStatus {
   PENDING // Stripe session created, not paid yet
   TO_PACK // paid (set by the Stripe webhook, never by the browser)
   PACKING
-  POSTED
+  POSTED // NZ Post orders end here
+  COLLECTED // race-day and Helensville pickups end here, with no tracking number
   CANCELLED
   REFUNDED
+}
+
+// How an order (or a club quote) gets to the customer. Chosen at checkout and
+// carried through the Stripe session metadata to the webhook.
+enum Fulfilment {
+  POST // free NZ Post anywhere in New Zealand
+  RACE_DAY // handed over at a RaceDay
+  HELENSVILLE // collected from Helensville at a time arranged by email
 }
 
 enum OrderSource {
@@ -212,10 +227,16 @@ model Order {
   currency                String               @default("NZD")
   stripeCheckoutSessionId String?              @unique
   stripePaymentIntentId   String?              @unique
+  fulfilment              Fulfilment           @default(POST)
+  // Set when fulfilment is RACE_DAY. The cutoff is checked again when the
+  // Stripe session is made, so a stale checkout page can't book a closed day.
+  raceDayId               String?
+  raceDay                 RaceDay?             @relation(fields: [raceDayId], references: [id], onDelete: Restrict)
   trackingNumber          String?
   note                    String? // private packing note, admin only
   paidAt                  DateTime?
   postedAt                DateTime?
+  collectedAt             DateTime?
   lines                   OrderLine[]
   redemptions             DiscountRedemption[]
   createdAt               DateTime             @default(now())
@@ -223,6 +244,7 @@ model Order {
 
   @@index([status, createdAt])
   @@index([userId])
+  @@index([raceDayId])
 }
 
 model OrderLine {
@@ -419,4 +441,174 @@ model Enquiry {
   createdAt DateTime      @default(now())
 
   @@index([status, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Race-day pickup
+// ---------------------------------------------------------------------------
+
+// A race meeting Tommy will be at. While it's open it shows at checkout as a
+// free pickup option. Open means: showAtCheckout, and today (NZ time) is on or
+// before date minus cutoffDays.
+model RaceDay {
+  id             String   @id @default(cuid())
+  name           String // "Indoor club round 4", as customers know it
+  venue          String
+  // The calendar day of the meeting, stored as midnight UTC of that NZ date.
+  date           DateTime @db.Date
+  cutoffDays     Int      @default(3)
+  // Sent in the reminder email to everyone collecting, the day before.
+  pickupNote     String?
+  showAtCheckout Boolean  @default(true)
+  orders         Order[]
+  quotes         Quote[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([date])
+}
+
+// ---------------------------------------------------------------------------
+// Club quotes and invoices
+// ---------------------------------------------------------------------------
+
+enum PaymentTerms {
+  FULL_ON_ACCEPT // one invoice when the quote is accepted; nothing printed until paid
+  SETUP_THEN_DELIVERY // SETUP lines invoiced on acceptance, the rest on delivery
+  ON_DELIVERY // one invoice on delivery
+}
+
+// A club that orders things like grid sticker sets. Its terms are the default
+// for new quotes; each quote keeps its own copy, so changing the club later
+// never changes a quote that's already out.
+model Club {
+  id             String       @id @default(cuid())
+  name           String
+  contactName    String?
+  email          String
+  defaultTerms   PaymentTerms @default(FULL_ON_ACCEPT)
+  // Days after delivery an invoice is due, for SETUP_THEN_DELIVERY and ON_DELIVERY.
+  defaultDueDays Int          @default(14)
+  note           String? // private, admin only
+  quotes         Quote[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  DECLINED
+  EXPIRED // validUntil passed while SENT; set when the link is opened or by a daily job
+  REPLACED // a newer quote was sent instead; the old link says so
+  DELIVERED
+}
+
+// A quote the club opens from an unguessable link (/quote/<token>), with no
+// sign-in. Once SENT it can't be edited: a change means a new quote that
+// replaces it.
+model Quote {
+  id             String       @id @default(cuid())
+  // Shown as Q-0001.
+  number         Int          @unique @default(autoincrement())
+  // 32+ random bytes, base64url. Treat like a password: never log it.
+  token          String       @unique
+  clubId         String
+  club           Club         @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  title          String
+  terms          PaymentTerms
+  dueDays        Int          @default(14)
+  validUntil     DateTime     @db.Date
+  fulfilment     Fulfilment   @default(POST)
+  raceDayId      String?
+  raceDay        RaceDay?     @relation(fields: [raceDayId], references: [id], onDelete: SetNull)
+  noteToClub     String?
+  status         QuoteStatus  @default(DRAFT)
+  sentAt         DateTime?
+  acceptedAt     DateTime?
+  // Typed by whoever accepted for the club, as a record of who said yes.
+  acceptedByName String?
+  declinedAt     DateTime?
+  deliveredAt    DateTime?
+  replacedById   String?      @unique
+  replacedBy     Quote?       @relation("QuoteReplacement", fields: [replacedById], references: [id], onDelete: SetNull)
+  replaces       Quote?       @relation("QuoteReplacement")
+  lines          QuoteLine[]
+  invoices       Invoice[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([status, createdAt])
+  @@index([clubId])
+}
+
+enum QuoteLineKind {
+  SETUP // one-off design work; invoiced first under SETUP_THEN_DELIVERY
+  ITEM // stickers and everything else
+}
+
+model QuoteLine {
+  id             String        @id @default(cuid())
+  quoteId        String
+  quote          Quote         @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  kind           QuoteLineKind @default(ITEM)
+  description    String
+  quantity       Int
+  unitPriceCents Int
+  sortOrder      Int           @default(0)
+
+  @@index([quoteId, sortOrder])
+}
+
+enum InvoiceStatus {
+  SCHEDULED // made with the quote, waiting for delivery before it's sent
+  OPEN // sent, waiting for payment
+  PAID
+  VOID
+}
+
+// Made by the accept and deliver actions according to the quote's terms. The
+// amount is fixed when the invoice is made; the club pays by card (Stripe) or
+// bank transfer (recorded by hand), possibly in parts.
+model Invoice {
+  id                      String           @id @default(cuid())
+  // Shown as INV-0001, and used as the bank transfer reference.
+  number                  Int              @unique @default(autoincrement())
+  token                   String           @unique
+  quoteId                 String
+  quote                   Quote            @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  label                   String // "Artwork setup", "Sticker sheets, after delivery"
+  amountCents             Int
+  status                  InvoiceStatus    @default(SCHEDULED)
+  issuedAt                DateTime?
+  dueAt                   DateTime?        @db.Date
+  paidAt                  DateTime?
+  stripeCheckoutSessionId String?          @unique
+  payments                InvoicePayment[]
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+
+  @@index([status, dueAt])
+  @@index([quoteId])
+}
+
+enum PaymentMethod {
+  CARD // Stripe; written by the webhook
+  BANK_TRANSFER // recorded by an admin with manage_orders
+}
+
+// One row per payment. The invoice is PAID once these add up to amountCents.
+model InvoicePayment {
+  id                    String        @id @default(cuid())
+  invoiceId             String
+  invoice               Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  method                PaymentMethod
+  amountCents           Int
+  receivedAt            DateTime
+  stripePaymentIntentId String?       @unique
+  recordedById          String? // admin user id for BANK_TRANSFER
+  createdAt             DateTime      @default(now())
+
+  @@index([invoiceId])
 }

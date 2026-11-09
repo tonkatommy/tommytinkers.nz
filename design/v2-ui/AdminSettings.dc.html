@@ -28,7 +28,7 @@ body{margin:0}
   <header class="tt-admhead">
     <div style="display: flex; flex-direction: column; gap: 8px;">
       <span class="tt-label">&gt; admin / settings</span>
-      <h1 class="tt-h2">Shipping and motion</h1>
+      <h1 class="tt-h2">Shipping, invoices and motion</h1>
       <p class="tt-small">These are site-wide and saved to the database. They apply on the next page load.</p>
     </div>
   </header>
@@ -67,6 +67,18 @@ body{margin:0}
     <section id="stock" class="tt-card" aria-labelledby="h-stock" style="display: flex; flex-direction: column; gap: 4px;">
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i class="ph ph-package ph-24" aria-hidden="true" style="color: var(--text-secondary);"></i><h2 id="h-stock" class="tt-h4" style="font-weight: 600;">Stock alerts</h2></div>
       <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;"><label for="low">Low stock at</label></p><p class="tt-small">Products at or under this count get the "Low stock" pill in the shop and the stockroom.</p></div><div class="tt-affix" style="width: 140px;"><input id="low" class="tt-input has-post" type="number" min="1" inputmode="numeric" value="{{low}}" onChange="{{onLow}}"><span class="post" aria-hidden="true">units</span></div></div>
+    </section>
+
+    <!-- INVOICES -->
+    <section id="invoices" class="tt-card" aria-labelledby="h-inv" style="display: flex; flex-direction: column; gap: 4px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i class="ph ph-notepad ph-24" aria-hidden="true" style="color: var(--text-secondary);"></i><h2 id="h-inv" class="tt-h4" style="font-weight: 600;">Quotes and invoices</h2></div>
+      <div class="tt-setrow"><div class="tt-field" style="flex: 1 1 260px; max-width: 320px;"><label for="bank-name">Bank account name</label><input id="bank-name" class="tt-input" value="{{bankName}}" onChange="{{onBankName}}"></div>
+        <div class="tt-field" style="flex: 1 1 260px; max-width: 320px;"><label for="bank-no">Account number</label><input id="bank-no" class="{{bankCls}}" style="font-family: var(--font-mono);" value="{{bankNo}}" onChange="{{onBankNo}}" aria-invalid="{{bankInv}}" aria-describedby="bank-h" placeholder="00-0000-0000000-00">
+          <sc-if value="{{bankErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" id="bank-h"><i class="ph ph-warning-circle" aria-hidden="true"></i>Use the NZ format: 2-4-7-2 or 2-4-7-3 digits.</p></sc-if>
+          <sc-if value="{{bankOk}}" hint-placeholder-val="{{true}}"><p class="tt-help" id="bank-h">Shown on every invoice next to the card option. The invoice number is the reference.</p></sc-if>
+        </div></div>
+      <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;"><label for="qvalid">Quotes are valid for</label></p><p class="tt-small">The default "valid until" on a new quote. You can change it on each one.</p></div><div class="tt-affix" style="width: 140px;"><input id="qvalid" class="tt-input has-post" type="number" min="1" inputmode="numeric" value="{{qValid}}" onChange="{{onQValid}}"><span class="post" aria-hidden="true">days</span></div></div>
+      <div class="tt-setrow"><div style="max-width: 520px;"><p style="font-weight: 600;">GST</p><p class="tt-small">Not registered, so quotes and invoices say "Invoice" and show no GST. If you register, this becomes a GST number and every document becomes a tax invoice.</p></div><span class="tt-tag tt-tag--muted">Not registered</span></div>
     </section>
 
     <!-- MOTION -->
@@ -109,12 +121,12 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     const st = props.state || 'ready';
-    this.saved = { free: true, rate: '', low: '3', card: 'socket', link: 'caret', scroll: 'swing', btn: 'sweep', speed: 'normal' };
+    this.saved = { free: true, rate: '', low: '3', bankName: 'tommy tinkers NZ', bankNo: '00-0000-0000000-00', qValid: '14', card: 'socket', link: 'caret', scroll: 'swing', btn: 'sweep', speed: 'normal' };
     this.state = {
       theme: null, ...this.saved,
       status: st === 'loading' ? 'loading' : 'ready',
       error: st === 'error', saving: st === 'saving', tried: st === 'invalid',
-      toast: st === 'saved' ? 'Shipping and motion are saved. New page loads use them.' : null
+      toast: st === 'saved' ? 'Settings are saved. New page loads use them.' : null
     };
     if (st === 'flatRate' || st === 'saving' || st === 'error') Object.assign(this.state, { free: false, rate: '8.50' });
     if (st === 'invalid') Object.assign(this.state, { free: false, rate: '' });
@@ -128,16 +140,18 @@ class Component extends DCLogic {
     const keys = Object.keys(this.saved);
     const changed = keys.filter((k) => String(s[k]) !== String(this.saved[k]));
     const rateC = Math.round((parseFloat(s.rate) || 0) * 100);
+    // NZ bank accounts are bank-branch-account-suffix: 2-4-7 digits, then a 2 or 3 digit suffix.
+    const bankOkFmt = /^\d{2}-\d{4}-\d{7}-\d{2,3}$/.test(s.bankNo.trim());
     const rateBad = !s.free && rateC <= 0;
     const rateErr = s.tried && rateBad;
     const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
     const scales = { slow: '1.5', normal: '1', fast: '0.62' };
     const save = () => {
       if (s.saving) return;
-      if (rateBad) return this.setState({ tried: true });
+      if (rateBad || !bankOkFmt) return this.setState({ tried: true });
       this.setState({ saving: true, error: false, tried: false });
       // Stands in for a server action that checks manage_content, then revalidates the layout.
-      this.t1 = setTimeout(() => { keys.forEach((k) => { this.saved[k] = this.state[k]; }); this.setState({ saving: false }); toast('Shipping and motion are saved. New page loads use them.'); }, 900);
+      this.t1 = setTimeout(() => { keys.forEach((k) => { this.saved[k] = this.state[k]; }); this.setState({ saving: false }); toast('Settings are saved. New page loads use them.'); }, 900);
     };
     return {
       theme,
@@ -152,6 +166,9 @@ class Component extends DCLogic {
       shipPreview: s.free ? 'Free' : rateC > 0 ? '$' + (rateC / 100).toFixed(2) : '$0.00',
       shipPreviewNote: s.free ? 'Free shipping anywhere in NZ.' : 'Flat rate, anywhere in NZ.',
       low: s.low, onLow: (e) => this.setState({ low: e.target.value }),
+      bankName: s.bankName, onBankName: (e) => this.setState({ bankName: e.target.value }),
+      bankNo: s.bankNo, onBankNo: (e) => this.setState({ bankNo: e.target.value }), bankErr: !bankOkFmt, bankOk: bankOkFmt, bankInv: bankOkFmt ? 'false' : 'true', bankCls: bankOkFmt ? 'tt-input' : 'tt-input is-error',
+      qValid: s.qValid, onQValid: (e) => this.setState({ qValid: e.target.value }),
       cardV: s.card, cardSet: (e) => this.setState({ card: e.target.value }),
       linkV: s.link, linkSet: (e) => this.setState({ link: e.target.value }),
       scrollV: s.scroll, scrollSet: (e) => this.setState({ scroll: e.target.value }),
