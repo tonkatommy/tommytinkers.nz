@@ -16,5 +16,11 @@ try {
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: { path: "prisma/migrations" },
-  datasource: { url: process.env.DATABASE_URL ?? "" },
+  datasource: {
+    url: process.env.DATABASE_URL ?? "",
+    // Only CI sets this. `prisma migrate diff --from-migrations` replays every
+    // migration into this throwaway database to compare it with schema.prisma.
+    // It must never point at a real database: Prisma wipes it on each run.
+    shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL,
+  },
 });

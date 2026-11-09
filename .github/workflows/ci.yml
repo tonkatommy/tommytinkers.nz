@@ -3,7 +3,9 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    # feature/new-site-v2.0 is where v2 phases merge (and what staging runs),
+    # so it gets checked on every push too.
+    branches: [main, feature/new-site-v2.0]
 
 permissions:
   contents: read
@@ -47,3 +49,100 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm build
+
+  # ---- v2 (site/tommytinkers.nz.v2.0) --------------------------------------
+  v2:
+    name: v2 lint, typecheck, build and migrations
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site/tommytinkers.nz.v2.0
+    # A throwaway Postgres, the same version as production. It only lives for
+    # this job, so the credentials are placeholders.
+    services:
+      postgres:
+        image: postgres:18.6-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci -d ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      # Separate database that `migrate diff` is allowed to wipe.
+      SHADOW_DATABASE_URL: postgresql://ci:ci@localhost:5432/ci_shadow
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: site/tommytinkers.nz.v2.0/package.json
+
+      # Node major matches the v2 Dockerfile base image (node:26-alpine).
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+          cache-dependency-path: site/tommytinkers.nz.v2.0/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+
+      # Proves every migration applies cleanly to an empty database, the same
+      # way the migrate container does on deploy.
+      - name: Apply migrations to an empty database
+        run: pnpm prisma migrate deploy
+
+      # Fails if schema.prisma was changed without a matching migration.
+      # --exit-code returns 2 when the two differ.
+      - name: Check schema.prisma matches the migrations
+        run: |
+          PGPASSWORD=ci psql -h localhost -U ci -d ci -c 'CREATE DATABASE ci_shadow'
+          pnpm prisma migrate diff \
+            --from-migrations prisma/migrations \
+            --to-schema prisma/schema.prisma \
+            --exit-code
+
+  # Builds the real images and runs the stack the way the server does, minus
+  # the tunnel and backups, then asks the app if it can reach its database.
+  v2-docker:
+    name: v2 Docker smoke test
+    runs-on: ubuntu-latest
+    env:
+      # compose.yaml refuses to load without it. cloudflared never starts here.
+      TUNNEL_TOKEN: ci-placeholder-not-a-real-token
+      COMPOSE: docker compose -p tt-ci -f deploy/compose.yaml
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Make a throwaway database password
+        run: openssl rand -hex 32 > deploy/secrets/db_password.txt
+
+      # The backup image isn't started (it needs the age key), but building it
+      # catches a broken Dockerfile before it reaches the server.
+      - name: Build images
+        run: $COMPOSE build migrate app backup
+
+      - name: Start db, migrate and app
+        run: $COMPOSE up -d --wait --wait-timeout 300 db migrate app
+
+      - name: Check /api/health
+        run: |
+          body="$($COMPOSE exec -T app wget -qO- http://127.0.0.1:3000/api/health)"
+          echo "$body"
+          test "$body" = '{"status":"ok"}'
+
+      - name: Show logs
+        if: failure()
+        run: $COMPOSE logs --no-color
+
+      - name: Tear down
+        if: always()
+        run: $COMPOSE down -v
