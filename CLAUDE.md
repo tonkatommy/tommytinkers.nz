@@ -55,6 +55,8 @@ Version traps, all verified on 02/11/2026:
 - **Prisma stays on 7.x.** npm's `latest` tag points at 8.0 RC, and Better Auth's Prisma adapter supports up to 7. Don't let `pnpm update` jump it.
 - **Node 26 has no bundled corepack.** The Dockerfile installs pnpm with `npm install -g`.
 - **Postgres 18 moved its data dir** to `/var/lib/postgresql/18/docker`. The volume mounts `/var/lib/postgresql`.
+- **No pnpm at container runtime.** pnpm 12 looks up its pinned version on the npm registry every time it starts, and `migrate`, `app` and `backup` sit on the internal-only `backend` network. Runtime commands call binaries directly (`./node_modules/.bin/prisma`, `node server.js`). Found 10/11/2026.
+- **Secret files can end in CRLF** when made or edited on Windows (Git Bash's `openssl` does it). The Postgres image ignores the `\r`, so every script that reads `/run/secrets/db_password` uses `tr -d '\r\n'`, never plain `cat`.
 
 Next 16, Better Auth, Prisma 7 and Tailwind 4 all changed APIs recently. Check current docs (Context7) before writing against them; don't go from memory. Example: route protection lives in `src/proxy.ts`, not `middleware.ts`.
 
@@ -75,6 +77,24 @@ Full stack from the repo root (create the secret first: `openssl rand -hex 32 > 
 docker compose -f deploy/compose.yaml up -d --build
 docker compose -p tt-staging -f deploy/compose.yaml -f deploy/compose.staging.yaml up -d --build
 ```
+
+No service publishes a port, so check health from inside the app container: `docker compose -f deploy/compose.yaml exec app wget -qO- http://127.0.0.1:3000/api/health` returns `{"status":"ok"}`, or 503 if the database is down.
+
+**Backups** are nightly `pg_dump` files encrypted with [age](https://age-encryption.org) to a public key, kept 30 days (the privacy policy's number, so change both together). Make the key pair on your own computer, never the server, and keep `backup_age.key` in a password manager: without it no backup can be restored.
+
+```bash
+age-keygen -o backup_age.key
+age-keygen -y backup_age.key > deploy/secrets/backup_age.pub
+```
+
+To restore, decrypt off the server, copy the `.dump` up, then:
+
+```bash
+age -d -i backup_age.key tommytinkers-<stamp>.dump.age > restore.dump
+docker compose -f deploy/compose.yaml exec -T db pg_restore -U tommytinkers -d tommytinkers --clean --if-exists < restore.dump
+```
+
+**CI** (`.github/workflows/ci.yml`) runs on every PR and on pushes to `main` and `feature/new-site-v2.0`. The `v2` job runs lint, typecheck and build on Node 26, applies every migration to an empty Postgres 18.6, and fails if `schema.prisma` and the migrations disagree (`prisma migrate diff --exit-code`, using `SHADOW_DATABASE_URL`). The `v2-docker` job builds the images, starts `db`, `migrate` and `app`, and checks `/api/health`.
 
 ## Architecture rules
 
@@ -147,7 +167,7 @@ Also modelled: `StockMovement` (every stock change, tracked products only), `Aud
 
 | Phase | Status |
 |---|---|
-| 0. Foundations | In progress: scaffold, Dockerfile and Compose done. Catalogue, order, discount, stock history, audit, enquiry, pickup, quote, proof, stock alert and consent schema added (migrations `20261107090000_catalogue_orders_discounts`, `20261108090000_order_external_ref`, `20261109090000_pickup_quotes_invoices` and `20261109120000_proofs_alerts_consent`); Better Auth tables come in Phase 2. Still to do: run the Docker stack and confirm `/api/health`, add a v2 CI job. |
+| 0. Foundations | Done (10/11/2026, `feat/v2-foundations-finish`): scaffold, Dockerfile and Compose; full schema through `20261109120000_proofs_alerts_consent` (Better Auth tables come in Phase 2); stack runs and `/api/health` answers ok, or 503 with the database down; v2 CI jobs; backups encrypted with age and kept 30 days. Not done: the staging auto-deploy on merge (needs a self-hosted runner or a deploy hook on the host) and the off-box copy of `/backups`. |
 | 1. Design system and shell | Next |
 | 2. Accounts (Better Auth) | |
 | 3. Catalogue and stockroom | |

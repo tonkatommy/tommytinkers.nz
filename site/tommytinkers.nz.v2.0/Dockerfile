@@ -28,7 +28,11 @@ COPY package.json prisma.config.ts docker-entrypoint.sh ./
 COPY prisma ./prisma
 USER node
 ENTRYPOINT ["sh", "/app/docker-entrypoint.sh"]
-CMD ["pnpm", "prisma", "migrate", "deploy"]
+# Call the Prisma CLI directly, not through pnpm. pnpm 12 looks up its own
+# pinned version on the npm registry every time it starts, and this container
+# is on the internal-only network, so `pnpm prisma ...` fails with a DNS error
+# before Prisma even runs.
+CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
 
 # ---- runner: only Next's standalone output
 FROM node:26-alpine AS runner
