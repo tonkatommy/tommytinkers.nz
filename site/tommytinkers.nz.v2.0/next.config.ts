@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
   // React Compiler memoises components automatically, so we don't hand-write
   // useMemo/useCallback everywhere.
   reactCompiler: true,
+  // Cache Components: a page is prerendered up to its first piece of
+  // request-time data. Cached reads use "use cache" (see src/server), and
+  // anything live sits inside <Suspense> and streams in.
+  cacheComponents: true,
+  // Goes with Cache Components: links prefetch the prerendered shell of the
+  // next page, so navigation feels instant.
+  partialPrefetching: true,
   poweredByHeader: false,
 };
 

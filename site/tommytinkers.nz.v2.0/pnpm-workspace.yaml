@@ -3,3 +3,5 @@
 allowBuilds:
   '@prisma/engines': true
   prisma: true
+  # tsx and Vitest use esbuild; its install script only checks the binary.
+  esbuild: true

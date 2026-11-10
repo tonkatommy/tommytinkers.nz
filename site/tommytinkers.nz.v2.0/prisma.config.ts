@@ -15,7 +15,12 @@ try {
 // build with no database around, so we read the variable without requiring it.
 export default defineConfig({
   schema: "prisma/schema.prisma",
-  migrations: { path: "prisma/migrations" },
+  migrations: {
+    path: "prisma/migrations",
+    // `prisma db seed` runs this. `node --import tsx` (not `pnpm tsx`) because
+    // the migrate container has no internet and pnpm needs the registry.
+    seed: "node --import tsx prisma/seed.ts",
+  },
   datasource: {
     url: process.env.DATABASE_URL ?? "",
     // Only CI sets this. `prisma migrate diff --from-migrations` replays every

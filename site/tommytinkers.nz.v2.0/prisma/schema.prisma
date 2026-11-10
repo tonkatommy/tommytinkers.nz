@@ -109,6 +109,8 @@ model Product {
   description   String
   priceCents    Int
   status        ProductStatus          @default(DRAFT)
+  // Shown in "Fresh off the bench" on the home page. Set in the stockroom.
+  featured      Boolean                @default(false)
   stockMode     StockMode              @default(MADE_TO_ORDER)
   // Only meaningful when stockMode is TRACKED. Null for made to order.
   stockOnHand   Int?

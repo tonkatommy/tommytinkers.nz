@@ -1,10 +1,28 @@
 @import "tailwindcss";
 
-/* Design-system tokens carried over from v1 (fonts, light + dark tokens, element defaults, container).
-   Component styles are rebuilt per page from Phase 1 onwards, so they are not copied here. */
+/* Design tokens and the few component classes the whole site shares.
+
+   How this file is organised:
+   1. @theme: tokens that never change with the theme, plus the themed ones
+      whose DS name Tailwind can use directly (accent, mono, error, shadows).
+   2. :root and [data-theme="light"]: the themed surface, text and border
+      tokens, under their DS names.
+   3. @theme inline: short Tailwind names for those (bg-surface, text-ink...).
+   4. @layer base: element defaults.
+   5. @layer components: button, card, pill and friends. They are classes
+      rather than utilities because the site FX (section 6) needs a stable
+      selector to hook hover and scroll effects onto.
+   6. Site FX, then reduced motion.
+
+   Dark is the default, so dark values are the base and light overrides them.
+   Layers matter: anything in a layer loses to Tailwind utilities, so a
+   component can always be adjusted with a utility class. */
+
+/* `dark:` utilities follow our data-theme attribute, not the OS setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ============================================================
-   FONT FACES
+   FONTS (local files, so no request leaves the site)
    ============================================================ */
 @font-face {
   font-family: "Exo 2";
@@ -29,196 +47,974 @@
 }
 
 /* ============================================================
-   LIGHT MODE (DEFAULT)
+   1. TOKENS TAILWIND OWNS
+   `static` makes Tailwind emit every variable, even ones no utility uses yet,
+   because component CSS below reads them with var().
+   ============================================================ */
+@theme static {
+  /* Drop Tailwind's built-in palette: only design-system colours exist. */
+  --color-*: initial;
+
+  /* Brand warm colours. Decoration only, always with dark ink on top. */
+  --color-warm-yellow: #fcd34d;
+  --color-warm-orange: #fb923c;
+  --color-warm-orange-deep: #f97316;
+  --color-on-warm: #1a1816;
+  --color-error: #e57373;
+
+  /* Themed (dark values here, light overrides below). */
+  --color-accent: #4caf2e;
+  --color-accent-hover: #5fc63f;
+  --color-accent-muted: #2e7a1d;
+  --color-accent-subtle: #1a2a14;
+  --color-mono: #a8e88f;
+  /* Orange passes AA on charcoal but fails on cream, so these two swap. */
+  --color-eyebrow: #fb923c;
+  --color-error-text: #e57373;
+  --color-dot: #fb923c;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(251, 146, 60, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(251, 146, 60, 0.08);
+  --shadow-glow: 0 0 20px rgba(251, 146, 60, 0.22);
+  --shadow-glow-green: 0 0 20px rgba(46, 122, 29, 0.25);
+
+  --font-heading: "Exo 2", system-ui, sans-serif;
+  --font-body: "Exo 2", system-ui, sans-serif;
+  --font-display: "Jura", "Exo 2", system-ui, sans-serif;
+  --font-mono: "Agave Nerd", "JetBrains Mono", "Fira Code", monospace;
+
+  /* DS radii (Tailwind's own lg/xl/2xl are smaller). */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  --tracking-widest: 0.18em;
+}
+
+/* ============================================================
+   2. THEMED TOKENS UNDER THEIR DS NAMES
    ============================================================ */
 :root {
-  color-scheme: light;
-  --color-bg-base:      #fdf8ee;
-  --color-bg-surface:   #ffffff;
-  --color-bg-raised:    #fff3df;
-  --color-bg-overlay:   rgba(253, 248, 238, 0.9);
-  --color-border-subtle:  #f0e2c8;
-  --color-border-default: #e0c79a;
-  --color-border-strong:  #c9a560;
-  --color-accent:         #2e7a1d;
-  --color-accent-hover:   #246414;
-  --color-accent-muted:   #4caf2e;
-  --color-accent-subtle:  #e6f4dc;
-  --color-warm-yellow:    #fcd34d;
-  --color-warm-orange:    #fb923c;
-  --color-warm-orange-deep:#f97316;
-  --gradient-brand:       linear-gradient(135deg, var(--color-warm-yellow) 0%, var(--color-warm-orange) 55%, var(--color-warm-orange-deep) 100%);
-  --gradient-brand-radial:radial-gradient(circle at 30% 30%, var(--color-warm-yellow) 0%, var(--color-warm-orange) 50%, var(--color-warm-orange-deep) 100%);
-  --color-text-primary:   #1a1816;
-  --color-text-secondary: #564a32;
-  --color-text-muted:     #8a7a5a;
-  --color-text-inverse:   #fdf8ee;
-  --color-mono:           #2e7a1d;
-  --color-error:          #e57373;
-  --color-success:        var(--color-accent);
-  --color-info:           var(--color-warm-orange);
-  --color-warning:        var(--color-warm-yellow);
-  --shadow-sm:   0 1px 3px rgba(120, 70, 0, 0.08);
-  --shadow-md:   0 4px 12px rgba(120, 70, 0, 0.12), 0 0 0 1px rgba(251, 146, 60, 0.06);
-  --shadow-lg:   0 8px 24px rgba(120, 70, 0, 0.18), 0 0 0 1px rgba(251, 146, 60, 0.08);
-  --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.30);
-  --shadow-glow-green: 0 0 20px rgba(46, 122, 29, 0.25);
-  --font-heading: "Exo 2", system-ui, sans-serif;
-  --font-display: "Jura", "Exo 2", system-ui, sans-serif;
-  --font-body:    "Exo 2", system-ui, sans-serif;
-  --font-mono:    "Agave Nerd", "JetBrains Mono", "Fira Code", monospace;
-  --text-xs:    0.75rem;
-  --text-sm:    0.875rem;
-  --text-base:  1rem;
-  --text-lg:    1.125rem;
-  --text-xl:    1.25rem;
-  --text-2xl:   1.5rem;
-  --text-3xl:   1.875rem;
-  --text-4xl:   2.25rem;
-  --text-5xl:   3rem;
-  --text-6xl:   3.75rem;
-  --text-7xl:   4.5rem;
-  --leading-tight:   1.15;
-  --leading-snug:    1.35;
-  --leading-normal:  1.5;
-  --leading-relaxed: 1.65;
-  --tracking-tight:  -0.02em;
-  --tracking-normal: 0em;
-  --tracking-wide:   0.05em;
-  --tracking-wider:  0.1em;
-  --tracking-widest: 0.18em;
-  --space-1:   0.25rem;
-  --space-2:   0.5rem;
-  --space-3:   0.75rem;
-  --space-4:   1rem;
-  --space-5:   1.25rem;
-  --space-6:   1.5rem;
-  --space-8:   2rem;
-  --space-10:  2.5rem;
-  --space-12:  3rem;
-  --space-16:  4rem;
-  --space-20:  5rem;
-  --space-24:  6rem;
-  --space-32:  8rem;
-  --radius-sm:   4px;
-  --radius-md:   6px;
-  --radius-lg:   10px;
-  --radius-xl:   16px;
-  --radius-2xl:  24px;
-  --radius-full: 9999px;
-  --motion-fast:   150ms ease;
-  --motion-base:   250ms ease;
-  --motion-slow:   400ms ease;
-  --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --z-base:    0;
-  --z-raised:  10;
-  --z-overlay: 50;
-  --z-nav:     100;
-  --z-modal:   200;
-  --z-toast:   300;
-  --container-max:    1200px;
-  --container-px:     var(--space-6);
-  --container-px-lg:  var(--space-12);
-  --section-py:       var(--space-24);
-  --section-py-md:    var(--space-16);
-  --section-py-sm:    var(--space-12);
-  --nav-height:       64px;
-  --type-h1-font:   var(--font-heading);
-  --type-h1-size:   var(--text-7xl);
-  --type-h1-weight: 700;
-  --type-h1-leading:var(--leading-tight);
-  --type-h1-tracking:var(--tracking-tight);
-  --type-h2-font:   var(--font-heading);
-  --type-h2-size:   var(--text-4xl);
-  --type-h2-weight: 600;
-  --type-h2-leading:var(--leading-tight);
-  --type-h2-tracking:var(--tracking-tight);
-  --type-h3-font:   var(--font-heading);
-  --type-h3-size:   var(--text-2xl);
-  --type-h3-weight: 600;
-  --type-h4-font:   var(--font-heading);
-  --type-h4-size:   var(--text-xl);
-  --type-h4-weight: 500;
-  --type-body-font:    var(--font-body);
-  --type-body-size:    var(--text-base);
-  --type-body-weight:  400;
-  --type-body-leading: var(--leading-relaxed);
-  --type-lead-size:    var(--text-lg);
-  --type-small-size:   var(--text-sm);
-  --type-mono-font:    var(--font-mono);
-  --type-mono-size:    var(--text-sm);
-  --type-mono-weight:  500;
-  --type-mono-tracking:var(--tracking-wide);
-  --type-eyebrow-font:    var(--font-display);
-  --type-eyebrow-size:    var(--text-xs);
-  --type-eyebrow-weight:  600;
-  --type-eyebrow-tracking:var(--tracking-widest);
-}
-
-/* ============================================================
-   DARK MODE
-   ============================================================ */
-[data-theme="dark"] {
   color-scheme: dark;
-  --color-bg-base:      #1a1816;
-  --color-bg-surface:   #232017;
-  --color-bg-raised:    #2c2820;
-  --color-bg-overlay:   rgba(26, 24, 22, 0.85);
-  --color-border-subtle:  #2e2a22;
+  --color-bg-base: #1a1816;
+  --color-bg-surface: #232017;
+  --color-bg-raised: #2c2820;
+  --color-bg-overlay: rgba(26, 24, 22, 0.85);
+  --color-border-subtle: #2e2a22;
   --color-border-default: #443d31;
-  --color-border-strong:  #6a5e48;
-  --color-accent:         #4caf2e;
-  --color-accent-hover:   #5fc63f;
-  --color-accent-muted:   #2e7a1d;
-  --color-accent-subtle:  #1a2a14;
-  --color-text-primary:   #f0e9d8;
+  --color-border-strong: #6a5e48;
+  --color-text-primary: #f0e9d8;
   --color-text-secondary: #b8a986;
-  --color-text-muted:     #6f6650;
-  --color-text-inverse:   #1a1816;
-  --color-mono:           #a8e88f;
-  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.5);
-  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(251, 146, 60, 0.06);
-  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(251, 146, 60, 0.08);
-  --shadow-glow: 0 0 20px rgba(251, 146, 60, 0.22);
+  --color-text-muted: #6f6650;
+  --color-text-inverse: #1a1816;
+
+  --gradient-brand: linear-gradient(
+    135deg,
+    var(--color-warm-yellow) 0%,
+    var(--color-warm-orange) 55%,
+    var(--color-warm-orange-deep) 100%
+  );
+
+  --motion-fast: 150ms;
+  --motion-base: 250ms;
+  --motion-slow: 400ms;
+  --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --nav-height: 64px;
+  --container-max: 1200px;
+
+  /* Site FX speed multiplier. 1 is normal, 1.5 slow, 0.62 fast. */
+  --ttfx-scale: 1;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --color-bg-base: #fdf8ee;
+  --color-bg-surface: #ffffff;
+  --color-bg-raised: #fff3df;
+  --color-bg-overlay: rgba(253, 248, 238, 0.9);
+  --color-border-subtle: #f0e2c8;
+  --color-border-default: #e0c79a;
+  --color-border-strong: #c9a560;
+  --color-text-primary: #1a1816;
+  --color-text-secondary: #564a32;
+  --color-text-muted: #8a7a5a;
+  --color-text-inverse: #fdf8ee;
+
+  --color-accent: #2e7a1d;
+  --color-accent-hover: #246414;
+  --color-accent-muted: #4caf2e;
+  --color-accent-subtle: #e6f4dc;
+  --color-mono: #2e7a1d;
+  /* Orange on cream is 2.1:1, so eyebrows use secondary text instead. */
+  --color-eyebrow: #564a32;
+  /* Error red on cream is 2.8:1: the words go dark, the icon stays red. */
+  --color-error-text: #1a1816;
+  --color-dot: #2e7a1d;
+
+  --shadow-sm: 0 1px 3px rgba(120, 70, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(120, 70, 0, 0.12), 0 0 0 1px rgba(251, 146, 60, 0.06);
+  --shadow-lg: 0 8px 24px rgba(120, 70, 0, 0.18), 0 0 0 1px rgba(251, 146, 60, 0.08);
+  --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.3);
 }
 
 /* ============================================================
-   ELEMENT DEFAULTS
+   3. SHORT TAILWIND NAMES FOR THE THEMED TOKENS
+   `inline` makes the utility point at the variable above, so bg-surface
+   follows data-theme by itself.
+   (Not "base": text-base is already Tailwind's font size.)
    ============================================================ */
-html, body { background: var(--color-bg-base); color: var(--color-text-primary); font-family: var(--type-body-font); font-size: var(--type-body-size); line-height: var(--type-body-leading); margin: 0; padding: 0; }
-body { min-height: 100vh; }
-* { box-sizing: border-box; }
-a { color: var(--color-accent); text-decoration: none; }
-a:hover { color: var(--color-accent-hover); }
-*:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
-img { display: block; max-width: 100%; }
-h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); color: var(--color-text-primary); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); margin: 0; }
-h1 { font-size: var(--type-h1-size); font-weight: var(--type-h1-weight); }
-h2 { font-size: var(--type-h2-size); font-weight: var(--type-h2-weight); }
-h3 { font-size: var(--type-h3-size); font-weight: var(--type-h3-weight); }
-h4 { font-size: var(--type-h4-size); font-weight: var(--type-h4-weight); }
-p { margin: 0; }
-code, kbd, pre, samp { font-family: var(--font-mono); font-size: 0.95em; }
-
-.eyebrow { font-family: var(--type-eyebrow-font); font-size: var(--type-eyebrow-size); font-weight: var(--type-eyebrow-weight); letter-spacing: var(--type-eyebrow-tracking); text-transform: uppercase; color: var(--color-warm-orange); }
-.mono-label { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--color-mono); letter-spacing: var(--tracking-wide); }
+@theme inline {
+  --color-canvas: var(--color-bg-base);
+  --color-surface: var(--color-bg-surface);
+  --color-raised: var(--color-bg-raised);
+  --color-overlay: var(--color-bg-overlay);
+  --color-line-subtle: var(--color-border-subtle);
+  --color-line: var(--color-border-default);
+  --color-line-strong: var(--color-border-strong);
+  --color-ink: var(--color-text-primary);
+  --color-ink-secondary: var(--color-text-secondary);
+  --color-ink-muted: var(--color-text-muted);
+  --color-ink-inverse: var(--color-text-inverse);
+}
 
 /* ============================================================
-   CONTAINER
+   4. ELEMENT DEFAULTS
    ============================================================ */
-.tt-container { max-width: var(--container-max); margin: 0 auto; padding: 0 var(--space-12); }
-@media (max-width: 720px) { .tt-container { padding: 0 var(--space-6); } }
-
+@layer base {
+  html {
+    background: var(--color-bg-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    line-height: 1.65;
+    /* Anchor links land below the sticky nav, not under it. */
+    scroll-padding-top: calc(var(--nav-height) + 16px);
+  }
+  body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  a {
+    color: var(--color-accent);
+    text-underline-offset: 3px;
+    transition: color var(--motion-fast) var(--ease);
+  }
+  a:hover {
+    color: var(--color-accent-hover);
+  }
+  /* The focus ring is never removed anywhere on the site. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  h1 {
+    font-size: 2.75rem;
+    font-weight: 700;
+  }
+  h2 {
+    font-size: 1.875rem;
+    font-weight: 600;
+  }
+  h3 {
+    font-size: 1.375rem;
+    font-weight: 600;
+  }
+  h4 {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 3.75rem;
+    }
+    h2 {
+      font-size: 2.25rem;
+    }
+    h3 {
+      font-size: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    h1 {
+      font-size: 4.5rem;
+    }
+  }
+  p {
+    text-wrap: pretty;
+  }
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
 
 /* ============================================================
-   REDUCED MOTION
-   Everyone who asks the OS for less motion gets near-instant transitions.
+   5. COMPONENT CLASSES
+   ============================================================ */
+@layer components {
+  .tt-container {
+    width: 100%;
+    max-width: calc(var(--container-max) + 48px);
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+  @media (min-width: 1024px) {
+    .tt-container {
+      max-width: calc(var(--container-max) + 96px);
+      padding-inline: 48px;
+    }
+  }
+
+  /* Jura, wide-tracked, uppercase. Eyebrows only. */
+  .tt-eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1.5;
+    color: var(--color-eyebrow);
+  }
+
+  /* Mono prompt label: "> 01. benches". */
+  .tt-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+    color: var(--color-mono);
+  }
+  .tt-label-type {
+    display: inline-block;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+  /* The label types itself in as it scrolls into view. Pure CSS, and only in
+     browsers with scroll-driven animations; everyone else sees it whole. */
+  @supports (animation-timeline: view()) {
+    .tt-label-type {
+      animation: tt-type linear both;
+      animation-timing-function: steps(var(--n, 14));
+      animation-timeline: view();
+      animation-range: entry 20% cover 35%;
+    }
+  }
+
+  /* Short gradient bar under a section heading. Decoration, so not green. */
+  .tt-underline::after {
+    content: "";
+    display: block;
+    width: 48px;
+    height: 3px;
+    margin-top: 16px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-brand);
+  }
+
+  /* ---- buttons: 44px tall so they are easy to tap ---- */
+  .tt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 20px;
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    transition:
+      background-color var(--motion-base) var(--ease),
+      border-color var(--motion-base) var(--ease),
+      color var(--motion-base) var(--ease),
+      box-shadow var(--motion-base) var(--ease),
+      transform var(--motion-fast) var(--ease);
+  }
+  .tt-btn:active {
+    transform: scale(0.98);
+  }
+  .tt-btn-primary,
+  .tt-btn-primary:hover {
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+  }
+  .tt-btn-primary:hover {
+    background: var(--color-accent-hover);
+    box-shadow: var(--shadow-glow);
+  }
+  .tt-btn-secondary,
+  .tt-btn-secondary:hover {
+    background: transparent;
+    color: var(--color-text-primary);
+    border-color: var(--color-border-default);
+  }
+  .tt-btn-secondary:hover {
+    background: var(--color-accent-subtle);
+    border-color: var(--color-accent-muted);
+  }
+  .tt-btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+  }
+  .tt-btn-ghost:hover {
+    background: var(--color-bg-raised);
+    color: var(--color-text-primary);
+  }
+  /* Dark-ink outline: the second button on the gradient band. */
+  .tt-btn-ink,
+  .tt-btn-ink:hover {
+    background: transparent;
+    color: var(--color-on-warm);
+    border-color: var(--color-on-warm);
+  }
+  .tt-btn-ink:hover {
+    background: rgba(26, 24, 22, 0.08);
+  }
+  .tt-btn-sm {
+    min-height: 36px;
+    padding: 0 14px;
+    font-size: 0.8125rem;
+  }
+  .tt-btn-icon {
+    width: 44px;
+    padding: 0;
+  }
+  .tt-btn-block {
+    width: 100%;
+  }
+  .tt-btn:disabled,
+  .tt-btn[aria-disabled="true"] {
+    background: var(--color-bg-raised);
+    color: var(--color-text-secondary);
+    border-color: transparent;
+    box-shadow: none;
+    transform: none;
+    cursor: not-allowed;
+  }
+
+  /* ---- cards ---- */
+  .tt-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    transition:
+      border-color var(--motion-base) var(--ease),
+      transform var(--motion-base) var(--ease),
+      box-shadow var(--motion-base) var(--ease);
+  }
+  /* 3px gradient bar along the top, shown on hover. */
+  .tt-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--gradient-brand);
+    opacity: 0;
+    transition: opacity var(--motion-base) var(--ease);
+  }
+  .tt-card-hover:hover,
+  .tt-card-hover:focus-within {
+    border-color: var(--color-border-default);
+  }
+  .tt-card-hover:hover::before,
+  .tt-card-hover:focus-within::before {
+    opacity: 1;
+  }
+  .tt-card-feature {
+    border-radius: var(--radius-2xl);
+    padding: 32px;
+  }
+  .tt-card-flush {
+    padding: 0;
+  }
+
+  /* Product image placeholder until real photos exist: brand gradient with
+     the logo centred, always square. */
+  .tt-ph {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--gradient-brand);
+  }
+
+  /* ---- tags and pills ---- */
+  .tt-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border: 1px solid var(--color-accent-muted);
+    border-radius: var(--radius-sm);
+    background: var(--color-accent-subtle);
+    color: var(--color-mono);
+    font: 500 0.6875rem/1.4 var(--font-mono);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  /* Status always has words. The dot is extra, never the only signal. */
+  .tt-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    font: 600 0.625rem/1.5 var(--font-display);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .tt-pill::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .tt-pill-in {
+    background: var(--color-accent-subtle);
+    color: var(--color-mono);
+  }
+  .tt-pill-low {
+    background: var(--color-warm-yellow);
+    color: var(--color-on-warm);
+  }
+  .tt-pill-out {
+    background: var(--color-bg-raised);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-default);
+  }
+
+  /* ---- nav ---- */
+  .tt-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--nav-height);
+    background: var(--color-bg-base);
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color var(--motion-base) var(--ease),
+      border-color var(--motion-base) var(--ease);
+  }
+  /* After 8px of scroll the nav turns into a blurred overlay. */
+  .tt-nav[data-scrolled="true"] {
+    background: var(--color-bg-overlay);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom-color: var(--color-border-subtle);
+  }
+  .tt-navlink {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+  .tt-navlink:hover,
+  .tt-navlink[aria-current="page"] {
+    color: var(--color-text-primary);
+  }
+
+  /* ---- skeleton (loading placeholder) ---- */
+  .tt-skel {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-bg-raised);
+    border-radius: var(--radius-sm);
+  }
+  .tt-skel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(251, 146, 60, 0.08), transparent);
+    transform: translateX(-100%);
+    animation: tt-shimmer 1.4s var(--ease) infinite;
+  }
+
+  /* ---- hero ---- */
+  /* Faint dot grid behind the hero, fading out from the logo side. */
+  .tt-hero {
+    position: relative;
+    overflow: hidden;
+  }
+  .tt-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--color-dot) 1.4px, transparent 1.5px);
+    background-size: 28px 28px;
+    opacity: 0.18;
+    -webkit-mask-image: radial-gradient(ellipse at 70% 40%, #000 0%, transparent 70%);
+    mask-image: radial-gradient(ellipse at 70% 40%, #000 0%, transparent 70%);
+    pointer-events: none;
+  }
+  /* The hero prompt types itself: the box grows one character (1ch in a
+     mono font) every 80ms, after a 400ms pause. --n is the character count.
+     With reduced motion the animation is instant, so the text is just there. */
+  .tt-typed {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    width: calc(var(--n) * 1ch);
+    animation: tt-typed calc(var(--n) * 80ms) steps(var(--n)) 400ms both;
+  }
+  .tt-caret {
+    display: inline-block;
+    width: 9px;
+    height: 18px;
+    margin-left: 2px;
+    background: var(--color-mono);
+    animation: tt-blink 1s steps(1) infinite;
+  }
+
+  /* Page-load stagger. */
+  .fade-up-1,
+  .fade-up-2,
+  .fade-up-3,
+  .fade-up-4 {
+    animation: tt-fadeup 0.5s var(--ease) both;
+  }
+  .fade-up-1 {
+    animation-delay: 100ms;
+  }
+  .fade-up-2 {
+    animation-delay: 220ms;
+  }
+  .fade-up-3 {
+    animation-delay: 340ms;
+  }
+  .fade-up-4 {
+    animation-delay: 460ms;
+  }
+
+  /* The one full-bleed gradient surface a page may have. Dark ink only,
+     and the focus ring goes dark too so it stays visible on orange. */
+  .tt-warm {
+    background: var(--gradient-brand);
+    color: var(--color-on-warm);
+  }
+  .tt-warm .tt-label {
+    color: var(--color-on-warm);
+  }
+  .tt-warm :focus-visible {
+    outline-color: var(--color-on-warm);
+  }
+  /* ---- cart drawer (a native <dialog>) ---- */
+  .tt-drawer {
+    position: fixed;
+    inset: 0 0 0 auto;
+    width: min(420px, 100%);
+    height: 100dvh;
+    max-height: none;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    flex-direction: column;
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    border: 0;
+    border-left: 1px solid var(--color-border-default);
+    box-shadow: var(--shadow-lg);
+  }
+  .tt-drawer[open] {
+    display: flex;
+    animation: tt-slide var(--motion-slow) var(--ease) both;
+  }
+  .tt-drawer::backdrop {
+    background: var(--color-bg-overlay);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    animation: tt-fade var(--motion-slow) var(--ease) both;
+  }
+}
+
+@keyframes tt-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes tt-typed {
+  from {
+    width: 0;
+  }
+}
+@keyframes tt-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes tt-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes tt-fadeup {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes tt-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes tt-slide {
+  from {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   6. SITE FX
+   <html> carries data-tt-cardfx | linkfx | scrollfx | btnfx and
+   --ttfx-scale. The site default comes from the database; a visitor's own
+   choice (localStorage "tt-fx-v1") is applied before first paint by the
+   script in layout.tsx. Every duration is multiplied by --ttfx-scale.
+   Unlayered on purpose: an effect must beat the component's resting style.
+   ============================================================ */
+
+/* ---- card hover ---- */
+[data-tt-cardfx="classic"] .tt-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+[data-tt-cardfx="tilt"] .tt-card-hover {
+  transition:
+    transform calc(0.14s * var(--ttfx-scale)) ease,
+    box-shadow calc(0.25s * var(--ttfx-scale)) ease,
+    border-color var(--motion-base);
+}
+/* --ttrx / --ttry are set by the FX driver from the cursor position. */
+[data-tt-cardfx="tilt"] .tt-card-hover:hover {
+  transform: perspective(720px) rotateX(var(--ttry, 0deg)) rotateY(var(--ttrx, 0deg)) scale(1.03);
+  box-shadow: var(--shadow-lg);
+}
+[data-tt-cardfx="socket"] .tt-card-hover {
+  transition:
+    transform calc(0.18s * var(--ttfx-scale)) var(--motion-spring),
+    box-shadow calc(0.22s * var(--ttfx-scale)) ease,
+    border-color var(--motion-base);
+}
+[data-tt-cardfx="socket"] .tt-card-hover:hover {
+  transform: translateY(2px) scale(0.985);
+  box-shadow:
+    inset 0 2px 12px rgba(0, 0, 0, 0.24),
+    0 1px 0 var(--color-border-strong);
+  border-color: var(--color-accent-muted);
+}
+[data-tt-cardfx="peel"] .tt-card-hover {
+  transform-origin: center bottom;
+  transition:
+    transform calc(0.3s * var(--ttfx-scale)) var(--motion-spring),
+    box-shadow calc(0.3s * var(--ttfx-scale)) ease;
+}
+[data-tt-cardfx="peel"] .tt-card-hover:hover {
+  transform: perspective(900px) rotateX(7deg) translateY(-2px);
+  box-shadow: 0 20px 36px rgba(0, 0, 0, 0.34);
+}
+[data-tt-cardfx="glow"] .tt-card-hover {
+  transition:
+    box-shadow calc(0.35s * var(--ttfx-scale)) ease,
+    border-color calc(0.35s * var(--ttfx-scale)) ease;
+}
+[data-tt-cardfx="glow"] .tt-card-hover::before {
+  transform-origin: left;
+  transform: scaleX(0);
+  transition:
+    transform calc(0.45s * var(--ttfx-scale)) ease,
+    opacity 0.2s ease;
+}
+[data-tt-cardfx="glow"] .tt-card-hover:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-glow);
+}
+[data-tt-cardfx="glow"] .tt-card-hover:hover::before {
+  transform: scaleX(1);
+}
+
+/* ---- nav link hover (the current page keeps the hover look) ---- */
+[data-tt-linkfx="underline"] .tt-navlink::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform calc(0.28s * var(--ttfx-scale)) ease;
+}
+[data-tt-linkfx="underline"] .tt-navlink:hover::after,
+[data-tt-linkfx="underline"] .tt-navlink[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+[data-tt-linkfx="caret"] .tt-navlink {
+  padding-left: 22px;
+}
+[data-tt-linkfx="caret"] .tt-navlink::before {
+  content: ">";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  opacity: 0;
+  transform: translate(-4px, -50%);
+  transition:
+    opacity calc(0.2s * var(--ttfx-scale)) ease,
+    transform calc(0.2s * var(--ttfx-scale)) ease;
+}
+[data-tt-linkfx="caret"] .tt-navlink:hover::before,
+[data-tt-linkfx="caret"] .tt-navlink[aria-current="page"]::before {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+[data-tt-linkfx="bracket"] .tt-navlink::before,
+[data-tt-linkfx="bracket"] .tt-navlink::after {
+  font-family: var(--font-mono);
+  color: var(--color-accent);
+  opacity: 0;
+  transition:
+    opacity calc(0.18s * var(--ttfx-scale)) ease,
+    transform calc(0.18s * var(--ttfx-scale)) ease;
+}
+[data-tt-linkfx="bracket"] .tt-navlink::before {
+  content: "[";
+  margin-right: 5px;
+  transform: translateX(5px);
+}
+[data-tt-linkfx="bracket"] .tt-navlink::after {
+  content: "]";
+  margin-left: 5px;
+  transform: translateX(-5px);
+}
+[data-tt-linkfx="bracket"] .tt-navlink:hover::before,
+[data-tt-linkfx="bracket"] .tt-navlink:hover::after,
+[data-tt-linkfx="bracket"] .tt-navlink[aria-current="page"]::before,
+[data-tt-linkfx="bracket"] .tt-navlink[aria-current="page"]::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+[data-tt-linkfx="swipe"] .tt-navlink {
+  background-image: linear-gradient(var(--color-accent-subtle), var(--color-accent-subtle));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 72%;
+  transition:
+    background-size calc(0.3s * var(--ttfx-scale)) ease,
+    color var(--motion-base);
+}
+[data-tt-linkfx="swipe"] .tt-navlink:hover,
+[data-tt-linkfx="swipe"] .tt-navlink[aria-current="page"] {
+  background-size: 100% 72%;
+}
+
+/* ---- scroll reveal ----
+   Cards start hidden only once the FX driver has run (.tt-fx-on), so with
+   JavaScript off, or before it loads, nothing is ever invisible. The whole
+   block is skipped when the device or the visitor asks for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .tt-fx-on:not([data-tt-motion="reduced"])[data-tt-scrollfx="rise"] main .tt-card:not(.tt-inview) {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  .tt-fx-on:not([data-tt-motion="reduced"])[data-tt-scrollfx="assemble"] main .tt-card:not(.tt-inview) {
+    opacity: 0;
+    scale: 0.92;
+  }
+  .tt-fx-on:not([data-tt-motion="reduced"])[data-tt-scrollfx="blur"] main .tt-card:not(.tt-inview) {
+    opacity: 0;
+    filter: blur(10px);
+  }
+  .tt-fx-on:not([data-tt-motion="reduced"])[data-tt-scrollfx="swing"] main .tt-card:not(.tt-inview) {
+    opacity: 0;
+    translate: 0 16px;
+    rotate: -3deg;
+  }
+  /* --i is the card's position among the cards revealed together, so a row
+     of cards arrives one after another. */
+  [data-tt-scrollfx="rise"]:not([data-tt-motion="reduced"]) main .tt-card.tt-inview {
+    animation: tt-rise calc(0.6s * var(--ttfx-scale)) cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 55ms * var(--ttfx-scale));
+  }
+  [data-tt-scrollfx="assemble"]:not([data-tt-motion="reduced"]) main .tt-card.tt-inview {
+    animation: tt-assemble calc(0.55s * var(--ttfx-scale)) cubic-bezier(0.2, 0.8, 0.25, 1) both;
+    animation-delay: calc(var(--i, 0) * 60ms * var(--ttfx-scale));
+  }
+  [data-tt-scrollfx="blur"]:not([data-tt-motion="reduced"]) main .tt-card.tt-inview {
+    animation: tt-blur-in calc(0.6s * var(--ttfx-scale)) ease both;
+    animation-delay: calc(var(--i, 0) * 55ms * var(--ttfx-scale));
+  }
+  [data-tt-scrollfx="swing"]:not([data-tt-motion="reduced"]) main .tt-card.tt-inview {
+    transform-origin: top left;
+    animation: tt-swing calc(0.62s * var(--ttfx-scale)) var(--motion-spring) both;
+    animation-delay: calc(var(--i, 0) * 58ms * var(--ttfx-scale));
+  }
+}
+/* Once revealed, drop the animation so hover transforms work normally. */
+[data-tt-scrollfx] main .tt-card.tt-fx-done {
+  animation: none;
+}
+@keyframes tt-rise {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+}
+@keyframes tt-assemble {
+  from {
+    opacity: 0;
+    scale: 0.92;
+    clip-path: inset(0 0 100% 0);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes tt-blur-in {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+  }
+}
+@keyframes tt-swing {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+    rotate: -3deg;
+  }
+}
+
+/* ---- button feel ("glow" is the resting default above) ---- */
+[data-tt-btnfx="press"] .tt-btn-primary:hover {
+  box-shadow: none;
+}
+[data-tt-btnfx="press"] .tt-btn-primary:active {
+  transform: scale(0.93);
+  box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.32);
+}
+[data-tt-btnfx="sweep"] .tt-btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+[data-tt-btnfx="sweep"] .tt-btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 32%, rgba(255, 255, 255, 0.4) 50%, transparent 68%);
+  transform: translateX(-130%);
+  transition: transform calc(0.6s * var(--ttfx-scale)) ease;
+}
+[data-tt-btnfx="sweep"] .tt-btn-primary:hover::after {
+  transform: translateX(130%);
+}
+
+/* ============================================================
+   7. REDUCED MOTION
+   Two ways in: the device setting, or the visitor's own choice
+   (data-tt-motion="reduced" on <html>). Both get the same treatment:
+   everything is near-instant and nothing moves, but focus rings, colour
+   changes and content all still work.
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  .tt-label-type {
+    animation: none !important;
+    clip-path: none !important;
+  }
+  .tt-caret {
+    animation: none !important;
+    opacity: 1;
+  }
+  .tt-skel::after {
+    display: none;
+  }
+  .tt-card-hover:hover,
+  .tt-btn:active {
+    transform: none !important;
+  }
+}
+[data-tt-motion="reduced"] *,
+[data-tt-motion="reduced"] *::before,
+[data-tt-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  animation-delay: 0ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+[data-tt-motion="reduced"] .tt-label-type {
+  animation: none !important;
+  clip-path: none !important;
+}
+[data-tt-motion="reduced"] .tt-caret {
+  animation: none !important;
+  opacity: 1;
+}
+[data-tt-motion="reduced"] .tt-skel::after {
+  display: none;
+}
+[data-tt-motion="reduced"] .tt-card-hover:hover,
+[data-tt-motion="reduced"] .tt-btn:active {
+  transform: none !important;
 }
