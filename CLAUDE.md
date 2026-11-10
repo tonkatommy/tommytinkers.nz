@@ -45,7 +45,7 @@ docs/                        business summary (Feb 2026, business context only)
 | Icons | Phosphor (`@phosphor-icons/react` 2.1.10) |
 | Email | Resend, free plan |
 | Payments | Stripe Checkout, NZD |
-| Tests | Vitest 5, Playwright 1.64 (not set up yet) |
+| Tests | Vitest 5.1.0 (unit, `src/**/*.test.ts`), Playwright 1.64.1 with `@axe-core/playwright` (browser, `e2e/`) |
 | Lint | ESLint 10 with `eslint-config-next` |
 | Packages | pnpm 12.16.1 |
 
@@ -68,7 +68,11 @@ pnpm dev
 pnpm lint
 pnpm typecheck
 pnpm build
+pnpm start            # runs the standalone build, as Docker does (`next start` doesn't work with it)
 pnpm db:migrate       # prisma migrate dev (needs DATABASE_URL, see .env.example)
+pnpm db:seed          # categories and the real product range; only creates what's missing
+pnpm test             # Vitest unit tests
+pnpm test:e2e         # Playwright: needs `pnpm build`, a migrated and seeded database, and `pnpm exec playwright install chromium` once
 ```
 
 Full stack from the repo root (create the secret first: `openssl rand -hex 32 > deploy/secrets/db_password.txt`, hex only because it goes into a URL):
@@ -98,13 +102,14 @@ docker compose -f deploy/compose.yaml exec -T db pg_restore -U tommytinkers -d t
 
 ## Architecture rules
 
-- **Server first.** Pages are server components. Client components are small islands at the leaves (cart drawer, typewriter hero, FX driver, questionnaire, forms, theme toggle). Keep `"use client"` as low as possible.
+- **Server first.** Pages are server components. Client components are small islands at the leaves (cart drawer, nav scroll and menus, FX driver, questionnaire, forms, theme toggle). Keep `"use client"` as low as possible, and prefer CSS where it can do the job: the hero typewriter and the section-label reveal are CSS animations with no JavaScript.
+- **Cache Components are on** (`cacheComponents` and `partialPrefetching` in `next.config.ts`, decided 10/11/2026). A page is prerendered up to its first request-time data. Cached reads are `"use cache"` functions in `src/server/*` with a tag (`CATALOGUE_TAG`, `SETTINGS_TAG`) and `cacheLife("hours")`; whatever changes that data must call `revalidateTag(tag, "max")`. A component that reads the database calls `await connection()` first (outside any try/catch) and sits inside `<Suspense>`, so the build never needs a database. Route segment config like `export const dynamic` no longer works; `/api/health` uses `connection()` too.
 - **One data layer.** All database access goes through `src/server/*` (marked `server-only`). Those functions check the session and permission themselves, so a page or action can't skip the check by accident.
 - **Two auth gates.** `src/proxy.ts` does a cheap redirect. `requirePermission()` in the data layer is the real check, because server actions are public POST endpoints.
 - **Mutations** are server actions with zod input. Route handlers only for things outside the app calling in: auth, Stripe webhook, uploads, `/api/health`.
 - **Money** is integer cents (`priceCents`). The server re-prices every cart line at checkout; never trust a client price.
 - **Dates** are stored in UTC and shown as DD/MM/YYYY in NZ time.
-- **Theme** lives in a cookie so the server renders the right `data-theme` with no flash. Dark is the default.
+- **Theme** lives in the `tt-theme` cookie and dark is the default. The cookie is read by a small inline script in `<head>` (`src/lib/head-script.ts`), not by the server (changed 10/11/2026): reading cookies in the root layout would make every page render per request and block caching. The script sets `data-theme` before first paint, so there is still no flash. Keep that script tiny and fixed, because the Phase 6 CSP will allow it by hash.
 
 ## Decisions already made (don't reopen without asking)
 
@@ -120,6 +125,7 @@ docker compose -f deploy/compose.yaml exec -T db pg_restore -U tommytinkers -d t
 
 The v2 UI design lives on the claude.ai Design canvas `tommy tinkers NZ v2` (link at the top). The schema in `prisma/schema.prisma` already models everything below, ahead of Phases 3 and 5.
 
+- **The seed** (`prisma/seed.ts`) creates the four categories and the four live products below, all featured, and nothing else. It never updates an existing row, so it is safe to re-run: staging runs it after every migration, production runs it once at cutover (`docker compose -f deploy/compose.yaml run --rm migrate ./node_modules/.bin/prisma db seed`). Variant SKUs are `rcws-mixed`, `rcws-10th`, `rcws-8th` and `rcws-pits`. `rcws-2` isn't seeded (no details recorded). Personalisation questions aren't seeded yet (Phase 3, they need Tommy's real field list).
 - **Launch range is stickers only.** The Stickers and decals category is live. RC parts, kids' toys and household show as "coming soon" (`Category.status = COMING_SOON`) until Tommy adds products.
 - **The Shopify store is closed and gone** (08/11/2026). tommytinkers.nz is the only store, and payments go through Stripe Checkout (decided 08/11/2026, see the stack table). Shopify's admin, order pages and API no longer exist, so the Shopify export saved on 17/06/2026 (`02_products.md` to `05_customers.md` in the claude.ai project) is the only record of the old store. It holds customer emails and phone numbers, so it never goes in this public repo.
 - **Real products** (prices NZD): RC name window stickers `rcws` $20.00 (variants Mixed, 10th Only, 8th Only and Pits Only), Custom sticker sheet A4 `ss-a4` $35.00, Waikato Champs grid stickers `wcgs` $15.00 (all made to order), Astro Masters grid stickers `amgs` $20.00 (tracked, 0 in stock, so sold out). `rcws-2` is a hidden draft. Weights and unit costs are still to come from Tommy, so both columns are nullable. The stockroom drawer has fields for both, and a "Needs cost or weight" filter lists the products still missing either.
@@ -168,8 +174,8 @@ Also modelled: `StockMovement` (every stock change, tracked products only), `Aud
 | Phase | Status |
 |---|---|
 | 0. Foundations | Done (10/11/2026, `feat/v2-foundations-finish`): scaffold, Dockerfile and Compose; full schema through `20261109120000_proofs_alerts_consent` (Better Auth tables come in Phase 2); stack runs and `/api/health` answers ok, or 503 with the database down; v2 CI jobs; backups encrypted with age and kept 30 days. Not done: the staging auto-deploy on merge (needs a self-hosted runner or a deploy hook on the host) and the off-box copy of `/backups`. |
-| 1. Design system and shell | Next |
-| 2. Accounts (Better Auth) | |
+| 1. Design system and shell | Done (10/11/2026, `feat/v2-design-system-shell`): tokens and Tailwind theme, nav, mobile menu, footer, theme toggle, site FX driver, home page with its loading, empty and error states, not-found and error pages, `Product.featured` (migration `20261110101931_product_featured`), the catalogue seed, Vitest and Playwright in CI. The cart button opens an empty drawer; the cart itself, "Add to cart" and the count badge are Phase 3. The account menu has its signed-out state only until Phase 2. Links to pages from later phases show the not-found page. |
+| 2. Accounts (Better Auth) | Next |
 | 3. Catalogue and stockroom | |
 | 4. The Shed | |
 | 5. Codebench, contact and Stripe checkout | |
@@ -179,13 +185,14 @@ Each phase is a `feat/v2-…` branch with a PR into `feature/new-site-v2.0`. Tha
 
 ## Design rules (summary; the DS files have the detail)
 
-- **Tokens only.** Use `var(--token)` from `globals.css`. No new hardcoded hex in components (avatar and badge palettes are the only exception).
+- **Tokens only.** Use `var(--token)` from `globals.css`. No new hardcoded hex in components (avatar and badge palettes are the only exception). Tailwind's own palette is switched off, so only token colours exist as utilities: `bg-canvas`, `bg-surface`, `bg-raised`, `text-ink`, `text-ink-secondary`, `text-ink-muted`, `border-line-subtle`, `border-line`, `border-line-strong`, plus `accent`, `mono`, `eyebrow`, `error` and the warm colours. Buttons, cards, pills, tags and skeletons are classes in `globals.css` (`.tt-btn`, `.tt-card`...) because the site FX hook onto them; use them through `src/components/ui/*`. Lay everything else out with utilities.
+- **Contrast swaps.** Orange eyebrows and red error text fail AA on the cream light theme, so use `--color-eyebrow` and `--color-error-text` (they switch per theme), never the raw orange or red, for text.
 - **Colour roles.** The warm gradient (`--gradient-brand`) is decoration only, always with dark text, at most one full-bleed gradient surface per page. Brand green (`--color-accent`) is for interactive things: links, CTAs, focus rings. Never green text on the gradient, never gradient card backgrounds.
 - **Themes.** Both must work. Production defaults to dark even though the DS tokens treat light as `:root`.
 - **Type.** Exo 2 for headings and body. Jura only for wide-tracked (0.18em) uppercase eyebrows like `MAKER OF THINGS` and stat numbers. Agave Nerd mono for `> 01. section` prompt labels, terminal bits and code. Fonts are local TTFs in `public/fonts`.
 - **Layout.** 8px grid, 1200px container, 64px nav (blurred overlay once scrolled), mobile-first, breakpoints 640/768/1024/1280/1536. Flex or grid with `gap`.
 - **Cards.** `.tt-card`: surface background, subtle border, 16px radius, top accent bar on hover. Radii 4 to 24px only.
-- **Motion.** Tokens `--motion-fast/base/slow/spring`. Site FX uses `data-tt-cardfx | linkfx | scrollfx | btnfx` on `<html>` plus `--ttfx-scale`. Site defaults come from the database; a visitor's override stays in localStorage as `tt-fx-v1`. Always respect `prefers-reduced-motion`.
+- **Motion.** Tokens `--motion-fast/base/slow/spring`. Site FX uses `data-tt-cardfx | linkfx | scrollfx | btnfx` on `<html>` plus `--ttfx-scale`. Site defaults come from the database (`SiteSetting` `fx.defaults`, falling back to socket, caret, swing, sweep at scale 1, as the admin settings board starts with); a visitor's override stays in localStorage as `tt-fx-v1`, with an optional `motion: "reduced"` that sets `data-tt-motion` on `<html>`. Always respect `prefers-reduced-motion`.
 - **Icons.** Phosphor only, sizes 16/20/24. Regular weight for UI, duotone for achievement badges. Server components import from `@phosphor-icons/react/ssr`; client components from `@phosphor-icons/react`. Every icon needs a label or `aria-hidden` next to visible text. No emoji or unicode glyphs as icons. The DS and prototype name Lucide icons, so map them to the Phosphor equivalent.
 - **Imagery.** Photos over illustrations over placeholders. Don't invent illustrations.
 - **Accessibility.** Visible 2px focus outline (never removed), AA contrast in both themes, semantic HTML.
