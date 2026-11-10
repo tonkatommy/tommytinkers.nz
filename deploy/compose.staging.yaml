@@ -3,6 +3,14 @@
 #   docker compose -p tt-staging -f deploy/compose.yaml -f deploy/compose.staging.yaml up -d --build
 # Put staging values (its own TUNNEL_TOKEN, Stripe test keys) in deploy/.env.staging.
 services:
+  # Staging runs on seed data, so top it up after every migration. The seed
+  # only creates rows that are missing, so it never undoes an edit.
+  # (Production is seeded once, by hand, at cutover.)
+  migrate:
+    command:
+      - sh
+      - -c
+      - ./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/prisma db seed
   app:
     env_file:
       - path: .env.staging

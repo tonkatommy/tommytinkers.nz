@@ -24,6 +24,9 @@ RUN pnpm prisma generate && pnpm build
 # ---- migrate: full dev dependencies (Prisma CLI) + migrations, nothing else
 FROM base AS migrate
 COPY --from=deps /app/node_modules ./node_modules
+# The generated Prisma client (made by `pnpm install` in the deps stage).
+# Migrations don't need it, but the seed script does.
+COPY --from=deps /app/src/generated ./src/generated
 COPY package.json prisma.config.ts docker-entrypoint.sh ./
 COPY prisma ./prisma
 USER node
