@@ -39,7 +39,7 @@ docs/                        business summary (Feb 2026, business context only)
 | Framework | Next.js 16.4.3 App Router, `output: "standalone"`, React 19.3.1 with React Compiler |
 | Language | TypeScript 6.0.3 strict, `@/*` → `src/*` |
 | Styling | Tailwind CSS 4.3 plus DS tokens as CSS custom properties in `src/app/globals.css` |
-| Auth | Better Auth 1.7.22 (email + password, Google, captcha plugin for Turnstile). Permissions are our own `Role` table, not its access-control plugin; its admin plugin (suspend, impersonate) is a Phase 3 decision |
+| Auth | Better Auth 1.7.20 (email + password, Google, captcha plugin for Turnstile). Permissions are our own `Role` table, not its access-control plugin; its admin plugin (suspend, impersonate) is a Phase 3 decision |
 | Database | PostgreSQL 18.6 via Prisma 7.10.1 with `@prisma/adapter-pg`; client generated into `src/generated/prisma` |
 | Validation | zod 4 |
 | Icons | Phosphor (`@phosphor-icons/react` 2.1.10) |
@@ -55,6 +55,7 @@ Version traps, all verified on 02/11/2026:
 - **Prisma stays on 7.x.** npm's `latest` tag points at 8.0 RC, and Better Auth's Prisma adapter supports up to 7. Don't let `pnpm update` jump it.
 - **Node 26 has no bundled corepack.** The Dockerfile installs pnpm with `npm install -g`.
 - **Postgres 18 moved its data dir** to `/var/lib/postgresql/18/docker`. The volume mounts `/var/lib/postgresql`.
+- **pnpm blocks brand-new releases.** It refuses packages published in the last day or so. If you pin one anyway, it quietly adds a `minimumReleaseAgeExclude` list to `pnpm-workspace.yaml` to let it through. Don't keep that list: pick a version a few days old instead (Better Auth is on 1.7.20 for this reason, found 13/11/2026).
 - **No pnpm at container runtime.** pnpm 12 looks up its pinned version on the npm registry every time it starts, and `migrate`, `app` and `backup` sit on the internal-only `backend` network. Runtime commands call binaries directly (`./node_modules/.bin/prisma`, `node server.js`). Found 10/11/2026.
 - **Secret files can end in CRLF** when made or edited on Windows (Git Bash's `openssl` does it). The Postgres image ignores the `\r`, so every script that reads `/run/secrets/db_password` uses `tr -d '\r\n'`, never plain `cat`.
 

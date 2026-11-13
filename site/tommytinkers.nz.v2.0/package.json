@@ -25,7 +25,7 @@
     "@phosphor-icons/react": "2.1.10",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
-    "better-auth": "1.7.22",
+    "better-auth": "1.7.20",
     "next": "16.4.3",
     "pg": "8.23.1",
     "react": "19.3.1",
