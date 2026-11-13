@@ -202,6 +202,9 @@
   }
   a {
     color: var(--color-accent);
+    /* Underlined by default: a link inside a sentence must not rely on
+       colour alone to be noticed. Buttons, nav and cards switch it off. */
+    text-decoration: underline;
     text-underline-offset: 3px;
     transition: color var(--motion-fast) var(--ease);
   }
@@ -419,6 +422,43 @@
     border-color: transparent;
     box-shadow: none;
     transform: none;
+    cursor: not-allowed;
+  }
+
+  /* ---- form fields ---- */
+  .tt-input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    /* 16px stops iOS Safari zooming the page when a field gets focus. */
+    font: 400 1rem/1.4 var(--font-body);
+    transition:
+      border-color var(--motion-fast) var(--ease),
+      box-shadow var(--motion-fast) var(--ease);
+  }
+  .tt-input::placeholder {
+    color: var(--color-text-muted);
+  }
+  .tt-input:hover {
+    border-color: var(--color-border-strong);
+  }
+  .tt-input:focus-visible {
+    border-color: var(--color-accent);
+  }
+  /* aria-invalid is what screen readers hear, so the red border hangs off
+     the same attribute: the two can't get out of step. */
+  .tt-input[aria-invalid="true"] {
+    border-color: var(--color-error);
+    border-width: 2px;
+  }
+  .tt-input:disabled {
+    background: var(--color-bg-raised);
+    color: var(--color-text-secondary);
+    border-color: var(--color-border-subtle);
     cursor: not-allowed;
   }
 

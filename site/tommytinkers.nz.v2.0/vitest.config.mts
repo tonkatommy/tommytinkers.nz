@@ -10,5 +10,7 @@ export default defineConfig({
   },
   test: {
     include: ["src/**/*.test.ts"],
+    // Database tests have their own config and command (pnpm test:db).
+    exclude: ["src/**/*.db.test.ts"],
   },
 });

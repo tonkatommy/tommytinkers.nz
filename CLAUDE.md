@@ -39,11 +39,11 @@ docs/                        business summary (Feb 2026, business context only)
 | Framework | Next.js 16.4.3 App Router, `output: "standalone"`, React 19.3.1 with React Compiler |
 | Language | TypeScript 6.0.3 strict, `@/*` → `src/*` |
 | Styling | Tailwind CSS 4.3 plus DS tokens as CSS custom properties in `src/app/globals.css` |
-| Auth | Better Auth 1.7 (email + password, Google, admin and access-control plugins) |
+| Auth | Better Auth 1.7.20 (email + password, Google, captcha plugin for Turnstile). Permissions are our own `Role` table, not its access-control plugin; its admin plugin (suspend, impersonate) is a Phase 3 decision |
 | Database | PostgreSQL 18.6 via Prisma 7.10.1 with `@prisma/adapter-pg`; client generated into `src/generated/prisma` |
 | Validation | zod 4 |
 | Icons | Phosphor (`@phosphor-icons/react` 2.1.10) |
-| Email | Resend, free plan |
+| Email | Resend 6.38.0, free plan, through `sendEmail()` in `src/server/email.ts` |
 | Payments | Stripe Checkout, NZD |
 | Tests | Vitest 5.1.0 (unit, `src/**/*.test.ts`), Playwright 1.64.1 with `@axe-core/playwright` (browser, `e2e/`) |
 | Lint | ESLint 10 with `eslint-config-next` |
@@ -55,6 +55,7 @@ Version traps, all verified on 02/11/2026:
 - **Prisma stays on 7.x.** npm's `latest` tag points at 8.0 RC, and Better Auth's Prisma adapter supports up to 7. Don't let `pnpm update` jump it.
 - **Node 26 has no bundled corepack.** The Dockerfile installs pnpm with `npm install -g`.
 - **Postgres 18 moved its data dir** to `/var/lib/postgresql/18/docker`. The volume mounts `/var/lib/postgresql`.
+- **pnpm blocks brand-new releases.** It refuses packages published in the last day or so. If you pin one anyway, it quietly adds a `minimumReleaseAgeExclude` list to `pnpm-workspace.yaml` to let it through. Don't keep that list: pick a version a few days old instead (Better Auth is on 1.7.20 for this reason, found 13/11/2026).
 - **No pnpm at container runtime.** pnpm 12 looks up its pinned version on the npm registry every time it starts, and `migrate`, `app` and `backup` sit on the internal-only `backend` network. Runtime commands call binaries directly (`./node_modules/.bin/prisma`, `node server.js`). Found 10/11/2026.
 - **Secret files can end in CRLF** when made or edited on Windows (Git Bash's `openssl` does it). The Postgres image ignores the `\r`, so every script that reads `/run/secrets/db_password` uses `tr -d '\r\n'`, never plain `cat`.
 
@@ -72,6 +73,7 @@ pnpm start            # runs the standalone build, as Docker does (`next start` 
 pnpm db:migrate       # prisma migrate dev (needs DATABASE_URL, see .env.example)
 pnpm db:seed          # categories and the real product range; only creates what's missing
 pnpm test             # Vitest unit tests
+pnpm test:db          # Vitest against a real Postgres (DATABASE_URL), for data-layer rules like the sign-in lockout
 pnpm test:e2e         # Playwright: needs `pnpm build`, a migrated and seeded database, and `pnpm exec playwright install chromium` once
 ```
 
@@ -105,7 +107,9 @@ docker compose -f deploy/compose.yaml exec -T db pg_restore -U tommytinkers -d t
 - **Server first.** Pages are server components. Client components are small islands at the leaves (cart drawer, nav scroll and menus, FX driver, questionnaire, forms, theme toggle). Keep `"use client"` as low as possible, and prefer CSS where it can do the job: the hero typewriter and the section-label reveal are CSS animations with no JavaScript.
 - **Cache Components are on** (`cacheComponents` and `partialPrefetching` in `next.config.ts`, decided 10/11/2026). A page is prerendered up to its first request-time data. Cached reads are `"use cache"` functions in `src/server/*` with a tag (`CATALOGUE_TAG`, `SETTINGS_TAG`) and `cacheLife("hours")`; whatever changes that data must call `revalidateTag(tag, "max")`. A component that reads the database calls `await connection()` first (outside any try/catch) and sits inside `<Suspense>`, so the build never needs a database. Route segment config like `export const dynamic` no longer works; `/api/health` uses `connection()` too.
 - **One data layer.** All database access goes through `src/server/*` (marked `server-only`). Those functions check the session and permission themselves, so a page or action can't skip the check by accident.
-- **Two auth gates.** `src/proxy.ts` does a cheap redirect. `requirePermission()` in the data layer is the real check, because server actions are public POST endpoints.
+- **Two auth gates.** `src/proxy.ts` does a cheap cookie-only redirect for `/account` and `/admin`. `requireUser()` and `requirePermission()` in `src/server/session.ts` are the real check, because server actions are public POST endpoints. `requirePermission()` answers "not found" to anyone without the permission.
+- **Account rules live in Better Auth hooks** (`src/server/auth.ts`), not in forms, because `/api/auth/*` is public: the password rules (10+ characters, a number, a symbol, not the email), the sign-in lockout, the Turnstile check on email sign-up, and the consent time. The account forms are client components that call those endpoints through `src/lib/auth-client.ts`, so Better Auth's per-IP rate limits apply; calling `auth.api.*` from a server action would skip them. Our own data (the `/welcome` step, sign-out) uses server actions.
+- **The session never goes in the root layout.** Anything that reads it (`getSession()`, `getCurrentUser()`) sits inside `<Suspense>`, like the nav's account menu in `account-slots.tsx`, so pages stay prerendered.
 - **Mutations** are server actions with zod input. Route handlers only for things outside the app calling in: auth, Stripe webhook, uploads, `/api/health`.
 - **Money** is integer cents (`priceCents`). The server re-prices every cart line at checkout; never trust a client price.
 - **Dates** are stored in UTC and shown as DD/MM/YYYY in NZ time.
@@ -113,6 +117,13 @@ docker compose -f deploy/compose.yaml exec -T db pg_restore -U tommytinkers -d t
 
 ## Decisions already made (don't reopen without asking)
 
+- **Accounts** (decided 11/11/2026, built 13/11/2026):
+  - Email must be confirmed before a session exists. Verification links last 24 hours, reset links 1 hour and once. A password reset signs every device out (the design asked afterwards; that can't be done safely once the token is spent).
+  - **Lockout** is 5 wrong passwords in a row, then 15 minutes, counted per email address typed in `SignInThrottle`, never on `User`, so a locked screen can't reveal who has an account. Sign-up and forgot-password also answer the same for known and unknown addresses.
+  - **13 and over:** `User.ageConfirmedAt` is set from the server's clock when the box is ticked. An account without it (made through Google, or straight through the API) is sent to `/welcome` by `requireUser()` and can do nothing until it's ticked.
+  - **Roles:** the seed creates owner, shopkeeper, moderator and member. New accounts get member. The first owner is made with `prisma/promote-owner.ts <email>`, never from the site.
+  - **Email without a key:** outside production, emails are written to `.tmp/emails` instead of sent. In production a missing `RESEND_API_KEY` is an error. `EMAIL_TO_FILE=1` forces the file sink and is for tests only.
+  - Google, Turnstile and Resend each switch on when their keys are set (`.env.example`), so the app builds and tests with none.
 - v2 starts with an **empty database**. No v1 users or data migrate; members sign up again.
 - **Pinboard** is public to read; posting and reacting need a free account. A new account's first 3 posts go to moderation. Limits: 500 characters and one image of up to 5 MB per post, 5 posts an hour per account, and Cloudflare Turnstile on sign-up.
 - **Shipping** (changed 02/11/2026) is free anywhere in New Zealand, with no minimum spend, NZ addresses only. Admin has a toggle to turn free shipping off; when it's off, a single flat rate set in admin applies to every order. Weight-band pricing is dropped. Every product still has a weight in grams, but it's admin only (packing and postage) and never shown to customers. The "Free ship club" badge stays gone (19 badges remain).
@@ -175,7 +186,7 @@ Also modelled: `StockMovement` (every stock change, tracked products only), `Aud
 |---|---|
 | 0. Foundations | Done (10/11/2026, `feat/v2-foundations-finish`): scaffold, Dockerfile and Compose; full schema through `20261109120000_proofs_alerts_consent` (Better Auth tables come in Phase 2); stack runs and `/api/health` answers ok, or 503 with the database down; v2 CI jobs; backups encrypted with age and kept 30 days. Not done: the staging auto-deploy on merge (needs a self-hosted runner or a deploy hook on the host) and the off-box copy of `/backups`. |
 | 1. Design system and shell | Done (10/11/2026, `feat/v2-design-system-shell`): tokens and Tailwind theme, nav, mobile menu, footer, theme toggle, site FX driver, home page with its loading, empty and error states, not-found and error pages, `Product.featured` (migration `20261110101931_product_featured`), the catalogue seed, Vitest and Playwright in CI. The cart button opens an empty drawer; the cart itself, "Add to cart" and the count badge are Phase 3. The account menu has its signed-out state only until Phase 2. Links to pages from later phases show the not-found page. |
-| 2. Accounts (Better Auth) | Next |
+| 2. Accounts (Better Auth) | Part 1 done (13/11/2026, `feat/v2-accounts`): Better Auth tables and relations (migration `20261112192733_better_auth_accounts`), sign up, email verification, sign in, lockout, forgot and reset password, `/welcome`, `proxy.ts`, `requireUser()` and `requirePermission()`, signed-in nav menus, role seed, owner script. `/account` is a holding page. Part 2 next (`feat/v2-account-settings`): the full account settings screen (profile, security, email toggles, look and motion with "Match my device", download my data, delete account). Still needed from Tommy: the house rules and privacy policy Markdown (the sign-up tick box links to both), and real Google, Turnstile and Resend keys. Google sign-in is built but untested end to end without credentials. |
 | 3. Catalogue and stockroom | |
 | 4. The Shed | |
 | 5. Codebench, contact and Stripe checkout | |

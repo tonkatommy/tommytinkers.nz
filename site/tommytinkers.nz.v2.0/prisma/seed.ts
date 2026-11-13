@@ -1,5 +1,5 @@
-// Seed: the categories and the real product range, so a fresh database has a
-// shop to show. Run with `pnpm db:seed`.
+// Seed: the roles, the categories and the real product range, so a fresh
+// database has a shop to show and accounts have a role to land in. Run with `pnpm db:seed`.
 //
 // Rules this file follows:
 // - Catalogue only. No customers, orders or anything invented to look real.
@@ -8,6 +8,7 @@
 // - Money is integer cents.
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { SEED_ROLES } from "../src/lib/permissions";
 
 const db = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -85,6 +86,15 @@ const products = [
 ] as const;
 
 async function main() {
+  // Roles first: a new account is given the "member" role as it is created.
+  for (const role of SEED_ROLES) {
+    await db.role.upsert({
+      where: { name: role.name },
+      update: {},
+      create: { ...role, permissions: [...role.permissions] },
+    });
+  }
+
   for (const category of categories) {
     await db.category.upsert({
       where: { slug: category.slug },
@@ -111,7 +121,7 @@ async function main() {
     });
   }
 
-  console.log(`Seed done: ${categories.length} categories, ${products.length} products.`);
+  console.log(`Seed done: ${SEED_ROLES.length} roles, ${categories.length} categories, ${products.length} products.`);
 }
 
 main()
