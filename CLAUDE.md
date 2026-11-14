@@ -204,7 +204,7 @@ Code moves one way: work branch → `development` → `main` → `production`.
 | `production` | What the live server runs. Takes PRs from `main` only. A production deploy needs a tagged release. |
 
 - `main`, `development` and `production` are protected by a GitHub ruleset: no direct pushes, no force pushes, no deleting. Every change arrives by PR, so don't try to push to them.
-- `feature/new-site-v2.0` is retired (15/11/2026). It was the v2 integration branch until PR 22 merged it into `development`. Don't branch from it or target it: it is missing later fixes.
+- `feature/new-site-v2.0` is retired (15/11/2026). It was the v2 integration branch until PR 22 merged it into `development`. It was deleted the same day, once everything on it was in `development`.
 - v2 reaches `main` in one PR from `development` at cutover.
 
 ## Design rules (summary; the DS files have the detail)
