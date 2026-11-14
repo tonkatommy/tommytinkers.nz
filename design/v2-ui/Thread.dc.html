@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Thread - Workshop - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="shed" count="0" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main" class="tt-container" style="padding-block: 24px 96px; display: flex; flex-direction: column; gap: 32px; max-width: 880px;">
+  <nav aria-label="Breadcrumb">
+    <ol class="tt-crumbs" style="list-style: none; margin: 0; padding: 0;">
+      <li><a href="Shed.dc.html">The Shed</a></li><li aria-hidden="true"><i class="ph ph-caret-right"></i></li>
+      <li><a href="Workshop.dc.html">Workshop</a></li><li aria-hidden="true"><i class="ph ph-caret-right"></i></li>
+      <li><a href="Workshop.dc.html">Questions</a></li>
+    </ol>
+  </nav>
+
+  <header style="display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;"><span class="tt-tag tt-tag--muted">Questions</span><span class="tt-pill tt-pill--in">Answered</span></div>
+    <h1 class="tt-h2">Which grid stickers fit a 1/10 buggy?</h1>
+    <p class="tt-meta"><span>Started by Test member B</span><span><i class="ph ph-clock" aria-hidden="true"></i>06/11/2026</span><span><i class="ph ph-chats-circle" aria-hidden="true"></i>{{replyCount}} replies</span></p>
+  </header>
+
+  <!-- opening post -->
+  <article class="tt-card tt-post" aria-label="Opening post">
+    <span class="tt-av" aria-hidden="true">B</span>
+    <div class="tt-post-body">
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px;"><a href="Profile.dc.html" style="font-weight: 600; color: var(--text-primary); text-decoration: none;">Test member B</a><span class="tt-mono" style="font-size: 12px; color: var(--text-secondary);">level 1 · Curious tinker</span><span style="font-size: 13px; color: var(--text-secondary);">06/11/2026</span></div>
+      <p>Test post from the staging seed. I race a 1/10 buggy and need grid numbers for a club round. Do the event sheets fit, or should I get a custom sheet?</p>
+      <div class="tt-photo" style="aspect-ratio: 16 / 9; border-radius: 10px; max-width: 520px;" role="img" aria-label="Photo of the buggy (placeholder)"><i class="ph ph-image" aria-hidden="true"></i>Photo</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px;">
+        <button type="button" class="tt-react" aria-pressed="{{helpfulPressed}}" onClick="{{toggleHelpful}}"><i class="ph ph-thumbs-up ph-16" aria-hidden="true"></i>Helpful<span class="tt-mono" style="font-size: 12px;">{{helpfulCount}}</span></button>
+        <a href="#reply" class="tt-react" style="text-decoration: none;"><i class="ph ph-chat-circle-text ph-16" aria-hidden="true"></i>Reply</a>
+        <button type="button" class="tt-react" aria-label="Report this post"><i class="ph ph-flag ph-16" aria-hidden="true"></i>Report</button>
+      </div>
+    </div>
+  </article>
+
+  <!-- replies -->
+  <section aria-labelledby="replies-h" style="display: flex; flex-direction: column; gap: 16px;">
+    <h2 id="replies-h" class="tt-label">&gt; {{replyCount}} replies</h2>
+    <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px;">
+      <li class="tt-card tt-post" style="border-color: var(--accent-muted);">
+        <span class="tt-av" style="background: var(--gradient-brand); border: 0; color: var(--on-warm);" aria-hidden="true">T</span>
+        <div class="tt-post-body">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px;"><span style="font-weight: 600;">Tommy</span><span class="tt-pill tt-pill--warm">Workshop owner</span><span class="tt-pill tt-pill--in"><i class="ph ph-check" aria-hidden="true"></i>Answer</span><span style="font-size: 13px; color: var(--text-secondary);">06/11/2026</span></div>
+          <p>The Astro Masters sheet was made for 10th scale indoor buggies, so the sizes suit a 1/10. It was made for that event though, so the numbers are theirs. For your own club round, get the custom A4 sheet and tell me the numbers and colours you want.</p>
+        </div>
+      </li>
+      <sc-for list="{{replies}}" as="r" hint-placeholder-count="2">
+        <li class="tt-card tt-post">
+          <span class="tt-av" aria-hidden="true">{{r.initials}}</span>
+          <div class="tt-post-body">
+            <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px;"><span style="font-weight: 600;">{{r.name}}</span><span style="font-size: 13px; color: var(--text-secondary);">{{r.when}}</span></div>
+            <p>{{r.body}}</p>
+          </div>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+
+  <!-- reply box -->
+  <section id="reply" aria-labelledby="reply-h">
+    <sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}">
+      <div class="tt-card" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;"><h2 id="reply-h" class="tt-h4" style="font-weight: 600;">Got something to add?</h2><p class="tt-small">Replying needs a free account. Reading never does.</p></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;"><a href="Auth.dc.html" class="tt-btn tt-btn--secondary"><i class="ph ph-sign-in" aria-hidden="true"></i>Sign in</a><a href="Auth.dc.html" class="tt-btn tt-btn--primary">Create a free account</a></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}">
+      <form class="tt-card" style="display: flex; flex-direction: column; gap: 16px;" onSubmit="{{post}}">
+        <h2 id="reply-h" class="tt-h4" style="font-weight: 600;">Your reply</h2>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>That didn't post. Your reply is still in the box, so try again in a moment.</p></div></sc-if>
+        <div class="tt-field">
+          <label for="reply-t" class="sr-only">Your reply</label>
+          <textarea id="reply-t" class="tt-input" placeholder="Be kind, be useful." value="{{draft}}" onChange="{{onDraft}}" disabled="{{posting}}" maxlength="2000"></textarea>
+          <p class="tt-counter">{{draftCount}} / 2000</p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+          <button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" disabled="{{posting}}"><i class="ph ph-image-square" aria-hidden="true"></i>Add a photo</button>
+          <sc-if value="{{posting}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Posting</button></sc-if>
+          <sc-if value="{{notPosting}}" hint-placeholder-val="{{true}}"><button type="submit" class="tt-btn tt-btn--primary" disabled="{{postOff}}"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>{{postText}}</button></sc-if>
+        </div>
+      </form>
+    </sc-if>
+  </section>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"view":{"editor":"enum","options":["signedOut","signedIn","posting","error"],"default":"signedOut"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const v = props.view || 'signedOut';
+    this.state = {
+      theme: null, helpful: false,
+      posting: v === 'posting',
+      error: v === 'error',
+      draft: v === 'posting' || v === 'error' ? 'Same question for 1/8. Does the custom sheet do bigger numbers?' : '',
+      mine: []
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.postT); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const signedIn = (P.view || 'signedOut') !== 'signedOut';
+    const base = [
+      { initials: 'A', name: 'Test member A', when: '06/11/2026', body: 'Test reply. Following this one, our club needs a grid set too.' },
+      { initials: 'B', name: 'Test member B', when: '06/11/2026', body: 'Test reply. Thanks, I\u2019ll go custom. Can the numbers be two colours, or one colour per sheet?' }
+    ];
+    const replies = base.concat(s.mine);
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      signedIn, signedOut: !signedIn,
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      replyCount: replies.length + 1,
+      replies,
+      helpfulPressed: s.helpful ? 'true' : 'false',
+      helpfulCount: 2 + (s.helpful ? 1 : 0),
+      toggleHelpful: () => this.setState({ helpful: !s.helpful }),
+      draft: s.draft,
+      draftCount: s.draft.length,
+      onDraft: (e) => this.setState({ draft: e.target.value, error: false }),
+      posting: s.posting,
+      notPosting: !s.posting,
+      isError: s.error,
+      postOff: !s.draft.trim(),
+      postText: s.error ? 'Try posting again' : 'Post reply',
+      post: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!s.draft.trim()) return;
+        this.setState({ posting: true, error: false });
+        // Stands in for the server action that saves the reply.
+        this.postT = setTimeout(() => this.setState({ posting: false, draft: '', mine: this.state.mine.concat({ initials: 'S', name: 'Sam', when: 'Just now', body: this.state.draft }) }), 1000);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

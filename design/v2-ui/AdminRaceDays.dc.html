@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Admin, race days - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="AdminBar" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-admpage">
+<div class="tt-adm">
+<dc-import name="AdminSide" theme="{{theme}}" active="racedays" orders="2" queue="5" hint-size="100%,720px"></dc-import>
+
+<main id="main" class="tt-admmain">
+  <header class="tt-admhead">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; admin / race days</span>
+      <h1 class="tt-h2">Race days</h1>
+      <p class="tt-admnote">the race days you'll be at. Each one shows at checkout as a free pickup option until its orders close. The events and pickups here are samples.</p>
+    </div>
+    <button type="button" class="tt-btn tt-btn--primary" onClick="{{openNew}}"><i class="ph ph-plus" aria-hidden="true"></i>Add a race day</button>
+  </header>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+    <div class="tt-tablewrap" aria-busy="true" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;"><div class="tt-skel" style="height: 20px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div><div class="tt-skel" style="height: 56px; width: 100%;"></div></div>
+    <p class="sr-only" role="status">Loading race days</p>
+  </sc-if>
+
+  <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+    <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div style="flex: 1;"><p style="font-weight: 600;">Race days didn't load</p><p class="tt-small">Checkout still offers the ones that are open, so customers aren't affected.</p></div><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{retry}}">Try again</button></div>
+  </sc-if>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div class="tt-card tt-ph-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px;">
+      <span class="tt-icon-hero"><i class="ph ph-flag-checkered ph-24" aria-hidden="true"></i></span>
+      <h2 class="tt-h3">No race days yet</h2>
+      <p class="tt-small" style="max-width: 460px;">Add the next meeting you're going to and customers can choose to collect their order there instead of having it posted.</p>
+      <button type="button" class="tt-btn tt-btn--primary" onClick="{{openNew}}"><i class="ph ph-plus" aria-hidden="true"></i>Add your first race day</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isReady}}" hint-placeholder-val="{{true}}">
+    <section aria-label="Pickups at a glance" class="tt-stats">
+      <sc-for list="{{stats}}" as="st" hint-placeholder-count="4">
+        <div class="{{st.cls}}"><i class="{{st.icon}}" aria-hidden="true"></i><span class="v">{{st.v}}</span><span class="k">{{st.k}}</span></div>
+      </sc-for>
+    </section>
+
+    <div class="tt-chips" role="group" aria-label="Filter race days">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="3"><button type="button" class="tt-chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}">{{c.label}}<span class="n">{{c.n}}</span></button></sc-for>
+    </div>
+
+    <div class="tt-tablewrap">
+      <div class="tt-table" role="table" aria-label="Race days" style="--cols: minmax(220px, 1.6fr) 130px minmax(170px, 1.2fr) 130px 100px 140px 96px;">
+        <div class="tt-thead" role="rowgroup"><div class="tt-tr" role="row"><div role="columnheader" class="tt-th">Race day</div><div role="columnheader" class="tt-th">Date</div><div role="columnheader" class="tt-th">Venue</div><div role="columnheader" class="tt-th">Orders close</div><div role="columnheader" class="tt-th num">Pickups</div><div role="columnheader" class="tt-th">Status</div><div role="columnheader" class="tt-th act"><span class="sr-only">Actions</span></div></div></div>
+        <div class="tt-tbody" role="rowgroup">
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+            <div class="tt-tr" role="row">
+              <div role="cell" class="tt-td"><p style="font-weight: 600;">{{r.name}}</p><p class="mono">{{r.sub}}</p></div>
+              <div role="cell" class="tt-td mono">{{r.date}}</div>
+              <div role="cell" class="tt-td" style="color: var(--text-secondary);">{{r.venue}}</div>
+              <div role="cell" class="tt-td mono">{{r.cutoff}}</div>
+              <div role="cell" class="tt-td num">{{r.pickups}}</div>
+              <div role="cell" class="tt-td"><span class="{{r.pillCls}}">{{r.statusLabel}}</span></div>
+              <div role="cell" class="tt-td act">
+                <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{r.listLabel}}" title="{{r.listLabel}}" onClick="{{r.openList}}"><i class="ph ph-list-checks" aria-hidden="true"></i></button>
+                <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="{{r.editLabel}}" onClick="{{r.edit}}"><i class="ph ph-pencil-simple" aria-hidden="true"></i></button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- Helensville pickup -->
+    <section class="tt-card" aria-labelledby="hv-h" style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="tt-setrow">
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+          <span class="tt-choice-ic"><i class="ph ph-map-pin ph-20" aria-hidden="true"></i></span>
+          <div><h2 id="hv-h" class="tt-h4" style="font-weight: 600;">Collect from Helensville</h2><p class="tt-small">Always offered at checkout while it's on. You email each customer to set a time, so your address never goes on the site.</p></div>
+        </div>
+        <button type="button" class="tt-switch" role="switch" aria-checked="{{hvOn}}" aria-labelledby="hv-h" onClick="{{flipHv}}"></button>
+      </div>
+      <sc-if value="{{hasHv}}" hint-placeholder-val="{{true}}">
+        <ul style="display: flex; flex-direction: column;">
+          <sc-for list="{{hvRows}}" as="h" hint-placeholder-count="1">
+            <li class="tt-row" style="padding: 12px 0; border-top: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 8px 16px;">
+              <span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">{{h.customer}} <span class="tt-mono" style="font-weight: 400; font-size: 13px; color: var(--text-secondary);">{{h.id}}</span></span><span class="tt-small">{{h.items}}</span></span>
+              <span style="display: flex; gap: 8px; align-items: center;"><span class="{{h.pillCls}}">{{h.statusLabel}}</span><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" onClick="{{h.collect}}" aria-label="{{h.collectLabel}}"><i class="ph ph-check" aria-hidden="true"></i>Collected</button></span>
+            </li>
+          </sc-for>
+        </ul>
+      </sc-if>
+      <sc-if value="{{noHv}}" hint-placeholder-val="{{false}}"><p class="tt-small">Nobody's waiting to collect from Helensville.</p></sc-if>
+    </section>
+    <p class="tt-help">Pickup orders skip NZ Post, so there's no tracking number to add. An order counts as done when you mark it collected. If someone doesn't turn up, it stays here until you sort it with them by email.</p>
+  </sc-if>
+</main>
+</div>
+</div>
+
+<!-- DRAWER: edit a race day, or its pickup list -->
+<sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-scrim" onClick="{{closeDrawer}}" aria-hidden="true"></div>
+  <aside class="tt-drawer tt-drawer--wide" role="dialog" aria-modal="true" aria-labelledby="rd-h">
+    <div class="tt-drawer-head">
+      <div><span class="tt-label" style="font-size: 12px;">{{drawerEyebrow}}</span><h2 id="rd-h" class="tt-h4" style="font-weight: 600;">{{drawerTitle}}</h2></div>
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close" onClick="{{closeDrawer}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button>
+    </div>
+
+    <sc-if value="{{isEdit}}" hint-placeholder-val="{{false}}">
+      <div class="tt-drawer-body">
+        <div class="tt-form">
+          <sc-if value="{{formErr}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">A few things to fix</p><p class="tt-small">{{formErrText}}</p></div></div></sc-if>
+          <div class="tt-field"><label for="rd-name">Name</label><input id="rd-name" class="{{nameCls}}" value="{{fName}}" onChange="{{onName}}" aria-invalid="{{nameInv}}" aria-describedby="rd-name-h" placeholder="e.g. Indoor club round 5"><p id="rd-name-h" class="tt-help">Customers pick this at checkout, so use the name they know it by.</p></div>
+          <div class="tt-field"><label for="rd-venue">Venue</label><input id="rd-venue" class="{{venueCls}}" value="{{fVenue}}" onChange="{{onVenue}}" aria-invalid="{{venueInv}}" placeholder="Track name and town"></div>
+          <div class="tt-pair">
+            <div class="tt-field"><label for="rd-date">Race day</label><input id="rd-date" class="{{dateCls}}" value="{{fDate}}" onChange="{{onDate}}" aria-invalid="{{dateInv}}" placeholder="DD/MM/YYYY"></div>
+            <div class="tt-field"><label for="rd-cut">Orders close</label><div class="tt-affix"><input id="rd-cut" class="tt-input has-post" type="number" min="1" max="14" inputmode="numeric" value="{{fCutDays}}" onChange="{{onCut}}" aria-describedby="rd-cut-h"><span class="post" aria-hidden="true">days before</span></div></div>
+          </div>
+          <p id="rd-cut-h" class="tt-help" style="margin-top: -8px;">{{cutHelp}}</p>
+          <sc-if value="{{dateErr}}" hint-placeholder-val="{{false}}"><p class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>That date has already been. Pick one coming up.</p></sc-if>
+          <div class="tt-field"><label for="rd-note">Where to find you <span class="tt-adminonly">sent the day before</span></label><textarea id="rd-note" class="tt-input" rows="3" value="{{fNote}}" onChange="{{onNote}}" placeholder="e.g. Look for the orange gazebo by the pit tables."></textarea><p class="tt-help">Goes in the reminder email to everyone collecting, the day before.</p></div>
+          <div class="tt-setrow" style="border-top: 1px solid var(--border-subtle); padding-top: 16px;"><div style="max-width: 340px;"><p style="font-weight: 600;" id="rd-show">Offer at checkout</p><p class="tt-small">Off hides it without losing the pickups already booked.</p></div><button type="button" class="tt-switch" role="switch" aria-checked="{{fShow}}" aria-labelledby="rd-show" onClick="{{flipShow}}"></button></div>
+          <div class="tt-banner tt-banner--info"><i class="ph ph-shopping-cart-simple ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">What customers see</p><p class="tt-small"><span class="tt-mono">{{previewLine}}</span></p></div></div>
+        </div>
+      </div>
+      <div class="tt-drawer-foot" style="flex-direction: row; flex-wrap: wrap;">
+        <button type="button" class="tt-btn tt-btn--ghost" onClick="{{closeDrawer}}">Cancel</button>
+        <button type="button" class="tt-btn tt-btn--primary" style="flex: 1;" aria-disabled="{{savingStr}}" onClick="{{save}}"><sc-if value="{{saving}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</sc-if><sc-if value="{{notSaving}}" hint-placeholder-val="{{true}}"><i class="ph ph-check" aria-hidden="true"></i>Save race day</sc-if></button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isList}}" hint-placeholder-val="{{false}}">
+      <div class="tt-drawer-body" style="display: flex; flex-direction: column; gap: 16px;">
+        <dl class="tt-dl"><dt>Date</dt><dd>{{lDate}}</dd><dt>Venue</dt><dd>{{lVenue}}</dd><dt>Orders close</dt><dd>{{lCutoff}}</dd></dl>
+        <sc-if value="{{lHas}}" hint-placeholder-val="{{true}}">
+          <ul style="display: flex; flex-direction: column;" aria-label="Orders to hand over">
+            <sc-for list="{{lRows}}" as="o" hint-placeholder-count="2">
+              <li style="display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid var(--border-subtle);">
+                <label class="tt-check" style="margin: 0;"><input type="checkbox" checked="{{o.done}}" onChange="{{o.flip}}"><span class="sr-only">{{o.checkLabel}}</span></label>
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                  <p style="font-weight: 600;">{{o.customer}} <span class="tt-mono" style="font-weight: 400; font-size: 13px; color: var(--text-secondary);">{{o.id}}</span></p>
+                  <p class="tt-small">{{o.items}}</p>
+                  <p class="tt-small" style="color: var(--text-secondary);">{{o.state}}</p>
+                </div>
+              </li>
+            </sc-for>
+          </ul>
+        </sc-if>
+        <sc-if value="{{lNone}}" hint-placeholder-val="{{false}}"><p class="tt-small">No pickups booked for this race day yet.</p></sc-if>
+        <sc-if value="{{lUpcoming}}" hint-placeholder-val="{{true}}"><div class="tt-banner tt-banner--info"><i class="ph ph-envelope-simple ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Reminder email</p><p class="tt-small">Goes to everyone on this list at 9am the day before, with the venue and where to find you. Orders that aren't printed yet get flagged to you that morning.</p></div></div></sc-if>
+      </div>
+      <div class="tt-drawer-foot" style="flex-direction: row; flex-wrap: wrap;">
+        <button type="button" class="tt-btn tt-btn--secondary" onClick="{{printList}}"><i class="ph ph-printer" aria-hidden="true"></i>Print list</button>
+        <button type="button" class="tt-btn tt-btn--primary" style="flex: 1;" onClick="{{allCollected}}"><i class="ph ph-check-square" aria-hidden="true"></i>Mark all collected</button>
+      </div>
+    </sc-if>
+  </aside>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite"><div class="tt-toast tt-toast--ok"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1;"><p class="tt-toast-title">Done</p><p class="tt-toast-msg">{{toastMsg}}</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ready","pickupList","newEvent","invalid","empty","loading","error"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const st = props.state || 'ready';
+    // Sample race days and pickups. Customers are staging test accounts, never real people.
+    // A race day's cutoff is stored as days before, so moving the date moves the cutoff too.
+    this.seed = [
+      { id: 'e1', name: 'Indoor club round 4', venue: 'Club track, Auckland', date: '14/11/2026', cutDays: 3, note: 'Look for the orange gazebo by the pit tables.', show: true },
+      { id: 'e2', name: 'Summer series round 1', venue: 'Outdoor track, Waikato', date: '28/11/2026', cutDays: 3, note: '', show: true },
+      { id: 'e0', name: 'Indoor club round 3', venue: 'Club track, Auckland', date: '07/11/2026', cutDays: 3, note: 'Orange gazebo, pit row B.', show: true }
+    ];
+    this.state = {
+      theme: null,
+      status: ['loading', 'error'].includes(st) ? st : 'ready',
+      events: st === 'empty' ? [] : this.seed.map((e) => ({ ...e })),
+      pickups: st === 'empty' ? [] : [
+        { id: 'TT1028NZ', at: 'e1', customer: 'Test member A', items: 'RC name window stickers, Mixed sheet x 2', printed: true, done: false },
+        { id: 'TT1029NZ', at: 'e1', customer: 'Test member B', items: 'Custom sticker sheet A4 x 1', printed: false, done: false },
+        { id: 'TT1027NZ', at: 'e0', customer: 'Tommy G.', items: 'Custom sticker sheet A4 x 1', printed: true, done: true },
+        { id: 'TT1030NZ', at: 'hv', customer: 'Test member C', items: 'RC name window stickers, Pits sheet x 1', printed: true, done: false }
+      ],
+      hvOn: true,
+      filter: 'upcoming',
+      drawer: st === 'pickupList' ? { mode: 'list', id: 'e1' } : st === 'newEvent' || st === 'invalid' ? { mode: 'edit' } : null,
+      form: st === 'newEvent' ? this.blank() : st === 'invalid' ? { ...this.blank(), name: 'Indoor club round 2', date: '01/11/2026' } : null,
+      tried: st === 'invalid', saving: false, toast: null
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.t1); clearTimeout(this.toastT); }
+  blank() { return { id: null, name: '', venue: '', date: '', cutDays: '3', note: '', show: true }; }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    // DD/MM/YYYY sorts once flipped to YYYYMMDD. Dates are NZ time; the server stores UTC.
+    const key = (d) => (d && d.length === 10 ? d.slice(6) + d.slice(3, 5) + d.slice(0, 2) : '');
+    const TODAY = key('09/11/2026');
+    const minus = (d, n) => { const x = new Date(+d.slice(6), +d.slice(3, 5) - 1, +d.slice(0, 2) - n); return String(x.getDate()).padStart(2, '0') + '/' + String(x.getMonth() + 1).padStart(2, '0') + '/' + x.getFullYear(); };
+    const cutoffOf = (e) => minus(e.date, +e.cutDays || 0);
+    const statusOf = (e) => (key(e.date) < TODAY ? 'done' : !e.show ? 'hidden' : key(cutoffOf(e)) < TODAY ? 'closed' : 'open');
+    const pills = { open: ['tt-pill tt-pill--in', 'Taking orders'], closed: ['tt-pill tt-pill--low', 'Orders closed'], hidden: ['tt-pill tt-pill--out', 'Hidden'], done: ['tt-pill tt-pill--out', 'Been and gone'] };
+    const toast = (msg) => { clearTimeout(this.toastT); this.setState({ toast: msg }); this.toastT = setTimeout(() => this.setState({ toast: null }), 4000); };
+    const setPickup = (id, patch) => this.setState({ pickups: this.state.pickups.map((o) => (o.id === id ? { ...o, ...patch } : o)) });
+    const forE = (id) => s.pickups.filter((o) => o.at === id);
+
+    let list = s.events.map((e) => ({ ...e, st: statusOf(e) })).sort((a, b) => (key(a.date) < key(b.date) ? -1 : 1));
+    const upN = list.filter((e) => e.st !== 'done').length;
+    const chips = [['upcoming', 'Coming up', upN], ['past', 'Been and gone', list.length - upN], ['all', 'All', list.length]]
+      .map(([id, label, n]) => ({ label, n, pressed: s.filter === id ? 'true' : 'false', pick: () => this.setState({ filter: id }) }));
+    if (s.filter === 'upcoming') list = list.filter((e) => e.st !== 'done');
+    if (s.filter === 'past') list = list.filter((e) => e.st === 'done');
+    const rows = list.map((e) => {
+      const ps = forE(e.id);
+      const left = ps.filter((o) => !o.done).length;
+      return {
+        name: e.name, sub: e.st === 'done' ? (left ? left + ' not collected' : 'all collected') : left + ' to hand over',
+        date: e.date, venue: e.venue, cutoff: cutoffOf(e), pickups: String(ps.length),
+        pillCls: pills[e.st][0], statusLabel: pills[e.st][1],
+        listLabel: 'Pickup list for ' + e.name, openList: () => this.setState({ drawer: { mode: 'list', id: e.id } }),
+        editLabel: 'Edit ' + e.name, edit: () => this.setState({ drawer: { mode: 'edit' }, form: { ...e, cutDays: String(e.cutDays) }, tried: false })
+      };
+    });
+    const hv = forE('hv');
+    const open = s.events.filter((e) => statusOf(e) === 'open').length;
+    const waiting = s.pickups.filter((o) => !o.done).length;
+    const stats = [
+      ['ph ph-flag-checkered', open, 'Taking pickup orders', ''],
+      ['ph ph-package', waiting, 'Pickups to hand over', ''],
+      ['ph ph-printer', s.pickups.filter((o) => !o.done && !o.printed).length, 'Not printed yet', s.pickups.some((o) => !o.done && !o.printed) ? ' is-warn' : ''],
+      ['ph ph-map-pin', hv.filter((o) => !o.done).length, 'Waiting in Helensville', '']
+    ].map(([icon, v, k, tone]) => ({ icon, v, k, cls: 'tt-stattile' + tone }));
+
+    // drawer: edit
+    const f = s.form || this.blank();
+    const setF = (k) => (e) => this.setState({ form: { ...this.state.form, [k]: e.target.value } });
+    const nameBad = !f.name.trim();
+    const venueBad = !f.venue.trim();
+    const dateFmtBad = !/^\d{2}\/\d{2}\/\d{4}$/.test(f.date);
+    const datePast = !dateFmtBad && key(f.date) < TODAY;
+    const problems = [];
+    if (s.tried) {
+      if (nameBad) problems.push('a name');
+      if (venueBad) problems.push('a venue');
+      if (dateFmtBad) problems.push('a date as DD/MM/YYYY');
+      else if (datePast) problems.push('a date that hasn’t been yet');
+    }
+    const save = () => {
+      if (s.saving) return;
+      if (nameBad || venueBad || dateFmtBad || datePast) return this.setState({ tried: true });
+      this.setState({ saving: true });
+      // Stands in for a zod-validated server action that checks manage_orders.
+      this.t1 = setTimeout(() => {
+        const fm = this.state.form;
+        const rec = { ...fm, name: fm.name.trim(), venue: fm.venue.trim(), cutDays: Math.min(14, Math.max(1, +fm.cutDays || 3)) };
+        const events = fm.id ? this.state.events.map((e) => (e.id === fm.id ? rec : e)) : [...this.state.events, { ...rec, id: 'e' + (this.state.events.length + 10) }];
+        this.setState({ events, drawer: null, form: null, saving: false, tried: false, status: 'ready' });
+        toast(rec.name + ' is saved.' + (rec.show ? ' It shows at checkout until ' + minus(rec.date, rec.cutDays) + '.' : ''));
+      }, 800);
+    };
+
+    // drawer: pickup list
+    const le = s.drawer && s.drawer.mode === 'list' ? s.events.find((e) => e.id === s.drawer.id) : null;
+    const lps = le ? forE(le.id) : [];
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      isLoading: s.status === 'loading', isError: s.status === 'error',
+      isEmpty: s.status === 'ready' && s.events.length === 0, isReady: s.status === 'ready' && s.events.length > 0,
+      retry: () => { this.setState({ status: 'loading' }); setTimeout(() => this.setState({ status: 'ready' }), 900); },
+      openNew: () => this.setState({ drawer: { mode: 'edit' }, form: this.blank(), tried: false }),
+      stats, chips, rows,
+      hvOn: s.hvOn ? 'true' : 'false', flipHv: () => { this.setState({ hvOn: !s.hvOn }); toast(s.hvOn ? 'Collect from Helensville is off at checkout. Pickups already booked stay.' : 'Collect from Helensville is back on at checkout.'); },
+      hasHv: hv.length > 0, noHv: hv.length === 0,
+      hvRows: hv.map((o) => ({ id: o.id, customer: o.customer, items: o.items, pillCls: o.done ? 'tt-pill tt-pill--in' : 'tt-pill tt-pill--low', statusLabel: o.done ? 'Collected' : 'Time to arrange', collectLabel: 'Mark ' + o.id + ' collected', collect: () => { setPickup(o.id, { done: true }); toast(o.id + ' is marked collected.'); } })),
+
+      drawerOpen: !!s.drawer,
+      closeDrawer: () => this.setState({ drawer: null, form: null, tried: false, saving: false }),
+      isEdit: !!s.drawer && s.drawer.mode === 'edit', isList: !!le,
+      drawerEyebrow: le ? '> pickup list' : f.id ? '> edit race day' : '> new race day',
+      drawerTitle: le ? le.name : f.id ? f.name : 'Add a race day',
+      formErr: problems.length > 0, formErrText: 'This needs ' + problems.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.',
+      fName: f.name, onName: setF('name'), nameInv: s.tried && nameBad ? 'true' : 'false', nameCls: s.tried && nameBad ? 'tt-input is-error' : 'tt-input',
+      fVenue: f.venue, onVenue: setF('venue'), venueInv: s.tried && venueBad ? 'true' : 'false', venueCls: s.tried && venueBad ? 'tt-input is-error' : 'tt-input',
+      fDate: f.date, onDate: setF('date'), dateInv: s.tried && (dateFmtBad || datePast) ? 'true' : 'false', dateCls: s.tried && (dateFmtBad || datePast) ? 'tt-input is-error' : 'tt-input',
+      dateErr: s.tried && datePast,
+      fCutDays: f.cutDays, onCut: setF('cutDays'),
+      cutHelp: dateFmtBad ? 'Gives you time to print. 3 days suits most orders.' : 'Pickup orders close at midnight on ' + minus(f.date, +f.cutDays || 0) + '.',
+      fNote: f.note, onNote: setF('note'),
+      fShow: f.show ? 'true' : 'false', flipShow: () => this.setState({ form: { ...this.state.form, show: !f.show } }),
+      previewLine: 'Collect at ' + (f.name.trim() || 'race day name') + ' · ' + (f.date || 'DD/MM/YYYY') + ' · ' + (f.venue.trim() || 'venue'),
+      saving: s.saving, notSaving: !s.saving, savingStr: s.saving ? 'true' : 'false', save,
+
+      lDate: le ? le.date : '', lVenue: le ? le.venue : '', lCutoff: le ? cutoffOf(le) : '',
+      lHas: lps.length > 0, lNone: !!le && lps.length === 0, lUpcoming: !!le && statusOf(le) !== 'done',
+      lRows: lps.map((o) => ({ id: o.id, customer: o.customer, items: o.items, done: o.done, checkLabel: 'Collected ' + o.id,
+        state: o.done ? 'Collected' : o.printed ? 'Printed and packed' : 'Not printed yet', flip: () => setPickup(o.id, { done: !o.done }) })),
+      printList: () => toast('The pickup list is ready to print, sorted by name.'),
+      allCollected: () => { this.setState({ pickups: this.state.pickups.map((o) => (le && o.at === le.id ? { ...o, done: true } : o)) }); toast('Everyone for ' + (le ? le.name : '') + ' is marked collected.'); },
+      hasToast: !!s.toast, toastMsg: s.toast || '', closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

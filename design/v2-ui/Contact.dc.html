@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Contact - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="" count="0" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main" class="tt-container" style="padding-block: 40px 96px; display: flex; flex-direction: column; gap: 40px;">
+  <header style="display: flex; flex-direction: column; gap: 12px; max-width: 640px;">
+    <span class="tt-label"><span class="tt-type" style="--n: 14;">&gt; 05. contact</span></span>
+    <h1 class="tt-h2 tt-underline">Let's talk</h1>
+    <p class="tt-lead">A project, an order, a custom build or just a question. Send it through and it comes straight to me.</p>
+  </header>
+
+  <div class="tt-co">
+    <section class="tt-card tt-card--feature" aria-labelledby="ct-h" style="display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+      <sc-if value="{{isSent}}" hint-placeholder-val="{{false}}">
+        <div role="status" style="display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 24px 0;">
+          <span class="tt-icon-hero" style="background: var(--accent-subtle); border-color: var(--accent-muted); color: var(--mono);"><i class="ph ph-check-circle" aria-hidden="true"></i></span>
+          <h2 id="ct-h" class="tt-h3">Thanks, {{firstName}}. It's with me.</h2>
+          <p class="tt-small" style="max-width: 460px;">I'll reply to <strong style="color: var(--text-primary);">{{email}}</strong> as soon as I can. A copy of your message is on its way to you too.</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px;"><a href="Shop.dc.html" class="tt-btn tt-btn--secondary"><i class="ph ph-storefront" aria-hidden="true"></i>Back to the shop</a><button type="button" class="tt-btn tt-btn--ghost" onClick="{{again}}">Send another message</button></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+        <h2 id="ct-h" class="tt-h4" style="font-weight: 600;">Send a message</h2>
+        <sc-if value="{{isInvalid}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>{{invalidText}}</p></div></sc-if>
+        <sc-if value="{{isFailed}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>That didn't send. Your message is still here, so try again, or email <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a> directly.</p></div></sc-if>
+        <form style="display: flex; flex-direction: column; gap: 16px;" novalidate="novalidate" onSubmit="{{send}}">
+          <div class="tt-grid tt-grid--2" style="gap: 16px;">
+            <div class="tt-field">
+              <label for="ct-name">Your name</label>
+              <input id="ct-name" class="{{nameClass}}" autocomplete="name" value="{{name}}" onChange="{{onName}}" disabled="{{sending}}" aria-invalid="{{nameInv}}" aria-describedby="ct-name-e">
+              <sc-if value="{{nameErr}}" hint-placeholder-val="{{false}}"><p id="ct-name-e" class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Tell me what to call you.</p></sc-if>
+            </div>
+            <div class="tt-field">
+              <label for="ct-email">Email</label>
+              <input id="ct-email" type="email" class="{{emailClass}}" autocomplete="email" value="{{email}}" onChange="{{onEmail}}" disabled="{{sending}}" aria-invalid="{{emailInv}}" aria-describedby="ct-email-e">
+              <sc-if value="{{emailErr}}" hint-placeholder-val="{{false}}"><p id="ct-email-e" class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>That email is missing its ending, like .co.nz</p></sc-if>
+            </div>
+          </div>
+          <div class="tt-field">
+            <label for="ct-topic">What's it about?</label>
+            <div class="tt-selectwrap"><select id="ct-topic" class="tt-input" value="{{topic}}" onChange="{{onTopic}}" disabled="{{sending}}"><option value="project">A Codebench project</option><option value="order">An order I've placed</option><option value="custom">A custom build or print</option><option value="other">Something else</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div>
+          </div>
+          <sc-if value="{{isOrder}}" hint-placeholder-val="{{false}}">
+            <div class="tt-field"><label for="ct-order">Order number <span style="color: var(--text-secondary); font-weight: 400;">(if you have it)</span></label><input id="ct-order" class="tt-input" placeholder="TT1026NZ" disabled="{{sending}}" aria-describedby="ct-order-h"><p id="ct-order-h" class="tt-help">It's at the top of your receipt email.</p></div>
+          </sc-if>
+          <div class="tt-field">
+            <label for="ct-msg">Message</label>
+            <textarea id="ct-msg" class="{{msgClass}}" maxlength="2000" placeholder="{{msgPlaceholder}}" value="{{msg}}" onChange="{{onMsg}}" disabled="{{sending}}" aria-invalid="{{msgInv}}" aria-describedby="ct-msg-e ct-msg-c" style="min-height: 160px;"></textarea>
+            <div style="display: flex; justify-content: space-between; gap: 12px;"><span>
+              <sc-if value="{{msgErr}}" hint-placeholder-val="{{false}}"><span id="ct-msg-e" class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Add a few words so I know what you're after.</span></sc-if>
+            </span><span id="ct-msg-c" class="tt-counter">{{msgCount}} / 2000</span></div>
+          </div>
+          <!-- spam trap: hidden from people and screen readers, bots fill it in -->
+          <div aria-hidden="true" style="position: absolute; left: -9999px;"><label for="ct-web">Leave this empty</label><input id="ct-web" tabindex="-1" autocomplete="off"></div>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+            <sc-if value="{{sending}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Sending</button></sc-if>
+            <sc-if value="{{notSending}}" hint-placeholder-val="{{true}}"><button type="submit" class="tt-btn tt-btn--primary"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>{{sendText}}</button></sc-if>
+            <p class="tt-help">I only use your email to reply.</p>
+          </div>
+        </form>
+      </sc-if>
+    </section>
+
+    <aside class="tt-co-sum" aria-label="Other ways to reach me" style="display: flex; flex-direction: column; gap: 16px;">
+      <div class="tt-card" style="display: flex; gap: 16px; align-items: flex-start;"><span class="tt-choice-ic" style="flex: none;"><i class="ph ph-envelope-simple ph-24" aria-hidden="true"></i></span><div style="display: flex; flex-direction: column; gap: 4px;"><h2 class="tt-h4" style="font-weight: 600; font-size: 17px;">Email</h2><a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a></div></div>
+      <div class="tt-card" style="display: flex; gap: 16px; align-items: flex-start;"><span class="tt-choice-ic" style="flex: none;"><i class="ph ph-map-pin ph-24" aria-hidden="true"></i></span><div style="display: flex; flex-direction: column; gap: 4px;"><h2 class="tt-h4" style="font-weight: 600; font-size: 17px;">Where I am</h2><p class="tt-small">Helensville, Auckland, New Zealand.</p></div></div>
+      <div class="tt-card" style="display: flex; gap: 16px; align-items: flex-start;"><span class="tt-choice-ic" style="flex: none;"><i class="ph ph-clock ph-24" aria-hidden="true"></i></span><div style="display: flex; flex-direction: column; gap: 4px;"><h2 class="tt-h4" style="font-weight: 600; font-size: 17px;">Who you'll hear back from</h2><p class="tt-small">Me. It's a one-person workshop, so it's always me who replies.</p></div></div>
+      <div class="tt-card" style="display: flex; gap: 16px; align-items: flex-start;"><span class="tt-choice-ic" style="flex: none;"><i class="ph ph-hammer ph-24" aria-hidden="true"></i></span><div style="display: flex; flex-direction: column; gap: 4px;"><h2 class="tt-h4" style="font-weight: 600; font-size: 17px;">Planning a build?</h2><p class="tt-small">The <a href="Codebench.dc.html#build">build sheet</a> gets you a ballpark price first.</p></div></div>
+    </aside>
+  </div>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"view":{"editor":"enum","options":["ready","invalid","sending","sent","failed"],"default":"ready"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const v = props.view || 'ready';
+    const filled = { name: 'Sam', email: 'you@example.co.nz', msg: 'Hi Tommy, can I change the name on my window stickers before you print them?', topic: 'order' };
+    const presets = {
+      ready: { name: '', email: '', msg: '', topic: 'project', send: 'idle' },
+      invalid: { name: '', email: 'you@example', msg: '', topic: 'project', send: 'invalid' },
+      sending: { ...filled, send: 'sending' },
+      sent: { ...filled, send: 'sent' },
+      failed: { ...filled, send: 'failed' }
+    };
+    this.state = { theme: null, ...(presets[v] || presets.ready) };
+  }
+  componentWillUnmount() { clearTimeout(this.sendT); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const bad = s.send === 'invalid';
+    const emailOk = /.+@.+\..+/.test(s.email);
+    const nameErr = bad && !s.name.trim();
+    const emailErr = bad && !emailOk;
+    const msgErr = bad && !s.msg.trim();
+    const n = [nameErr, emailErr, msgErr].filter(Boolean).length;
+    const ph = { project: 'What are you hoping to build, and by when?', order: "What's happening with your order?", custom: "What would you like made? Sizes and colours help.", other: "What's on your mind?" };
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      name: s.name, email: s.email, msg: s.msg, topic: s.topic,
+      onName: (e) => this.setState({ name: e.target.value }),
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      onMsg: (e) => this.setState({ msg: e.target.value }),
+      onTopic: (e) => this.setState({ topic: e.target.value }),
+      isOrder: s.topic === 'order',
+      msgPlaceholder: ph[s.topic],
+      msgCount: s.msg.length,
+      nameErr, emailErr, msgErr,
+      nameInv: nameErr ? 'true' : 'false', emailInv: emailErr ? 'true' : 'false', msgInv: msgErr ? 'true' : 'false',
+      nameClass: nameErr ? 'tt-input is-error' : 'tt-input',
+      emailClass: emailErr ? 'tt-input is-error' : 'tt-input',
+      msgClass: msgErr ? 'tt-input is-error' : 'tt-input',
+      isInvalid: bad && n > 0,
+      invalidText: n === 1 ? "One thing to fix before this can go. It's marked below." : n + " things to fix before this can go. They're marked below.",
+      isFailed: s.send === 'failed',
+      isSent: s.send === 'sent', notSent: s.send !== 'sent',
+      sending: s.send === 'sending', notSending: s.send !== 'sending',
+      sendText: s.send === 'failed' ? 'Try sending again' : 'Send message',
+      firstName: (s.name.replace(/[\[\]]/g, '') || 'there').split(' ')[0],
+      again: () => this.setState({ send: 'idle', msg: '' }),
+      send: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!s.name.trim() || !emailOk || !s.msg.trim()) return this.setState({ send: 'invalid' });
+        this.setState({ send: 'sending' });
+        // Stands in for the server action: zod check, honeypot check, then Resend.
+        this.sendT = setTimeout(() => this.setState({ send: 'sent' }), 1100);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

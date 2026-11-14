@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Codebench - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="codebench" count="0" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main">
+
+  <!-- ============ HERO ============ -->
+  <section class="tt-hero" aria-labelledby="cb-h">
+    <div class="tt-container" style="display: flex; flex-wrap: wrap; align-items: center; gap: 48px; padding-block: 56px 72px;">
+      <div style="flex: 999 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 20px; position: relative;">
+        <p class="tt-prompt fade-up-1">$ cd ~/codebench<span class="tt-caret" aria-hidden="true"></span></p>
+        <p class="tt-eyebrow fade-up-1">The digital half of the workshop</p>
+        <h1 id="cb-h" class="tt-h1 fade-up-2">The Codebench</h1>
+        <p class="tt-lead fade-up-3" style="max-width: 560px;">I build websites, web apps, internal tools and small scripts for NZ businesses and makers. One developer, a straight answer on what's worth building, and code you own at the end.</p>
+        <div class="fade-up-4" style="display: flex; flex-wrap: wrap; gap: 12px;">
+          <a href="#build" class="tt-btn tt-btn--primary"><i class="ph ph-hammer" aria-hidden="true"></i>Sketch your build</a>
+          <a href="#services" class="tt-btn tt-btn--ghost"><i class="ph ph-arrow-down" aria-hidden="true"></i>See what I build</a>
+        </div>
+      </div>
+      <div style="flex: 1 1 340px; min-width: 0; position: relative;" class="fade-up-3">
+        <div class="tt-term" role="img" aria-label="Terminal card: full-stack web developer in Helensville. Stack: TypeScript, React, Next.js, PostgreSQL, Docker.">
+          <div class="tt-term-head" aria-hidden="true"><i class="ph ph-terminal-window"></i>~/codebench &gt; status.sh</div>
+          <div class="tt-term-body" aria-hidden="true">
+            <div><span class="p">$</span> ./status</div>
+            <div class="m"># freelance dev, helensville nz</div>
+            <div><span class="k">role</span>full-stack web developer</div>
+            <div><span class="k">stack</span>TypeScript, React, Next.js, PostgreSQL, Docker</div>
+            <div><span class="k">based</span>Helensville, Auckland</div>
+            <div><span class="k">rates</span>from NZ$60/hr</div>
+            <div style="margin-top: 8px;"><span class="p">$</span> ./next</div>
+            <div class="p">&gt; tell me what you're picturing</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 SERVICES ============ -->
+  <section id="services" class="tt-section" aria-labelledby="svc-h" style="background: var(--bg-surface); border-block: 1px solid var(--border-subtle);">
+    <div class="tt-container" style="display: flex; flex-direction: column; gap: 40px;">
+      <div style="display: flex; flex-direction: column; gap: 12px; max-width: 640px;">
+        <span class="tt-label"><span class="tt-type" style="--n: 18;">&gt; 01. what i build</span></span>
+        <h2 id="svc-h" class="tt-h2 tt-underline">Four kinds of digital work</h2>
+        <p class="tt-lead">Roughly. Most projects are a mix. If it lives on the web and you need it built, the answer is usually yes.</p>
+      </div>
+      <ul class="tt-grid tt-grid--2">
+        <li class="tt-card tt-card--hover" style="display: flex; flex-direction: column; gap: 12px; background: var(--bg-base);"><span class="tt-choice-ic"><i class="ph ph-globe-simple ph-24" aria-hidden="true"></i></span><h3 class="tt-h4" style="font-weight: 600;">Websites</h3><p class="tt-small">Sites for businesses, makers and portfolios. Fast, accessible and easy for you to edit.</p></li>
+        <li class="tt-card tt-card--hover" style="display: flex; flex-direction: column; gap: 12px; background: var(--bg-base);"><span class="tt-choice-ic"><i class="ph ph-browsers ph-24" aria-hidden="true"></i></span><h3 class="tt-h4" style="font-weight: 600;">Web apps</h3><p class="tt-small">Logins, dashboards and real user data. Built so the next developer can read the code.</p></li>
+        <li class="tt-card tt-card--hover" style="display: flex; flex-direction: column; gap: 12px; background: var(--bg-base);"><span class="tt-choice-ic"><i class="ph ph-wrench ph-24" aria-hidden="true"></i></span><h3 class="tt-h4" style="font-weight: 600;">Internal tools</h3><p class="tt-small">Replace the spreadsheet, the inbox or the weekly report that eats your Friday.</p></li>
+        <li class="tt-card tt-card--hover" style="display: flex; flex-direction: column; gap: 12px; background: var(--bg-base);"><span class="tt-choice-ic"><i class="ph ph-lightning ph-24" aria-hidden="true"></i></span><h3 class="tt-h4" style="font-weight: 600;">Automations</h3><p class="tt-small">Small scripts that do the boring job every day, so you don't have to.</p></li>
+      </ul>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <h3 class="tt-h3" id="rates-h">Rates</h3>
+        <ul class="tt-grid tt-grid--3" aria-labelledby="rates-h">
+          <li class="tt-card" style="display: flex; flex-direction: column; gap: 8px; background: var(--bg-base);"><span class="tt-choice-ic"><i class="ph ph-code ph-24" aria-hidden="true"></i></span><h4 class="tt-h4" style="font-weight: 600; font-size: 18px;">Web and software development</h4><p><span class="tt-stat" style="font-size: 28px; letter-spacing: 0.06em;">NZ$60</span><span class="tt-small"> an hour</span></p><p class="tt-small">Websites, web apps, internal tools and automations. Remote, from Helensville.</p></li>
+          <li class="tt-card" style="display: flex; flex-direction: column; gap: 8px; background: var(--bg-base);"><span class="tt-choice-ic"><i class="ph ph-wrench ph-24" aria-hidden="true"></i></span><h4 class="tt-h4" style="font-weight: 600; font-size: 18px;">On-site tech support</h4><p><span class="tt-stat" style="font-size: 28px; letter-spacing: 0.06em;">NZ$95</span><span class="tt-small"> an hour</span></p><p class="tt-small">I come to you for set-ups, fixes and the odd stubborn printer.</p></li>
+          <li class="tt-card" style="display: flex; flex-direction: column; gap: 8px; background: var(--bg-base);"><span class="tt-choice-ic"><i class="ph ph-browsers ph-24" aria-hidden="true"></i></span><h4 class="tt-h4" style="font-weight: 600; font-size: 18px;">Remote tech support</h4><p><span class="tt-stat" style="font-size: 28px; letter-spacing: 0.06em;">NZ$65</span><span class="tt-small"> an hour</span></p><p class="tt-small">A screen share to sort out software, email or settings, booked by the hour.</p></li>
+        </ul>
+        <p class="tt-help">Prices in NZD. Bigger builds get a ballpark first, then a fixed quote once we've agreed the first version.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 QUESTIONNAIRE + BUILD SHEET ============ -->
+  <section id="build" class="tt-section" aria-labelledby="wiz-h">
+    <div class="tt-container" style="display: flex; flex-direction: column; gap: 40px;">
+      <div style="display: flex; flex-direction: column; gap: 12px; max-width: 680px;">
+        <span class="tt-label"><span class="tt-type" style="--n: 21;">&gt; 02. start a project</span></span>
+        <h2 id="wiz-h" class="tt-h2 tt-underline">Sketch your build</h2>
+        <p class="tt-lead">Three quick questions. As you answer, the build sheet fills itself in: stack, phases, a ballpark price and how many weeks. No sign-up needed.</p>
+      </div>
+
+      <div class="tt-wiz">
+        <div class="tt-card tt-card--feature" style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+          <div class="tt-progress" aria-hidden="true"><span>&gt; step {{stepNum}} of 4</span><span class="tt-progress-bar"><span class="tt-progress-fill" style="display: block; width: {{progress}};"></span></span><span>{{stepLabel}}</span></div>
+
+          <!-- step 1: type -->
+          <sc-if value="{{s1}}" hint-placeholder-val="{{true}}">
+            <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px;">
+              <legend class="tt-h3" style="padding: 0; margin-bottom: 4px;">What are you trying to build?</legend>
+              <p class="tt-small">Pick the closest match. If nothing fits, pick "Not sure yet" and we'll work it out together.</p>
+              <div class="tt-choices">
+                <sc-for list="{{types}}" as="t" hint-placeholder-count="6">
+                  <button type="button" class="tt-choice" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}"><span class="tt-choice-ic"><i class="{{t.icon}}" aria-hidden="true"></i></span><span><strong>{{t.name}}</strong><span class="b">{{t.blurb}}</span></span><span class="tt-choice-tick" aria-hidden="true"><i class="ph ph-check"></i></span></button>
+                </sc-for>
+              </div>
+            </fieldset>
+          </sc-if>
+
+          <!-- step 2: features -->
+          <sc-if value="{{s2}}" hint-placeholder-val="{{false}}">
+            <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px;">
+              <legend class="tt-h3" style="padding: 0; margin-bottom: 4px;">{{featQ}}</legend>
+              <p class="tt-small">Tap everything that sounds right. Don't overthink it. We'll trim the list together later.</p>
+              <div class="tt-chipwrap">
+                <sc-for list="{{feats}}" as="f" hint-placeholder-count="7">
+                  <button type="button" class="tt-chip" aria-pressed="{{f.pressed}}" onClick="{{f.toggle}}"><i class="{{f.icon}} ph-16" aria-hidden="true"></i>{{f.name}}</button>
+                </sc-for>
+              </div>
+            </fieldset>
+          </sc-if>
+
+          <!-- step 3: timeline + budget -->
+          <sc-if value="{{s3}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+              <div style="display: flex; flex-direction: column; gap: 4px;"><h3 class="tt-h3">When do you need it, and what's the budget?</h3><p class="tt-small">Honest answers get you an honest quote. "Not sure" is a real answer.</p></div>
+              <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px;">
+                <legend class="tt-label" style="padding: 0; margin-bottom: 8px;">&gt; timeline</legend>
+                <div class="tt-choices">
+                  <sc-for list="{{timelines}}" as="t" hint-placeholder-count="4">
+                    <button type="button" class="tt-choice" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}"><span class="tt-choice-ic"><i class="{{t.icon}}" aria-hidden="true"></i></span><span><strong>{{t.name}}</strong><span class="b">{{t.blurb}}</span></span><span class="tt-choice-tick" aria-hidden="true"><i class="ph ph-check"></i></span></button>
+                  </sc-for>
+                </div>
+              </fieldset>
+              <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px;">
+                <legend class="tt-label" style="padding: 0; margin-bottom: 8px;">&gt; budget</legend>
+                <div class="tt-chipwrap">
+                  <sc-for list="{{budgets}}" as="b" hint-placeholder-count="5">
+                    <button type="button" class="tt-chip" aria-pressed="{{b.pressed}}" onClick="{{b.pick}}">{{b.name}}</button>
+                  </sc-for>
+                </div>
+                <sc-if value="{{hasBudget}}" hint-placeholder-val="{{false}}"><p class="tt-help">{{budgetBlurb}}</p></sc-if>
+              </fieldset>
+            </div>
+          </sc-if>
+
+          <!-- step 4: the build sheet result + hand-off -->
+          <sc-if value="{{s4}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span class="tt-eyebrow">Your build sheet</span>
+                <h3 class="tt-h3">{{rec.headline}}</h3>
+                <p class="tt-small">{{rec.summary}}</p>
+              </div>
+
+              <sc-if value="{{hasPrice}}" hint-placeholder-val="{{true}}">
+                <div class="tt-est">
+                  <div style="display: flex; flex-direction: column; gap: 4px; max-width: 360px;"><span style="font-weight: 600;">Ballpark estimate</span><span class="tt-small">{{budgetNote}} Worked out at NZ$60 an hour.</span></div>
+                  <div style="display: flex; flex-direction: column; align-items: flex-end;"><span class="tt-stat" style="font-size: 26px; letter-spacing: 0.06em; line-height: 1.2;">{{priceText}}</span><span class="tt-mono" style="font-size: 13px; color: var(--text-secondary);">about {{weeksText}}</span></div>
+                </div>
+              </sc-if>
+
+              <div class="tt-grid tt-grid--2" style="gap: 24px;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <h4 class="tt-label">&gt; recommended stack</h4>
+                  <div class="tt-chipwrap"><sc-for list="{{rec.stack}}" as="s" hint-placeholder-count="4"><span class="tt-tag">{{s}}</span></sc-for></div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <h4 class="tt-label">&gt; what you get</h4>
+                  <ul style="display: flex; flex-direction: column; gap: 8px;"><sc-for list="{{rec.deliverables}}" as="d" hint-placeholder-count="4"><li style="display: flex; gap: 8px; font-size: 15px;"><i class="ph ph-package ph-20" aria-hidden="true" style="color: var(--text-secondary); flex: none;"></i>{{d}}</li></sc-for></ul>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <h4 class="tt-label">&gt; how the build goes</h4>
+                <ol class="tt-phases" style="list-style: none; margin: 0; padding: 0;">
+                  <sc-for list="{{phases}}" as="p" hint-placeholder-count="4">
+                    <li class="tt-phase"><span class="tt-mono" style="font-size: 12px; color: var(--eyebrow); padding-top: 3px;">{{p.num}}</span><div><p style="font-weight: 600;">{{p.name}}</p><p class="tt-small">{{p.body}}</p></div></li>
+                  </sc-for>
+                </ol>
+              </div>
+
+              <!-- hand-off form -->
+              <section aria-labelledby="send-h" class="tt-card" style="background: var(--bg-raised); display: flex; flex-direction: column; gap: 16px;">
+                <sc-if value="{{isSent}}" hint-placeholder-val="{{false}}">
+                  <div role="status" style="display: flex; flex-direction: column; align-items: flex-start; gap: 12px;">
+                    <span style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-subtle); display: grid; place-items: center; color: var(--mono);"><i class="ph ph-check-circle ph-24" aria-hidden="true"></i></span>
+                    <h4 id="send-h" class="tt-h4" style="font-weight: 600;">Sent. Thanks, {{firstName}}.</h4>
+                    <p class="tt-small">Your build sheet is with me. I'll reply to {{email}} with questions, a firmer quote or a time to talk.</p>
+                    <button type="button" class="tt-btn tt-btn--ghost" onClick="{{restart}}"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Sketch another build</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <h4 id="send-h" class="tt-h4" style="font-weight: 600;">Send this to Tommy</h4>
+                    <p class="tt-small">Your name, your email and one line on what matters most. The build sheet comes with it.</p>
+                  </div>
+                  <sc-if value="{{isInvalid}}" hint-placeholder-val="{{false}}">
+                    <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>Two things to fix before this can go: <a href="#cb-name">your name</a> and <a href="#cb-email">your email</a>.</p></div>
+                  </sc-if>
+                  <sc-if value="{{isFailed}}" hint-placeholder-val="{{false}}">
+                    <div class="tt-banner tt-banner--err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>That didn't send. Your answers are still here, so give it another go, or email <a href="mailto:hello@tommytinkers.nz">hello@tommytinkers.nz</a>.</p></div>
+                  </sc-if>
+                  <form style="display: flex; flex-direction: column; gap: 16px;" novalidate="novalidate" onSubmit="{{send}}">
+                    <div class="tt-grid tt-grid--2" style="gap: 16px;">
+                      <div class="tt-field">
+                        <label for="cb-name">Your name</label>
+                        <input id="cb-name" class="{{nameClass}}" autocomplete="name" value="{{name}}" onChange="{{onName}}" disabled="{{sending}}" aria-invalid="{{nameInvalid}}" aria-describedby="cb-name-e">
+                        <sc-if value="{{nameErr}}" hint-placeholder-val="{{false}}"><p id="cb-name-e" class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>Tell me what to call you.</p></sc-if>
+                      </div>
+                      <div class="tt-field">
+                        <label for="cb-email">Email</label>
+                        <input id="cb-email" type="email" class="{{emailClass}}" autocomplete="email" value="{{email}}" onChange="{{onEmail}}" disabled="{{sending}}" aria-invalid="{{emailInvalid}}" aria-describedby="cb-email-e">
+                        <sc-if value="{{emailErr}}" hint-placeholder-val="{{false}}"><p id="cb-email-e" class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>That email is missing its ending, like .co.nz</p></sc-if>
+                      </div>
+                    </div>
+                    <div class="tt-field">
+                      <label for="cb-note">One line on what matters most <span style="color: var(--text-secondary); font-weight: 400;">(optional)</span></label>
+                      <input id="cb-note" class="tt-input" placeholder="e.g. it needs to be live before our open day" value="{{note}}" onChange="{{onNote}}" disabled="{{sending}}">
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+                      <sc-if value="{{sending}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Sending</button></sc-if>
+                      <sc-if value="{{notSending}}" hint-placeholder-val="{{true}}"><button type="submit" class="tt-btn tt-btn--primary"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>{{sendText}}</button></sc-if>
+                      <a href="mailto:hello@tommytinkers.nz" class="tt-btn tt-btn--ghost"><i class="ph ph-envelope-simple" aria-hidden="true"></i>Or use your email app</a>
+                    </div>
+                  </form>
+                </sc-if>
+              </section>
+            </div>
+          </sc-if>
+
+          <!-- step nav -->
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+            <sc-if value="{{canBack}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--ghost" onClick="{{back}}"><i class="ph ph-arrow-left" aria-hidden="true"></i>Back</button></sc-if>
+            <sc-if value="{{isFirst}}" hint-placeholder-val="{{true}}"><span></span></sc-if>
+            <sc-if value="{{showNext}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--primary" disabled="{{nextOff}}" onClick="{{next}}">{{nextText}}<i class="{{nextIcon}}" aria-hidden="true"></i></button></sc-if>
+            <sc-if value="{{s4}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--ghost" onClick="{{restart}}"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Start over</button></sc-if>
+          </div>
+        </div>
+
+        <!-- live build sheet -->
+        <aside class="tt-wiz-sheet" aria-label="Live build sheet">
+          <div class="tt-term">
+            <div class="tt-term-head"><i class="ph ph-notepad" aria-hidden="true"></i>build-sheet.md</div>
+            <dl class="tt-term-body" style="margin: 0;" aria-live="polite">
+              <div><dt class="k" style="display: inline-block;">project</dt><dd style="display: inline; margin: 0;" class="{{typeCls}}">{{sheetType}}</dd></div>
+              <div><dt class="k" style="display: inline-block;">scope</dt><dd style="display: inline; margin: 0;" class="{{scopeCls}}">{{sheetScope}}</dd></div>
+              <div><dt class="k" style="display: inline-block;">timeline</dt><dd style="display: inline; margin: 0;" class="{{tlCls}}">{{sheetTimeline}}</dd></div>
+              <div><dt class="k" style="display: inline-block;">budget</dt><dd style="display: inline; margin: 0;" class="{{bgCls}}">{{sheetBudget}}</dd></div>
+              <sc-if value="{{hasType}}" hint-placeholder-val="{{false}}">
+                <div style="border-top: 1px dashed var(--border-default); margin: 8px 0;"></div>
+                <div><dt class="k" style="display: inline-block;">stack</dt><dd style="display: inline; margin: 0;">{{stackLine}}</dd></div>
+                <div><dt class="k" style="display: inline-block;">estimate</dt><dd style="display: inline; margin: 0;" class="p">{{priceText}}</dd></div>
+                <div><dt class="k" style="display: inline-block;">duration</dt><dd style="display: inline; margin: 0;">{{weeksText}}</dd></div>
+              </sc-if>
+            </dl>
+            <div class="tt-term-foot"><span>{{sheetStatus}}</span><span>ballpark only</span></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 PAST WORK ============ -->
+  <section class="tt-section" aria-labelledby="work-h" style="background: var(--bg-surface); border-top: 1px solid var(--border-subtle);">
+    <div class="tt-container" style="display: flex; flex-direction: column; gap: 40px;">
+      <div style="display: flex; flex-direction: column; gap: 12px; max-width: 640px;">
+        <span class="tt-label"><span class="tt-type" style="--n: 17;">&gt; 03. past work</span></span>
+        <h2 id="work-h" class="tt-h2 tt-underline">Things I've built</h2>
+        <p class="tt-lead">Real projects only. The first one is the site you're on.</p>
+      </div>
+      <ul class="tt-grid tt-grid--3">
+        <li class="tt-card" style="display: flex; flex-direction: column; gap: 12px; background: var(--bg-base);"><span class="tt-eyebrow">Shop and community site</span><h3 class="tt-h4" style="font-weight: 600;">tommytinkers.nz</h3><p class="tt-small">My own maker shop, rebuilt from a Shopify store into a site I run myself: a sticker shop with Stripe checkout, accounts, a community Pinboard and forum, and a full admin. Self-hosted on my homelab behind a Cloudflare Tunnel.</p><div class="tt-chipwrap"><span class="tt-tag">Next.js</span><span class="tt-tag">TypeScript</span><span class="tt-tag">PostgreSQL</span><span class="tt-tag">Prisma</span><span class="tt-tag">Stripe</span><span class="tt-tag">Docker</span></div></li>
+        <li class="tt-card tt-ph-card" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 12px; background: var(--bg-base);"><span class="tt-choice-ic"><i class="ph ph-hammer ph-24" aria-hidden="true"></i></span><h3 class="tt-h4" style="font-weight: 600;">More on the bench</h3><p class="tt-small">More write-ups go here once the work can be shown. Want to see something similar to what you need? <a href="#build">Send me a build sheet</a> and ask.</p></li>
+      </ul>
+    </div>
+  </section>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"preset":{"editor":"enum","options":["start","features","timing","result","invalid","sending","sent","failed"],"default":"start"},"signedIn":{"editor":"boolean","default":false},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":3600}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const p = props.preset || 'start';
+    const answered = { type: 'webapp', features: ['User accounts', 'Stripe payments', 'Admin panel'], timeline: 'month', budget: 'mid' };
+    const filled = { name: 'Sam', email: 'you@example.co.nz', note: '' };
+    const presets = {
+      start: { step: 1, type: '', features: [], timeline: '', budget: '', send: 'idle', name: '', email: '', note: '' },
+      features: { step: 2, type: 'webapp', features: ['User accounts', 'Admin panel'], timeline: '', budget: '', send: 'idle', name: '', email: '', note: '' },
+      timing: { step: 3, type: 'webapp', features: answered.features, timeline: 'month', budget: '', send: 'idle', name: '', email: '', note: '' },
+      result: { step: 4, ...answered, send: 'idle', name: '', email: '', note: '' },
+      invalid: { step: 4, ...answered, send: 'invalid', name: '', email: 'you@example', note: '' },
+      sending: { step: 4, ...answered, send: 'sending', ...filled },
+      sent: { step: 4, ...answered, send: 'sent', ...filled },
+      failed: { step: 4, ...answered, send: 'failed', ...filled }
+    };
+    this.state = { theme: null, ...(presets[p] || presets.start) };
+  }
+  componentWillUnmount() { clearTimeout(this.sendT); }
+  data() {
+    return {
+      types: [
+        { id: 'marketing', icon: 'ph ph-globe-simple', name: 'Website', blurb: 'A few pages, a story to tell, a way to get in touch.' },
+        { id: 'webapp', icon: 'ph ph-browsers', name: 'Web app', blurb: 'Logins, dashboards, real user data.' },
+        { id: 'shop', icon: 'ph ph-shopping-bag', name: 'Online shop', blurb: 'Products, checkout, orders you can run from your phone.' },
+        { id: 'tool', icon: 'ph ph-wrench', name: 'Internal tool', blurb: 'Replace the spreadsheet everyone dreads.' },
+        { id: 'automate', icon: 'ph ph-lightning', name: 'Automation or script', blurb: 'Stop doing that one job by hand.' },
+        { id: 'unsure', icon: 'ph ph-question', name: 'Not sure yet', blurb: "You've got an idea, but it's still fuzzy." }
+      ],
+      features: {
+        marketing: ['Blog or news', 'Custom design', 'Contact form', 'Booking form', 'Analytics', 'SEO setup', 'Edit it yourself'],
+        webapp: ['User accounts', 'Stripe payments', 'Admin panel', 'File uploads', 'Email notifications', 'Live updates', 'Connects to another service'],
+        shop: ['Under 20 products', '20 to 100 products', '100+ products', 'Stripe payments', 'Shipping and tracking', 'Subscriptions', 'Click and collect'],
+        tool: ['Dashboard', 'CSV import and export', 'Scheduled jobs', 'Email or Slack alerts', 'User permissions', 'Audit log', 'Connects to an existing system'],
+        automate: ['Pull data from a website', 'Sync two systems', 'Generate reports', 'Watch a folder', 'Bulk file conversion', 'Run on a schedule', 'Read incoming emails'],
+        unsure: ['Has users', 'Takes payments', 'Has an admin side', 'Sends emails', 'Replaces a spreadsheet', 'Customer-facing']
+      },
+      timelines: [
+        { id: 'asap', icon: 'ph ph-fire', name: 'As soon as possible', blurb: 'In the next few weeks.' },
+        { id: 'month', icon: 'ph ph-calendar-blank', name: 'Within a month or two', blurb: 'Soonish, no fire.' },
+        { id: 'later', icon: 'ph ph-calendar-check', name: 'Later this year', blurb: 'Planning ahead.' },
+        { id: 'flex', icon: 'ph ph-infinity', name: 'Flexible', blurb: 'Whenever it fits.' }
+      ],
+      budgets: [
+        { id: 'small', name: 'Under $1.5k', blurb: 'Light touch, focused scope.' },
+        { id: 'mid', name: '$1.5k to $5k', blurb: 'Most websites and small tools.' },
+        { id: 'large', name: '$5k to $15k', blurb: 'Web apps, custom shops, full builds.' },
+        { id: 'xl', name: '$15k+', blurb: 'Bigger systems, built in phases.' },
+        { id: 'unsure', name: 'Not sure', blurb: "Tell me the problem and I'll scope it." }
+      ],
+      // Ballpark ranges are hours at NZ$60, a junior-to-mid freelance rate (NZ guides, Nov 2026: about
+      // NZ$42 to NZ$70). Features picked in the questionnaire push the range up.
+      recs: {
+        marketing: { headline: 'A website you can keep editing', summary: 'A fast, well-made site with the pages you need and a simple way to change the words yourself.', stack: ['Next.js', 'React', 'Tailwind CSS'], low: 1500, high: 4000, weeks: 3,
+          phases: [['Sketch', 'A quick brief and a page list. You sign off the shape.'], ['Design', 'Mock-ups of each page, with two rounds of changes.'], ['Build', 'Hand-coded, accessible and fast, with editing set up for you.'], ['Launch', 'Domain, analytics and a short handover call.']],
+          deliverables: ['A responsive site on your domain', 'A way to edit your own content', 'Analytics and SEO basics set up', 'The code, in your account'] },
+        webapp: { headline: 'A custom web app', summary: 'A real product with logins, data and a back office, built to grow with you.', stack: ['Next.js', 'TypeScript', 'PostgreSQL', 'Prisma', 'Stripe'], low: 5500, high: 17500, weeks: 8,
+          phases: [['Discover', "Sort the must-haves from the nice-to-haves. Agree an honest first version."], ['Design', 'Screens for the main journeys, checked with a real user before any code.'], ['First version', 'The smallest useful slice, working end to end.'], ['Iterate', 'Add the next feature once the last one is earning its keep.']],
+          deliverables: ['A working app on your domain', 'An admin side to manage your data', 'Code in your GitHub, hosted on your account', 'A runbook so it can be kept alive'] },
+        shop: { headline: 'An online shop', summary: 'Sell online without renting a giant platform. Payments through Stripe, orders you can manage from your phone.', stack: ['Next.js', 'Stripe Checkout', 'PostgreSQL'], low: 3000, high: 8500, weeks: 5,
+          phases: [['Catalogue', 'Products, prices and photos shaped up. Shipping rules agreed.'], ['Design', 'The storefront, cart and checkout, down to the small things buyers notice.'], ['Build', 'Storefront, payments and order emails, tested end to end.'], ['Launch', 'A quiet soft launch first, then open the doors.']],
+          deliverables: ['A storefront that loads fast on mobile', 'Stripe checkout in NZD', 'Order admin you can run from your phone', 'Order and shipping emails'] },
+        tool: { headline: 'An internal tool', summary: "Replace the spreadsheet, the inbox-as-database or the worst part of someone's week.", stack: ['Next.js', 'TypeScript', 'PostgreSQL'], low: 2000, high: 6500, weeks: 4,
+          phases: [['Look', 'Watch how the work is done now and find what really slows it down.'], ['Sketch', 'Draw the screens with the people who will use them.'], ['Build', 'Ship the smallest tool that fixes the worst step, then add from there.'], ['Hand over', 'A short walkthrough and a one-page guide.']],
+          deliverables: ['The tool, on your domain or network', 'Logins that suit how your team works', 'Source code and setup notes'] },
+        automate: { headline: 'An automation', summary: "A small program that does the boring job on schedule, so you don't have to.", stack: ['Node.js', 'TypeScript', 'A scheduler'], low: 350, high: 2000, weeks: 1,
+          phases: [['Trace', 'Watch the job done once. Note every click and decision.'], ['Build', "Write the script and test it on last month's real data."], ['Run', 'Schedule it, with an alert if it ever fails.'], ['Hand over', 'The source, the schedule and a one-page guide.']],
+          deliverables: ['The script, in your repo', 'Runs on a schedule you control', 'Failure alerts by email', 'A plain-English guide'] },
+        unsure: { headline: "Let's work it out", summary: 'A short call to work out the shape of the thing. No pressure, no quote yet.', stack: ['A call', 'Honest questions'], low: 0, high: 0, weeks: 0,
+          phases: [['Talk', "Tell me the problem, the people and the deadline. I'll ask the awkward questions."], ['Shape', "One or two ways it could go. Sometimes the answer is a spreadsheet."], ['Decide', 'A written summary and a ballpark you can take anywhere.']],
+          deliverables: ['A short call about your idea', 'A one-page written summary', 'A ballpark cost and timeline', "An honest call, even if it's 'not yet'"] }
+      }
+    };
+  }
+  estimate(rec, n) {
+    if (!rec || rec.low === 0) return null;
+    const r50 = (x) => Math.round(x / 50) * 50;
+    return { low: r50(rec.low * (1 + n * 0.18)), high: r50(rec.high * (1 + n * 0.22)), weeks: Math.max(rec.weeks, Math.round(rec.weeks * (1 + n * 0.15))) };
+  }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const D = this.data();
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const type = D.types.find((t) => t.id === s.type);
+    const tl = D.timelines.find((t) => t.id === s.timeline);
+    const bg = D.budgets.find((b) => b.id === s.budget);
+    const rec = s.type ? D.recs[s.type] : null;
+    const est = this.estimate(rec, s.features.length);
+    const nz = (n) => 'NZ$' + n.toLocaleString('en-NZ');
+    const n = s.features.length;
+    const set = (patch) => this.setState(patch);
+    const nameErr = s.send === 'invalid' && !s.name.trim();
+    const emailErr = s.send === 'invalid' && !/.+@.+\..+/.test(s.email);
+    const labels = ['', 'what you need', 'the features', 'timing and budget', 'your build sheet'];
+    let budgetNote = "A ballpark, not a quote. I'll firm it up once we've talked it through.";
+    if (s.budget === 'small' && est && est.low > 1500) budgetNote = "Your budget is under this estimate. We'd start with the must-haves and build the rest in phases.";
+    if (s.budget === 'unsure') budgetNote = "No budget yet is fine. Use this as a starting point and we'll shape it together.";
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      signedIn: !!P.signedIn,
+      toggleTheme: () => set({ theme: dark ? 'light' : 'dark' }),
+      stepNum: s.step,
+      progress: (s.step / 4) * 100 + '%',
+      stepLabel: labels[s.step],
+      s1: s.step === 1, s2: s.step === 2, s3: s.step === 3, s4: s.step === 4,
+      types: D.types.map((t) => ({ ...t, pressed: t.id === s.type ? 'true' : 'false', pick: () => set({ type: t.id, features: t.id === s.type ? s.features : [] }) })),
+      featQ: 'What does your ' + (type ? type.name.toLowerCase() : 'project') + ' need to do?',
+      feats: (D.features[s.type] || []).map((f) => {
+        const on = s.features.includes(f);
+        return { name: f, pressed: on ? 'true' : 'false', icon: on ? 'ph ph-check' : 'ph ph-plus', toggle: () => set({ features: on ? s.features.filter((x) => x !== f) : s.features.concat(f) }) };
+      }),
+      timelines: D.timelines.map((t) => ({ ...t, pressed: t.id === s.timeline ? 'true' : 'false', pick: () => set({ timeline: t.id }) })),
+      budgets: D.budgets.map((b) => ({ ...b, pressed: b.id === s.budget ? 'true' : 'false', pick: () => set({ budget: b.id }) })),
+      hasBudget: !!bg,
+      budgetBlurb: bg ? bg.blurb : '',
+      rec: rec || { headline: '', summary: '', stack: [], deliverables: [] },
+      phases: rec ? rec.phases.map((p, i) => ({ num: 'phase ' + String(i + 1).padStart(2, '0'), name: p[0], body: p[1] })) : [],
+      hasPrice: !!est,
+      priceText: est ? nz(est.low) + ' - ' + nz(est.high) : rec ? 'Free short call' : '-',
+      weeksText: est ? est.weeks + (est.weeks === 1 ? ' week' : ' weeks') : rec ? '30 minutes' : '-',
+      budgetNote,
+      // build sheet
+      hasType: !!rec,
+      sheetType: type ? type.name : '- pick a type',
+      typeCls: type ? '' : 'c',
+      sheetScope: n === 0 ? '- no features yet' : (n <= 3 ? 'Focused' : n <= 5 ? 'Medium' : 'Big') + ', ' + n + (n === 1 ? ' feature' : ' features'),
+      scopeCls: n ? '' : 'c',
+      sheetTimeline: tl ? tl.name : '- to be decided',
+      tlCls: tl ? '' : 'c',
+      sheetBudget: bg ? bg.name : '- to be decided',
+      bgCls: bg ? '' : 'c',
+      stackLine: rec ? rec.stack.join(', ') : '',
+      sheetStatus: s.step === 4 ? 'ready' : 'drafting...',
+      // nav
+      canBack: s.step > 1,
+      isFirst: s.step === 1,
+      back: () => set({ step: s.step - 1 }),
+      showNext: s.step < 4,
+      nextOff: (s.step === 1 && !s.type) || (s.step === 3 && (!s.timeline || !s.budget)),
+      nextText: s.step === 3 ? 'See my build sheet' : 'Next',
+      nextIcon: s.step === 3 ? 'ph ph-sparkle' : 'ph ph-arrow-right',
+      next: () => set({ step: Math.min(4, s.step + 1) }),
+      restart: () => set({ step: 1, type: '', features: [], timeline: '', budget: '', send: 'idle', name: '', email: '', note: '' }),
+      // form
+      name: s.name, email: s.email, note: s.note,
+      firstName: (s.name || 'there').split(' ')[0],
+      onName: (e) => set({ name: e.target.value }),
+      onEmail: (e) => set({ email: e.target.value }),
+      onNote: (e) => set({ note: e.target.value }),
+      nameErr, emailErr,
+      nameInvalid: nameErr ? 'true' : 'false',
+      emailInvalid: emailErr ? 'true' : 'false',
+      nameClass: nameErr ? 'tt-input is-error' : 'tt-input',
+      emailClass: emailErr ? 'tt-input is-error' : 'tt-input',
+      isInvalid: nameErr || emailErr,
+      isFailed: s.send === 'failed',
+      isSent: s.send === 'sent',
+      notSent: s.send !== 'sent',
+      sending: s.send === 'sending',
+      notSending: s.send !== 'sending',
+      sendText: s.send === 'failed' ? 'Try sending again' : 'Send this to Tommy',
+      send: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!s.name.trim() || !/.+@.+\..+/.test(s.email)) return set({ send: 'invalid' });
+        set({ send: 'sending' });
+        // Stands in for the server action that emails the build sheet through Resend.
+        this.sendT = setTimeout(() => this.setState({ send: 'sent' }), 1200);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

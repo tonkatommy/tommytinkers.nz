@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Pinboard - The Shed - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="shed" count="0" signed-in="{{signedIn}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main">
+  <!-- Shed header: this page's one full-bleed gradient -->
+  <section class="tt-warm" aria-labelledby="shed-h">
+    <div class="tt-container" style="padding-top: 40px; display: flex; flex-direction: column; gap: 8px;">
+      <span class="tt-label">&gt; the shed / pinboard</span>
+      <h1 id="shed-h" class="tt-h1" style="font-size: clamp(36px, 5vw, 56px);">The Pinboard</h1>
+      <p style="font-size: 18px; max-width: 620px;">A public wall of builds, finds and notes from members. Anyone can have a look.</p>
+      <nav aria-label="The Shed" class="tt-tabs" style="margin-top: 16px;">
+        <a href="Shed.dc.html" class="tt-tab" aria-current="page"><i class="ph ph-push-pin ph-20" aria-hidden="true"></i>Pinboard</a>
+        <a href="Workshop.dc.html" class="tt-tab"><i class="ph ph-chats-circle ph-20" aria-hidden="true"></i>Workshop</a>
+        <a href="Achievements.dc.html" class="tt-tab"><i class="ph ph-trophy ph-20" aria-hidden="true"></i>Achievements</a>
+        <sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}"><a href="Profile.dc.html" class="tt-tab"><i class="ph ph-user ph-20" aria-hidden="true"></i>Your profile</a></sc-if>
+      </nav>
+    </div>
+  </section>
+
+  <section class="tt-container" style="padding-block: 32px 96px; display: flex; flex-direction: column; gap: 32px;">
+    <!-- signed out: the prompt -->
+    <sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}">
+      <div class="tt-card" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+        <div style="display: flex; gap: 16px; align-items: flex-start; max-width: 640px;">
+          <span class="tt-choice-ic" style="flex: none;"><i class="ph ph-push-pin ph-24" aria-hidden="true"></i></span>
+          <div style="display: flex; flex-direction: column; gap: 4px;"><h2 class="tt-h4" style="font-weight: 600;">Want to pin something or react?</h2><p class="tt-small">Pinning and reacting need a free account. Looking is always free.</p></div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;"><a href="Auth.dc.html" class="tt-btn tt-btn--secondary"><i class="ph ph-sign-in" aria-hidden="true"></i>Sign in</a><a href="Auth.dc.html" class="tt-btn tt-btn--primary">Create a free account</a></div>
+      </div>
+    </sc-if>
+
+    <!-- signed in: pin button -->
+    <sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+        <p class="tt-small" style="display: flex; gap: 8px; align-items: center;"><i class="ph ph-shield-check ph-20" aria-hidden="true"></i>A new member's first 3 pins are checked by Tommy before they go up.</p>
+        <button type="button" class="tt-btn tt-btn--primary" onClick="{{openCompose}}"><i class="ph ph-plus" aria-hidden="true"></i>Pin something</button>
+      </div>
+    </sc-if>
+
+    <!-- loading / empty / error -->
+    <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+      <div class="tt-wall" aria-busy="true">
+        <div class="tt-pin tt-card tt-card--flush"><div class="tt-skel" style="aspect-ratio: 4 / 3; border-radius: 0;"></div><div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;"><div class="tt-skel" style="height: 14px; width: 50%;"></div><div class="tt-skel" style="height: 12px; width: 90%;"></div></div></div>
+        <div class="tt-pin tt-card tt-card--flush"><div class="tt-skel" style="aspect-ratio: 1 / 1; border-radius: 0;"></div><div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;"><div class="tt-skel" style="height: 14px; width: 40%;"></div><div class="tt-skel" style="height: 12px; width: 80%;"></div></div></div>
+        <div class="tt-pin tt-card tt-card--flush"><div class="tt-skel" style="aspect-ratio: 3 / 4; border-radius: 0;"></div><div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;"><div class="tt-skel" style="height: 14px; width: 60%;"></div><div class="tt-skel" style="height: 12px; width: 70%;"></div></div></div>
+      </div>
+      <p class="sr-only" role="status">Loading the Pinboard</p>
+    </sc-if>
+    <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+      <div class="tt-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px; border-style: dashed; border-color: var(--border-default);">
+        <span style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center;"><i class="ph ph-push-pin ph-24" aria-hidden="true"></i></span>
+        <h2 class="tt-h4" style="font-weight: 600;">Nothing pinned yet</h2>
+        <p class="tt-small" style="max-width: 380px;">The board's empty and waiting. Got a build, a find or a sticker on a ute? Be the first.</p>
+      </div>
+    </sc-if>
+    <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+      <div class="tt-card" role="alert" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 64px 32px; border-color: var(--error);">
+        <span style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-raised); display: grid; place-items: center; color: var(--error);"><i class="ph ph-warning-circle ph-24" aria-hidden="true"></i></span>
+        <h2 class="tt-h4" style="font-weight: 600;">Couldn't load the Pinboard</h2>
+        <p class="tt-small">Something went wrong on my end. Try again in a moment.</p>
+        <button type="button" class="tt-btn tt-btn--primary"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Try again</button>
+      </div>
+    </sc-if>
+
+    <!-- the wall -->
+    <sc-if value="{{hasPins}}" hint-placeholder-val="{{true}}">
+      <h2 class="sr-only">Latest pins</h2>
+      <ul class="tt-wall">
+        <!-- my pin, waiting for approval -->
+        <sc-if value="{{myPending}}" hint-placeholder-val="{{false}}">
+          <li class="tt-pin tt-card tt-card--flush" style="border-style: dashed; border-color: var(--warm-orange);">
+            <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; background: var(--bg-raised); border-bottom: 1px solid var(--border-subtle);">
+              <span class="tt-pill tt-pill--low" style="align-self: flex-start;"><i class="ph ph-hourglass" aria-hidden="true"></i>Waiting for approval</span>
+              <p style="font-size: 13px; color: var(--text-secondary);">Only you can see this until Tommy's had a look. Your first 3 pins get checked, then they go straight up.</p>
+            </div>
+            <div class="tt-photo" style="aspect-ratio: 4 / 3;"><i class="ph ph-image" aria-hidden="true"></i>Your photo</div>
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 12px;"><span class="tt-av tt-av--sm" aria-hidden="true">S</span><div style="display: flex; flex-direction: column;"><span style="font-weight: 600; font-size: 14px;">Sam</span><span style="font-size: 12px; color: var(--text-secondary);">Just now</span></div></div>
+              <p style="font-size: 15px;">{{myNote}}</p>
+              <div style="display: flex; gap: 8px;"><button type="button" class="tt-btn tt-btn--ghost tt-btn--sm"><i class="ph ph-pencil-simple" aria-hidden="true"></i>Edit</button><button type="button" class="tt-btn tt-btn--ghost tt-btn--sm"><i class="ph ph-trash" aria-hidden="true"></i>Delete</button></div>
+            </div>
+          </li>
+        </sc-if>
+        <sc-for list="{{pins}}" as="p" hint-placeholder-count="8">
+          <li class="tt-pin tt-card tt-card--flush">
+            <sc-if value="{{p.hasPhoto}}" hint-placeholder-val="{{true}}"><div class="tt-photo" style="aspect-ratio: {{p.ratio}};" role="img" aria-label="{{p.alt}}"><i class="ph ph-image" aria-hidden="true"></i>Photo</div></sc-if>
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span class="tt-av tt-av--sm" aria-hidden="true">{{p.initials}}</span>
+                <div style="display: flex; flex-direction: column; min-width: 0; flex: 1;"><a href="Profile.dc.html" style="font-weight: 600; font-size: 14px; color: var(--text-primary); text-decoration: none;">{{p.who}}</a><span style="font-size: 12px; color: var(--text-secondary);">{{p.when}}</span></div>
+                <span class="tt-tag tt-tag--muted">{{p.tag}}</span>
+              </div>
+              <p style="font-size: 15px;">{{p.note}}</p>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <button type="button" class="tt-react" aria-pressed="{{p.pressed}}" aria-label="{{p.reactLabel}}" onClick="{{p.react}}"><i class="{{p.heart}} ph-16" aria-hidden="true"></i>Nice one<span class="tt-mono" style="font-size: 12px;">{{p.count}}</span></button>
+                <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Report this pin" title="Report this pin" style="width: 36px; min-height: 36px;"><i class="ph ph-flag ph-16" aria-hidden="true"></i></button>
+              </div>
+            </div>
+          </li>
+        </sc-for>
+      </ul>
+    </sc-if>
+  </section>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+
+<!-- join prompt: a signed-out visitor tried to react -->
+<sc-if value="{{joinPrompt}}" hint-placeholder-val="{{false}}">
+  <div class="tt-modalwrap">
+    <div class="tt-scrim" onClick="{{closeJoin}}" aria-hidden="true"></div>
+    <div class="tt-modal" role="dialog" aria-modal="true" aria-labelledby="join-h" style="width: min(440px, 100%); align-items: center; text-align: center;">
+      <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="position: absolute; top: 12px; right: 12px;" aria-label="Close" onClick="{{closeJoin}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button>
+      <span style="width: 64px; height: 64px; border-radius: 50%; background: var(--gradient-brand); color: var(--on-warm); display: grid; place-items: center;"><i class="ph ph-heart ph-24" aria-hidden="true"></i></span>
+      <h2 id="join-h" class="tt-h3">Join the Shed to react</h2>
+      <p class="tt-small">Reacting and pinning need a free account. It takes about a minute, and looking around stays free either way.</p>
+      <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;"><a href="Auth.dc.html" class="tt-btn tt-btn--primary tt-btn--block">Create a free account</a><a href="Auth.dc.html" class="tt-btn tt-btn--secondary tt-btn--block"><i class="ph ph-sign-in" aria-hidden="true"></i>I've got one, sign in</a></div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- compose a pin -->
+<sc-if value="{{composeOpen}}" hint-placeholder-val="{{false}}">
+  <div class="tt-modalwrap">
+    <div class="tt-scrim" onClick="{{closeCompose}}" aria-hidden="true"></div>
+    <form class="tt-modal" role="dialog" aria-modal="true" aria-labelledby="pin-h" onSubmit="{{post}}">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+        <h2 id="pin-h" class="tt-h3">Pin something</h2>
+        <button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Close" onClick="{{closeCompose}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button>
+      </div>
+
+      <div class="tt-field">
+        <span class="tt-field-label" id="photo-l">Photo <span style="color: var(--text-secondary); font-weight: 400;">(one, optional)</span></span>
+        <sc-if value="{{noPhoto}}" hint-placeholder-val="{{true}}">
+          <button type="button" class="{{dropClass}}" aria-labelledby="photo-l" aria-describedby="photo-h" onClick="{{addPhoto}}">
+            <i class="ph ph-image-square ph-24" aria-hidden="true"></i>
+            <span style="font-weight: 600; color: var(--text-primary);">Choose a photo</span>
+            <span id="photo-h">or drag one here. JPG, PNG or WebP, up to 5 MB.</span>
+          </button>
+          <sc-if value="{{photoErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i>That photo is 12 MB. Photos can be up to 5 MB, so try a smaller one.</p></sc-if>
+        </sc-if>
+        <sc-if value="{{hasPhoto}}" hint-placeholder-val="{{false}}">
+          <div style="position: relative;">
+            <div class="tt-photo" style="aspect-ratio: 4 / 3; border-radius: 16px;"><i class="ph ph-image" aria-hidden="true"></i>buggy-stickers.jpg</div>
+            <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" style="position: absolute; top: 12px; right: 12px; background: var(--bg-surface);" onClick="{{removePhoto}}" disabled="{{posting}}"><i class="ph ph-trash" aria-hidden="true"></i>Remove photo</button>
+          </div>
+        </sc-if>
+      </div>
+
+      <div class="tt-field">
+        <label for="pin-note">Say something about it</label>
+        <textarea id="pin-note" class="tt-input" maxlength="280" placeholder="What is it, and how did you make it?" value="{{note}}" onChange="{{onNote}}" disabled="{{posting}}" aria-describedby="pin-count"></textarea>
+        <p id="pin-count" class="tt-counter">{{noteCount}} / 280</p>
+      </div>
+      <div class="tt-field">
+        <label for="pin-tag">What's it about?</label>
+        <div class="tt-selectwrap"><select id="pin-tag" class="tt-input" disabled="{{posting}}"><option>Show and tell</option><option>RC cars</option><option>Stickers</option><option>Toys</option><option>Around the house</option><option>Something else</option></select><i class="ph ph-caret-down" aria-hidden="true"></i></div>
+      </div>
+      <p class="tt-help" style="display: flex; gap: 8px;"><i class="ph ph-shield-check ph-20" aria-hidden="true" style="flex: none;"></i>Your first 3 pins are checked by Tommy before they show up for everyone. Keep it friendly and keep it yours.</p>
+      <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px;">
+        <button type="button" class="tt-btn tt-btn--ghost" onClick="{{closeCompose}}">Cancel</button>
+        <sc-if value="{{posting}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--primary" aria-disabled="true" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Pinning</button></sc-if>
+        <sc-if value="{{notPosting}}" hint-placeholder-val="{{true}}"><button type="submit" class="tt-btn tt-btn--primary" disabled="{{postOff}}"><i class="ph ph-push-pin" aria-hidden="true"></i>Pin it</button></sc-if>
+      </div>
+    </form>
+  </div>
+</sc-if>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+  <div class="tt-toast-dock" role="status" aria-live="polite">
+    <div class="tt-toast tt-toast--info"><i class="ph ph-hourglass" aria-hidden="true"></i><div style="flex: 1; display: flex; flex-direction: column; gap: 4px;"><p class="tt-toast-title">Pinned, and waiting for a look</p><p class="tt-toast-msg">It'll show for everyone once Tommy's approved it.</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss" onClick="{{closeToast}}"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"signedIn":{"editor":"boolean","default":false},"view":{"editor":"enum","options":["wall","compose","photo","photoError","posting","pending","loading","empty","error"],"default":"wall"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const v = props.view || 'wall';
+    const composing = ['compose', 'photo', 'photoError', 'posting'].includes(v);
+    this.state = {
+      theme: null, joinPrompt: false, reacted: {}, toast: false,
+      compose: composing,
+      photo: v === 'photo' || v === 'posting',
+      photoErr: v === 'photoError',
+      posting: v === 'posting',
+      note: v === 'photo' || v === 'posting' ? 'Name stickers on the buggy for Sunday. Went with white on black.' : '',
+      myPending: v === 'pending',
+      myNote: 'Name stickers on the buggy for Sunday. Went with white on black.'
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.postT); clearTimeout(this.toastT); }
+  pins() {
+    // Launch content: Tommy's own pins, plus labelled test accounts from the staging seed.
+    // No real members yet, so nothing here pretends to be one.
+    return [
+      { id: 1, ratio: '4 / 3', hasPhoto: true, tag: 'Stickers', who: 'Tommy', initials: 'T', when: '06/11/2026', note: 'A fresh Mixed sheet of name window stickers, cut and ready to post.', count: 3 },
+      { id: 2, ratio: '1 / 1', hasPhoto: true, tag: 'RC cars', who: 'Test member A', initials: 'A', when: '06/11/2026', note: 'Test pin: name stickers on a rear window.', count: 1 },
+      { id: 3, ratio: '', hasPhoto: false, tag: 'Something else', who: 'Tommy', initials: 'T', when: '02/11/2026', note: 'Welcome to the Pinboard. Pin a photo of whatever you\u2019ve made, fixed or raced. It doesn\u2019t have to be something of mine.', count: 4 },
+      { id: 4, ratio: '3 / 4', hasPhoto: true, tag: 'Toys', who: 'Test member B', initials: 'B', when: '05/11/2026', note: 'Test pin: a printed toy, painted at home.', count: 0 },
+      { id: 5, ratio: '4 / 3', hasPhoto: true, tag: 'Around the house', who: 'Test member C', initials: 'C', when: '05/11/2026', note: 'Test pin: cable clips under a desk.', count: 1 },
+      { id: 6, ratio: '1 / 1', hasPhoto: true, tag: 'Show and tell', who: 'Test member D', initials: 'D', when: '04/11/2026', note: 'Test pin: a pit table on club day.', count: 2 },
+      { id: 7, ratio: '', hasPhoto: false, tag: 'RC cars', who: 'Tommy', initials: 'T', when: '03/11/2026', note: 'What should I print first: 1/10 RC parts, kids\u2019 toys or household bits? Tell me what you\u2019d actually use and I\u2019ll start there.', count: 2 },
+      { id: 8, ratio: '3 / 4', hasPhoto: true, tag: 'Show and tell', who: 'Tommy', initials: 'T', when: '02/11/2026', note: 'Astro Masters grid sheets, all packed and posted.', count: 2 }
+    ];
+  }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const v = P.view || 'wall';
+    const signedIn = !!P.signedIn || ['compose', 'photo', 'photoError', 'posting', 'pending'].includes(v);
+    const ready = !['loading', 'empty', 'error'].includes(v);
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      signedIn,
+      signedOut: !signedIn,
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error',
+      hasPins: ready,
+      myPending: s.myPending,
+      myNote: s.myNote,
+      pins: this.pins().map((p) => {
+        const on = !!s.reacted[p.id];
+        return {
+          ...p,
+          alt: 'Photo pinned by ' + p.who + ' (placeholder)',
+          count: p.count + (on ? 1 : 0),
+          pressed: on ? 'true' : 'false',
+          heart: on ? 'ph ph-heart' : 'ph ph-thumbs-up',
+          reactLabel: on ? 'Remove your Nice one' : 'Say nice one',
+          react: () => (signedIn ? this.setState({ reacted: { ...s.reacted, [p.id]: !on } }) : this.setState({ joinPrompt: true }))
+        };
+      }),
+      joinPrompt: s.joinPrompt,
+      closeJoin: () => this.setState({ joinPrompt: false }),
+      composeOpen: s.compose,
+      openCompose: () => this.setState({ compose: true }),
+      closeCompose: () => this.setState({ compose: false, posting: false }),
+      noPhoto: !s.photo,
+      hasPhoto: s.photo,
+      photoErr: s.photoErr,
+      dropClass: s.photoErr ? 'tt-drop is-error' : 'tt-drop',
+      addPhoto: () => this.setState({ photo: true, photoErr: false }),
+      removePhoto: () => this.setState({ photo: false }),
+      note: s.note,
+      noteCount: s.note.length,
+      onNote: (e) => this.setState({ note: e.target.value }),
+      posting: s.posting,
+      notPosting: !s.posting,
+      postOff: !s.photo && !s.note.trim(),
+      post: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!s.photo && !s.note.trim()) return;
+        this.setState({ posting: true });
+        // Stands in for the server action: upload, save, and queue for moderation.
+        this.postT = setTimeout(() => {
+          this.setState({ posting: false, compose: false, myPending: true, myNote: this.state.note || 'Name stickers on the buggy for Sunday. Went with white on black.', toast: true });
+          this.toastT = setTimeout(() => this.setState({ toast: false }), 6000);
+        }, 1200);
+      },
+      hasToast: s.toast,
+      closeToast: () => this.setState({ toast: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

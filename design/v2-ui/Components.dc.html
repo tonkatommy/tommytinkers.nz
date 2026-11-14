@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Components - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="tt" data-theme="{{theme}}" style="width: 1280px; min-height: 3000px; box-sizing: border-box; padding: 48px; display: flex; flex-direction: column; gap: 56px;">
+
+  <header style="display: flex; flex-direction: column; gap: 8px;">
+    <span class="tt-label">&gt; 00. parts bin</span>
+    <h1 class="tt-h2">Components ({{themeName}})</h1>
+    <p class="tt-small" style="max-width: 760px;">Every screen is built from these. Tokens come straight from the tommy tinkers NZ design system. Hover and focus are shown as frozen states; on the Home artboards they're live.</p>
+  </header>
+
+  <!-- colour roles -->
+  <section style="display: flex; flex-direction: column; gap: 16px;">
+    <h2 class="tt-h3">Colour roles</h2>
+    <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;"><div style="height: 64px; border-radius: 10px; background: var(--bg-base); border: 1px solid var(--border-default);"></div><p style="font-size: 14px; font-weight: 600;">bg-base</p><p class="tt-help">Page canvas</p></div>
+      <div style="display: flex; flex-direction: column; gap: 8px;"><div style="height: 64px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-default);"></div><p style="font-size: 14px; font-weight: 600;">bg-surface</p><p class="tt-help">Cards, inputs, drawer</p></div>
+      <div style="display: flex; flex-direction: column; gap: 8px;"><div style="height: 64px; border-radius: 10px; background: var(--bg-raised); border: 1px solid var(--border-default);"></div><p style="font-size: 14px; font-weight: 600;">bg-raised</p><p class="tt-help">Icon tiles, hover fills, skeletons</p></div>
+      <div style="display: flex; flex-direction: column; gap: 8px;"><div style="height: 64px; border-radius: 10px; background: var(--accent);"></div><p style="font-size: 14px; font-weight: 600;">accent</p><p class="tt-help">Interactive only: buttons, links, focus</p></div>
+      <div style="display: flex; flex-direction: column; gap: 8px;"><div style="height: 64px; border-radius: 10px; background: var(--accent-subtle); border: 1px solid var(--accent-muted); display: grid; place-items: center;"><span class="tt-mono" style="color: var(--mono); font-size: 14px;">&gt; mono</span></div><p style="font-size: 14px; font-weight: 600;">mono</p><p class="tt-help">Prompt labels, tech tags</p></div>
+      <div style="display: flex; flex-direction: column; gap: 8px;"><div style="height: 64px; border-radius: 10px; background: var(--gradient-brand); display: grid; place-items: center; color: var(--on-warm); font-weight: 600; font-size: 14px;">Aa dark ink only</div><p style="font-size: 14px; font-weight: 600;">gradient-brand</p><p class="tt-help">Decoration only. One full-bleed per page</p></div>
+    </div>
+  </section>
+
+  <!-- type -->
+  <section style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <h2 class="tt-h3">Type</h2>
+      <p class="tt-h1" style="font-size: 56px;">Bringing your ideas to life.</p>
+      <p class="tt-h2">What I build</p>
+      <p class="tt-h3">Internal tools</p>
+      <p class="tt-h4">How a project goes</p>
+      <p class="tt-lead">I build the website, app or tool you actually need.</p>
+      <p>Body copy is Exo 2 at 16px with 1.65 leading. Short sentences, one idea each.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 20px; padding-top: 56px;">
+      <div><p class="tt-eyebrow">Maker of things</p><p class="tt-help">Jura, 12px, 0.18em, uppercase. Eyebrows only.</p></div>
+      <div><p class="tt-stat" style="font-size: 40px; line-height: 1.1;">[00]</p><p class="tt-help">Jura for stat numbers, like a count on an admin dashboard.</p></div>
+      <div><span class="tt-label">&gt; 02. featured</span><p class="tt-help">Agave Nerd, section prompt.</p></div>
+      <div style="background: var(--bg-raised); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px; font-family: var(--font-mono); font-size: 13px; line-height: 1.6;"><span style="color: var(--mono);">$</span> cat build-sheet.txt<br><span style="color: var(--text-secondary);">stack: next.js, postgresql</span></div>
+    </div>
+  </section>
+
+  <!-- buttons -->
+  <section style="display: flex; flex-direction: column; gap: 16px;">
+    <h2 class="tt-h3">Buttons</h2>
+    <p class="tt-small">44px tall (36px small, desktop tables only). 6px radius. Press scales to 0.98. Focus is a 2px accent outline, 2px offset, on everything.</p>
+    <div style="display: grid; grid-template-columns: 140px repeat(5, minmax(0, 1fr)); gap: 16px 24px; align-items: center;">
+      <span></span><span class="tt-help">Rest</span><span class="tt-help">Hover</span><span class="tt-help">Focus</span><span class="tt-help">Disabled</span><span class="tt-help">Loading</span>
+      <span style="font-size: 14px; font-weight: 600;">Primary</span>
+      <span><button type="button" class="tt-btn tt-btn--primary">Add to cart</button></span>
+      <span><button type="button" class="tt-btn tt-btn--primary is-hover">Add to cart</button></span>
+      <span><button type="button" class="tt-btn tt-btn--primary is-focus">Add to cart</button></span>
+      <span><button type="button" class="tt-btn tt-btn--primary" disabled="disabled">Out of stock</button></span>
+      <span><button type="button" class="tt-btn tt-btn--primary" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Adding</button></span>
+      <span style="font-size: 14px; font-weight: 600;">Secondary</span>
+      <span><button type="button" class="tt-btn tt-btn--secondary">Plan a build</button></span>
+      <span><button type="button" class="tt-btn tt-btn--secondary is-hover">Plan a build</button></span>
+      <span><button type="button" class="tt-btn tt-btn--secondary is-focus">Plan a build</button></span>
+      <span><button type="button" class="tt-btn tt-btn--secondary" disabled="disabled">Plan a build</button></span>
+      <span><button type="button" class="tt-btn tt-btn--secondary" aria-busy="true"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Saving</button></span>
+      <span style="font-size: 14px; font-weight: 600;">Ghost</span>
+      <span><button type="button" class="tt-btn tt-btn--ghost">See everything<i class="ph ph-arrow-right" aria-hidden="true"></i></button></span>
+      <span><button type="button" class="tt-btn tt-btn--ghost is-hover">See everything<i class="ph ph-arrow-right" aria-hidden="true"></i></button></span>
+      <span><button type="button" class="tt-btn tt-btn--ghost is-focus">See everything<i class="ph ph-arrow-right" aria-hidden="true"></i></button></span>
+      <span><button type="button" class="tt-btn tt-btn--ghost" disabled="disabled" style="background: transparent;">See everything</button></span>
+      <span></span>
+      <span style="font-size: 14px; font-weight: 600;">Warm</span>
+      <span><button type="button" class="tt-btn tt-btn--warm">Join the Shed</button></span>
+      <span><button type="button" class="tt-btn tt-btn--warm is-hover">Join the Shed</button></span>
+      <span><button type="button" class="tt-btn tt-btn--warm is-focus">Join the Shed</button></span>
+      <span><button type="button" class="tt-btn tt-btn--warm" disabled="disabled">Join the Shed</button></span>
+      <span></span>
+      <span style="font-size: 14px; font-weight: 600;">Icon</span>
+      <span><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" aria-label="Cart, 3 items" style="position: relative;"><i class="ph ph-shopping-cart-simple ph-24" aria-hidden="true"></i><span class="tt-count" aria-hidden="true">3</span></button></span>
+      <span><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon is-hover" aria-label="Light theme"><i class="ph ph-sun" aria-hidden="true"></i></button></span>
+      <span><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon is-focus" aria-label="Account menu"><i class="ph ph-user-circle" aria-hidden="true"></i></button></span>
+      <span><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" disabled="disabled" aria-label="Remove" style="background: transparent;"><i class="ph ph-trash" aria-hidden="true"></i></button></span>
+      <span></span>
+    </div>
+    <p class="tt-help">Warm is for the brand moment on a base or surface background, at most once per screen. On the gradient band, use Primary plus the dark-ink outline button.</p>
+  </section>
+
+  <!-- fields -->
+  <section style="display: flex; flex-direction: column; gap: 16px;">
+    <h2 class="tt-h3">Fields</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 32px;">
+      <div class="tt-field"><label for="c-a">Your name</label><input id="c-a" class="tt-input" placeholder="e.g. Sam" aria-describedby="c-a-h"><p id="c-a-h" class="tt-help">Rest, with helper text.</p></div>
+      <div class="tt-field"><label for="c-b">Email</label><input id="c-b" class="tt-input is-focus" value="sam@"><p class="tt-help">Focus: 2px accent ring.</p></div>
+      <div class="tt-field"><label for="c-c">Email</label><input id="c-c" class="tt-input is-error" value="sam@example" aria-invalid="true" aria-describedby="c-c-e"><p id="c-c-e" class="tt-err"><i class="ph ph-warning-circle" aria-hidden="true"></i>That email is missing its ending, like .co.nz</p></div>
+      <div class="tt-field"><label for="c-d">Order number</label><input id="c-d" class="tt-input" value="TT1025NZ" disabled="disabled"><p class="tt-help">Disabled. Label stays full contrast.</p></div>
+      <div class="tt-field"><label for="c-e">Display name</label><input id="c-e" class="tt-input" value="Tommy"><p class="tt-ok"><i class="ph ph-check-circle" aria-hidden="true"></i>Saved</p></div>
+      <div class="tt-field"><span class="tt-field-label" id="c-f">Quantity</span><div class="tt-qty" role="group" aria-labelledby="c-f" style="align-self: flex-start;"><button type="button" aria-label="Decrease quantity" disabled="disabled"><i class="ph ph-minus ph-16" aria-hidden="true"></i></button><output>1</output><button type="button" aria-label="Increase quantity"><i class="ph ph-plus ph-16" aria-hidden="true"></i></button></div><p class="tt-help">Minus disables at 1, plus at stock level.</p></div>
+      <div class="tt-field" style="grid-column: span 2;"><label for="c-g">Message</label><textarea id="c-g" class="tt-input" placeholder="Tell me what you're after"></textarea></div>
+      <div class="tt-field"><span class="tt-field-label">Sending</span><button type="button" class="tt-btn tt-btn--primary" aria-busy="true" style="align-self: flex-start;"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Sending</button><p class="tt-help">Fields lock while a form submits.</p></div>
+    </div>
+  </section>
+
+  <!-- cards -->
+  <section style="display: flex; flex-direction: column; gap: 16px;">
+    <h2 class="tt-h3">Cards</h2>
+    <p class="tt-small">Surface background, subtle border, 16px radius (24px for featured). On hover the border steps up, the card lifts 2px and a 3px gradient bar fades in along the top.</p>
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; align-items: start;">
+      <div class="tt-card" style="display: flex; flex-direction: column; gap: 8px;"><span class="tt-help">Rest</span><h3 class="tt-h4" style="font-weight: 600;">Pinboard</h3><p class="tt-small">A public wall of photos and notes.</p></div>
+      <div class="tt-card is-hover" style="display: flex; flex-direction: column; gap: 8px;"><span class="tt-help">Hover</span><h3 class="tt-h4" style="font-weight: 600;">Pinboard</h3><p class="tt-small">A public wall of photos and notes.</p></div>
+
+      <article class="tt-card tt-card--flush" style="display: flex; flex-direction: column;">
+        <div class="tt-ph"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-size: 12px; color: var(--text-secondary);">Stickers &amp; decals</span>
+          <h3 style="font-size: 16px; font-weight: 600;">RC name window stickers</h3>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;"><span style="font-size: 18px; font-weight: 600;">$20.00</span><span class="tt-pill tt-pill--in">Made to order</span></div>
+          <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm tt-btn--block"><i class="ph ph-plus" aria-hidden="true"></i>Add to cart</button>
+        </div>
+      </article>
+      <article class="tt-card tt-card--flush is-hover" style="display: flex; flex-direction: column;">
+        <div class="tt-ph"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-size: 12px; color: var(--text-secondary);">Stickers &amp; decals</span>
+          <h3 style="font-size: 16px; font-weight: 600;">Waikato Champs grid stickers</h3>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;"><span style="font-size: 18px; font-weight: 600;">$15.00</span><span class="tt-pill tt-pill--in">Made to order</span></div>
+          <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm tt-btn--block is-hover"><i class="ph ph-plus" aria-hidden="true"></i>Add to cart</button>
+        </div>
+      </article>
+      <article class="tt-card tt-card--flush" style="display: flex; flex-direction: column;">
+        <div class="tt-ph" style="filter: grayscale(0.7); opacity: 0.55;"><img src="/_blob/3fa0678f0e11bff0c2ad6b4491518059" alt=""></div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-size: 12px; color: var(--text-secondary);">Stickers &amp; decals</span>
+          <h3 style="font-size: 16px; font-weight: 600;">Astro Masters grid stickers</h3>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;"><span style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">$20.00</span><span class="tt-pill tt-pill--out">Out of stock</span></div>
+          <button type="button" class="tt-btn tt-btn--secondary tt-btn--sm tt-btn--block" disabled="disabled">Out of stock</button>
+        </div>
+      </article>
+    </div>
+    <p class="tt-help">Product image placeholder: the brand gradient with the logo icon centred, always 1:1. Out of stock desaturates it. Pills: Made to order, In stock, Low stock (tracked products at or under the threshold) and Out of stock.</p>
+  </section>
+
+  <!-- tags, pills, badges, labels -->
+  <section style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <h2 class="tt-h3">Tags, pills and badges</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;"><span class="tt-tag">React</span><span class="tt-tag">Next.js</span><span class="tt-tag">PostgreSQL</span><span class="tt-tag tt-tag--muted">1/10 scale</span><span class="tt-tag tt-tag--muted">PETG</span><span class="tt-tag tt-tag--muted">Outdoor vinyl</span></div>
+      <p class="tt-help">Tags: Agave Nerd 11px, 4px radius. Green for tech, muted for product attributes.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;"><span class="tt-pill tt-pill--in">In stock</span><span class="tt-pill tt-pill--low">Low stock</span><span class="tt-pill tt-pill--out">Out of stock</span><span class="tt-pill tt-pill--warm">Admin</span><span class="tt-pill tt-pill--out">Waiting for approval</span></div>
+      <p class="tt-help">Pills: Jura 10px, wide-tracked. Status always has words, never colour alone.</p>
+      <div style="display: flex; align-items: center; gap: 24px;">
+        <span style="position: relative; display: inline-grid; place-items: center; width: 44px; height: 44px;"><i class="ph ph-shopping-cart-simple ph-24" aria-hidden="true"></i><span class="tt-count">3</span></span>
+        <span style="position: relative; display: inline-grid; place-items: center; width: 44px; height: 44px;"><i class="ph ph-shopping-cart-simple ph-24" aria-hidden="true"></i><span class="tt-count">12</span></span>
+        <span class="tt-help">Count badge. Hidden at 0. Screen readers get the number in the button label.</span>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <h2 class="tt-h3">Section label and hero prompt</h2>
+      <div style="display: flex; flex-direction: column; gap: 12px;"><span class="tt-label">&gt; 01. benches</span><p class="tt-h2 tt-underline">Two benches, one workshop</p></div>
+      <p class="tt-prompt">$ make ideas<span class="tt-caret" aria-hidden="true"></span></p>
+      <p class="tt-help">Underline is a short gradient bar (decoration). Brand green stays for things you can press.</p>
+    </div>
+  </section>
+
+  <!-- toasts -->
+  <section style="display: flex; flex-direction: column; gap: 16px;">
+    <h2 class="tt-h3">Toasts</h2>
+    <p class="tt-small">Bottom right on desktop, bottom centre on mobile. Rise in over 400ms. Success clears after 5 seconds; errors stay until dismissed. Announced with role="status" (role="alert" for errors).</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start;">
+      <div class="tt-toast tt-toast--ok" role="status"><i class="ph ph-check-circle" aria-hidden="true"></i><div style="flex: 1; display: flex; flex-direction: column; gap: 4px;"><p class="tt-toast-title">Added to cart</p><p class="tt-toast-msg">Waikato Champs grid stickers is in your cart.</p><button type="button" class="tt-btn tt-btn--secondary tt-btn--sm" style="align-self: flex-start; margin-top: 4px;">View cart</button></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div>
+      <div class="tt-toast tt-toast--err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><div style="flex: 1; display: flex; flex-direction: column; gap: 4px;"><p class="tt-toast-title">That one just sold out</p><p class="tt-toast-msg">Someone beat you to the last Astro Masters grid stickers. It's not in your cart.</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div>
+      <div class="tt-toast tt-toast--info" role="status"><i class="ph ph-info" aria-hidden="true"></i><div style="flex: 1; display: flex; flex-direction: column; gap: 4px;"><p class="tt-toast-title">You're signed out</p><p class="tt-toast-msg">See you next time. Your cart is saved on this device.</p></div><button type="button" class="tt-btn tt-btn--ghost tt-btn--icon" style="margin: -8px -8px 0 0;" aria-label="Dismiss"><i class="ph ph-x ph-20" aria-hidden="true"></i></button></div>
+    </div>
+  </section>
+
+  <!-- motion -->
+  <section style="display: flex; flex-direction: column; gap: 16px;">
+    <h2 class="tt-h3">Motion, and what replaces it</h2>
+    <p class="tt-small">Reduced motion kicks in from the OS setting, or from the site's own motion setting (admin, and a per-visitor toggle). Toggle "reduceMotion" in the Tweaks on the Home artboard to see it.</p>
+    <div style="border: 1px solid var(--border-subtle); border-radius: 16px; overflow: hidden; background: var(--bg-surface);">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead><tr style="text-align: left; background: var(--bg-raised);"><th scope="col" style="padding: 12px 16px; font-weight: 600;">Moment</th><th scope="col" style="padding: 12px 16px; font-weight: 600;">Motion</th><th scope="col" style="padding: 12px 16px; font-weight: 600;">Token</th><th scope="col" style="padding: 12px 16px; font-weight: 600;">With reduced motion</th></tr></thead>
+        <tbody>
+          <tr style="border-top: 1px solid var(--border-subtle);"><td style="padding: 12px 16px;">Hero "$ make ideas"</td><td style="padding: 12px 16px; color: var(--text-secondary);">Types at 80ms a character after 400ms, caret blinks</td><td style="padding: 12px 16px;"><span class="tt-tag tt-tag--muted">80ms / char</span></td><td style="padding: 12px 16px; color: var(--text-secondary);">Full text shows at once, caret is a solid block</td></tr>
+          <tr style="border-top: 1px solid var(--border-subtle);"><td style="padding: 12px 16px;">Section labels</td><td style="padding: 12px 16px; color: var(--text-secondary);">Type themselves in as they scroll into view</td><td style="padding: 12px 16px;"><span class="tt-tag tt-tag--muted">steps(n)</span></td><td style="padding: 12px 16px; color: var(--text-secondary);">Shown in full, no reveal</td></tr>
+          <tr style="border-top: 1px solid var(--border-subtle);"><td style="padding: 12px 16px;">Page load</td><td style="padding: 12px 16px; color: var(--text-secondary);">fade-up-1 to 4: rise 16px and fade, 100 / 220 / 340 / 460ms</td><td style="padding: 12px 16px;"><span class="tt-tag tt-tag--muted">0.5s</span></td><td style="padding: 12px 16px; color: var(--text-secondary);">Content is simply there</td></tr>
+          <tr style="border-top: 1px solid var(--border-subtle);"><td style="padding: 12px 16px;">Card hover</td><td style="padding: 12px 16px; color: var(--text-secondary);">Lift 2px, shadow, top bar fades in</td><td style="padding: 12px 16px;"><span class="tt-tag tt-tag--muted">--motion-base 250ms</span></td><td style="padding: 12px 16px; color: var(--text-secondary);">No lift. Border and top bar change instantly</td></tr>
+          <tr style="border-top: 1px solid var(--border-subtle);"><td style="padding: 12px 16px;">Cart drawer, modals</td><td style="padding: 12px 16px; color: var(--text-secondary);">Slide 32px and fade, scrim fades</td><td style="padding: 12px 16px;"><span class="tt-tag tt-tag--muted">--motion-slow 400ms</span></td><td style="padding: 12px 16px; color: var(--text-secondary);">Appears in place</td></tr>
+          <tr style="border-top: 1px solid var(--border-subtle);"><td style="padding: 12px 16px;">Nav on scroll</td><td style="padding: 12px 16px; color: var(--text-secondary);">Base to blurred overlay</td><td style="padding: 12px 16px;"><span class="tt-tag tt-tag--muted">--motion-base 250ms</span></td><td style="padding: 12px 16px; color: var(--text-secondary);">Switches instantly</td></tr>
+          <tr style="border-top: 1px solid var(--border-subtle);"><td style="padding: 12px 16px;">Buttons, focus, icon swaps</td><td style="padding: 12px 16px; color: var(--text-secondary);">Colour fades, press scale 0.98</td><td style="padding: 12px 16px;"><span class="tt-tag tt-tag--muted">--motion-fast 150ms</span></td><td style="padding: 12px 16px; color: var(--text-secondary);">Instant. Focus ring is unchanged</td></tr>
+          <tr style="border-top: 1px solid var(--border-subtle);"><td style="padding: 12px 16px;">Loading</td><td style="padding: 12px 16px; color: var(--text-secondary);">Skeleton shimmer, spinner</td><td style="padding: 12px 16px;"><span class="tt-tag tt-tag--muted">1.4s</span></td><td style="padding: 12px 16px; color: var(--text-secondary);">Static skeleton, spinner swaps for the word "Loading"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":1280,"height":3000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const theme = this.props.theme || 'dark';
+    return { theme, themeName: theme };
+  }
+}
+</script>
+</body>
+</html>

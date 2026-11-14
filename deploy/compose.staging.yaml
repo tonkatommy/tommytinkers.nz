@@ -1,0 +1,34 @@
+# Staging override. Run as its own project so containers, networks and
+# volumes never touch production:
+#   docker compose -p tt-staging -f deploy/compose.yaml -f deploy/compose.staging.yaml up -d --build
+# Put the staging app's values (its own auth secret and URL, Stripe test keys)
+# in deploy/.env.staging. STAGING_TUNNEL_TOKEN stays in deploy/.env, because
+# Compose reads that file itself to fill in the ${...} below.
+services:
+  # Staging runs on seed data, so top it up after every migration. The seed
+  # only creates rows that are missing, so it never undoes an edit.
+  # (Production is seeded once, by hand, at cutover.)
+  migrate:
+    command:
+      - sh
+      - -c
+      - ./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/prisma db seed
+  app:
+    # !override replaces the base file's list instead of adding to it.
+    # Without it Compose would load production's .env first and .env.staging
+    # on top, so any key missing from .env.staging (or the whole file) would
+    # quietly run staging on production's auth secret, URL and API keys.
+    # required: true makes a missing file stop the start-up instead.
+    env_file: !override
+      - path: .env.staging
+        required: true
+  cloudflared:
+    environment:
+      TUNNEL_TOKEN: ${STAGING_TUNNEL_TOKEN:?Set STAGING_TUNNEL_TOKEN in deploy/.env}
+  # Staging holds seed data only, so it gets no backups.
+  backup:
+    profiles: [never]
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.staging.txt

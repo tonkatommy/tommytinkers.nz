@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Find my order - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="" count="0" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main" class="tt-container" style="padding-block: 40px 96px; display: flex; flex-direction: column; gap: 32px; max-width: 760px;">
+  <header style="display: flex; flex-direction: column; gap: 12px;">
+    <span class="tt-label">&gt; find my order</span>
+    <h1 class="tt-h2 tt-underline">{{heading}}</h1>
+    <p class="tt-lead">{{lead}}</p>
+  </header>
+
+  <!-- ask -->
+  <sc-if value="{{isAsk}}" hint-placeholder-val="{{true}}">
+    <section class="tt-card" aria-labelledby="fl-h" style="display: flex; flex-direction: column; gap: 20px;">
+      <h2 id="fl-h" class="sr-only">Look up an order</h2>
+      <div class="tt-pair">
+        <div class="tt-field"><label for="fl-no">Order number</label><input id="fl-no" class="{{noCls}}" style="font-family: var(--font-mono); text-transform: uppercase;" value="{{no}}" onChange="{{onNo}}" aria-invalid="{{noInv}}" aria-describedby="fl-no-h" placeholder="TT1026NZ" autocomplete="off"><p id="fl-no-h" class="tt-help">It's in your receipt email.</p></div>
+        <div class="tt-field"><label for="fl-email">Email you ordered with</label><input id="fl-email" type="email" class="{{emailCls}}" value="{{email}}" onChange="{{onEmail}}" aria-invalid="{{emailInv}}" autocomplete="email"></div>
+      </div>
+      <sc-if value="{{hasErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i>{{errText}}</p></sc-if>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+        <button type="button" class="tt-btn tt-btn--primary" onClick="{{send}}" aria-disabled="{{busyStr}}"><sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Sending</sc-if><sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><i class="ph ph-envelope-simple" aria-hidden="true"></i>Email me a link</sc-if></button>
+        <a href="Auth.dc.html" class="tt-small">Have a Shed account? Sign in to see all your orders.</a>
+      </div>
+      <p class="tt-help">To keep orders private, I email the link instead of showing the order here. It works for 24 hours.</p>
+    </section>
+  </sc-if>
+
+  <!-- sent -->
+  <sc-if value="{{isSent}}" hint-placeholder-val="{{false}}">
+    <section class="tt-card" role="status" style="display: flex; flex-direction: column; gap: 16px; align-items: flex-start;">
+      <span class="tt-icon-hero"><i class="ph ph-envelope-open ph-24" aria-hidden="true"></i></span>
+      <h2 class="tt-h4" style="font-weight: 600;">Check your inbox</h2>
+      <p class="tt-small">If that order number and email match, a link to your order is on its way to {{emailShown}}. It can take a minute. Check your spam folder if it doesn't turn up.</p>
+      <button type="button" class="tt-btn tt-btn--ghost" onClick="{{restart}}"><i class="ph ph-arrow-left" aria-hidden="true"></i>Try a different order</button>
+    </section>
+  </sc-if>
+
+  <!-- expired link -->
+  <sc-if value="{{isExpired}}" hint-placeholder-val="{{false}}">
+    <div class="tt-banner tt-banner--info" role="status"><i class="ph ph-clock ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">That link has expired</p><p class="tt-small">Order links work for 24 hours. Pop your details in below and I'll send a fresh one.</p></div></div>
+  </sc-if>
+
+  <!-- the order, opened from the emailed link -->
+  <sc-if value="{{isView}}" hint-placeholder-val="{{false}}">
+    <section class="tt-card tt-card--feature" aria-labelledby="ov-h" style="display: flex; flex-direction: column; gap: 24px;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: baseline;"><h2 id="ov-h" class="tt-h4" style="font-weight: 600;">Order <span class="tt-mono" style="font-size: 18px;">TT1029NZ</span></h2><span class="tt-pill tt-pill--low">Waiting for your OK</span></div>
+      <ol class="tt-steps" aria-label="Order progress" style="list-style: none; margin: 0; padding: 0;">
+        <sc-for list="{{steps}}" as="st" hint-placeholder-count="5"><li class="{{st.cls}}"><span class="tt-step-n"><i class="{{st.icon}}" aria-hidden="true"></i></span><div><p style="font-weight: 600;">{{st.title}}</p><p class="tt-small">{{st.text}}</p></div></li></sc-for>
+      </ol>
+      <a href="ProofView.dc.html" class="tt-btn tt-btn--primary" style="align-self: flex-start;"><i class="ph ph-eye" aria-hidden="true"></i>See your proof</a>
+      <dl class="tt-dl"><dt>Placed</dt><dd>08/11/2026</dd><dt>Items</dt><dd>Custom sticker sheet A4 x 1</dd><dt>Total paid</dt><dd>NZ$35.00</dd><dt>Delivery</dt><dd>Collect at Indoor club round 4, Sat 14/11/2026</dd></dl>
+      <p class="tt-small">Something not right? Reply to any of my emails, or <a href="Contact.dc.html">get in touch</a> with your order number.</p>
+    </section>
+  </sc-if>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["ask","invalid","sent","expired","view"],"default":"ask"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const st = props.state || 'ask';
+    this.state = { theme: null, view: st === 'invalid' ? 'ask' : st, no: st === 'invalid' ? '1026' : '', email: st === 'invalid' ? 'test@example' : '', tried: st === 'invalid', busy: false };
+  }
+  componentWillUnmount() { clearTimeout(this.t1); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    // TT followed by 4 or more digits and NZ. The hyphenated TT-1002-NZ style is accepted too, for
+    // the imported Shopify orders, and normalised before the lookup.
+    const noOk = /^TT-?\d{4,}-?NZ$/.test(s.no.trim().toUpperCase());
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email.trim());
+    const err = s.tried && (!noOk || !emailOk);
+    const ask = s.view === 'ask' || s.view === 'expired';
+    const steps = [
+      ['is-done', 'ph ph-check', 'Paid', '08/11/2026'],
+      ['is-done', 'ph ph-check', 'Proof sent', '08/11/2026. Have a look and tell me if it\u2019s right.'],
+      ['is-now', 'ph ph-hourglass', 'Waiting for your OK', 'Nothing gets printed until you approve the proof.'],
+      ['', 'ph ph-printer', 'Printing and packing', 'In time for the race day, once you\u2019ve approved it.'],
+      ['', 'ph ph-flag-checkered', 'Collect at the track', 'Indoor club round 4, Sat 14/11/2026. I\u2019ll email where to find me the day before.']
+    ].map(([cls, icon, title, text]) => ({ cls: 'tt-step ' + cls, icon, title, text }));
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      heading: s.view === 'view' ? 'Your order' : 'Find my order',
+      lead: s.view === 'view' ? 'Where it\u2019s up to, and what happens next.' : 'Bought something without an account? Pop in your order number and email, and I\u2019ll send you a link to see where it\u2019s up to.',
+      isAsk: ask, isSent: s.view === 'sent', isExpired: s.view === 'expired', isView: s.view === 'view',
+      no: s.no, onNo: (e) => this.setState({ no: e.target.value.toUpperCase(), tried: false }),
+      email: s.email, onEmail: (e) => this.setState({ email: e.target.value, tried: false }),
+      noInv: s.tried && !noOk ? 'true' : 'false', noCls: s.tried && !noOk ? 'tt-input is-error' : 'tt-input',
+      emailInv: s.tried && !emailOk ? 'true' : 'false', emailCls: s.tried && !emailOk ? 'tt-input is-error' : 'tt-input',
+      hasErr: err, errText: !noOk ? 'Order numbers look like TT1026NZ.' : 'That email doesn\u2019t look right.',
+      busy: s.busy, notBusy: !s.busy, busyStr: s.busy ? 'true' : 'false',
+      emailShown: s.email.trim() || 'your email',
+      // Always says "sent", match or not, so nobody can use this page to find out whose orders exist.
+      // Rate limited per IP and per email on the server.
+      send: () => {
+        if (s.busy) return;
+        if (!noOk || !emailOk) return this.setState({ tried: true });
+        this.setState({ busy: true });
+        this.t1 = setTimeout(() => this.setState({ busy: false, view: 'sent' }), 900);
+      },
+      restart: () => this.setState({ view: 'ask', no: '', email: '', tried: false }),
+      steps
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>Approve your proof - tommy tinkers NZ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tt.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&amp;family=Jura:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Agave Nerd";src:url("/_blob/2d014ce6e80b5f23dab3c6f0e576b40e") format("woff2");font-display:swap}
+@font-face{font-family:"Phosphor";src:url("/_blob/2125ec5241b6e1f3e6201a3b42ce841e") format("woff2");font-display:block}
+body{margin:0}
+.tt-proof{aspect-ratio:210/297;max-width:420px;width:100%;border-radius:var(--radius-lg);border:1px solid var(--border-default);background:var(--bg-surface);display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px;align-content:start}
+.tt-proof span{aspect-ratio:3/2;border-radius:var(--radius-sm);border:1.5px dashed var(--border-strong);display:grid;place-items:center;font-family:var(--font-mono);font-size:20px;color:var(--text-secondary)}
+</style>
+</helmet>
+<div class="{{rootClass}}" data-theme="{{theme}}">
+<a href="#main" class="sr-only">Skip to content</a>
+<dc-import name="SiteNav" theme="{{theme}}" active="" count="0" on-toggle-theme="{{toggleTheme}}" hint-size="100%,64px"></dc-import>
+
+<div class="tt-page">
+<main id="main" class="tt-container" style="padding-block: 40px 96px; display: flex; flex-direction: column; gap: 32px;">
+  <header style="display: flex; flex-direction: column; gap: 12px; max-width: 720px;">
+    <span class="tt-label">&gt; proof for TT1029NZ</span>
+    <h1 class="tt-h2">{{heading}}</h1>
+    <p class="tt-lead">{{lead}}</p>
+  </header>
+
+  <sc-if value="{{isApproved}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--ok" role="status" style="max-width: 920px;"><i class="ph ph-check-circle ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Approved, thanks</p><p class="tt-small">It's in the print queue, and I'll bring it to Indoor club round 4 on Sat 14/11/2026.</p></div></div></sc-if>
+  <sc-if value="{{isChanges}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--info" role="status" style="max-width: 920px;"><i class="ph ph-pencil-line ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">Got it, I'll make those changes</p><p class="tt-small">I'll email you version 2 to check. Nothing gets printed until you approve one.</p></div></div></sc-if>
+  <sc-if value="{{isOld}}" hint-placeholder-val="{{false}}"><div class="tt-banner tt-banner--info" role="status" style="max-width: 920px;"><i class="ph ph-info ph-20" aria-hidden="true"></i><div><p style="font-weight: 600;">There's a newer version</p><p class="tt-small">This is version 1. <a href="ProofView.dc.html">Look at version 2</a>, which has your changes.</p></div></div></sc-if>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; align-items: start; max-width: 920px;">
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 12px;">
+      <div class="tt-proof" role="img" aria-label="Proof image placeholder: grid numbers 1 to 12 on an A4 sheet"><sc-for list="{{cells}}" as="c" hint-placeholder-count="12"><span>{{c}}</span></sc-for></div>
+      <figcaption class="tt-small" style="display: flex; justify-content: space-between; gap: 12px; max-width: 420px;"><span>Version {{version}} · sent {{sent}}</span><a href="#download">Open full size</a></figcaption>
+    </figure>
+
+    <section class="tt-card" aria-labelledby="pv-h" style="display: flex; flex-direction: column; gap: 16px;">
+      <h2 id="pv-h" class="tt-h4" style="font-weight: 600;">Check it over</h2>
+      <ul class="tt-small" style="display: flex; flex-direction: column; gap: 8px; padding-left: 20px; list-style: disc;">
+        <li>Spelling, names and numbers</li><li>Colours and sizes</li><li>Anything missing from your brief</li>
+      </ul>
+      <dl class="tt-dl" style="font-size: 14px;"><dt>Your brief</dt><dd>Club grid numbers 1 to 12, black on yellow, about 60 mm high.</dd><dt>Size</dt><dd>One A4 sheet, numbers 60 mm high</dd></dl>
+      <p class="tt-small" style="color: var(--text-secondary);">Screen colours are a guide. Printed vinyl can look a touch different.</p>
+
+      <sc-if value="{{canAct}}" hint-placeholder-val="{{true}}">
+        <sc-if value="{{showChanges}}" hint-placeholder-val="{{false}}">
+          <div class="tt-field"><label for="pv-note">What should change?</label><textarea id="pv-note" class="{{noteCls}}" rows="4" value="{{note}}" onChange="{{onNote}}" aria-invalid="{{noteInv}}" aria-describedby="pv-note-h"></textarea>
+            <sc-if value="{{noteErr}}" hint-placeholder-val="{{false}}"><p class="tt-err" id="pv-note-h"><i class="ph ph-warning-circle" aria-hidden="true"></i>Tell me what to change so I can fix it.</p></sc-if>
+            <sc-if value="{{noteOk}}" hint-placeholder-val="{{true}}"><p class="tt-help" id="pv-note-h">Be as specific as you like. "Make the 7 less wide" is perfect.</p></sc-if>
+          </div>
+        </sc-if>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+          <sc-if value="{{notShowChanges}}" hint-placeholder-val="{{true}}"><button type="button" class="tt-btn tt-btn--primary" onClick="{{approve}}" aria-disabled="{{busyStr}}"><sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><i class="ph ph-circle-notch tt-spin" aria-hidden="true"></i>Approving</sc-if><sc-if value="{{notBusy}}" hint-placeholder-val="{{true}}"><i class="ph ph-check" aria-hidden="true"></i>Approve and print</sc-if></button></sc-if>
+          <button type="button" class="{{changesCls}}" onClick="{{changes}}"><i class="ph ph-pencil-line" aria-hidden="true"></i>{{changesText}}</button>
+          <sc-if value="{{showChanges}}" hint-placeholder-val="{{false}}"><button type="button" class="tt-btn tt-btn--ghost" onClick="{{cancelChanges}}">Cancel</button></sc-if>
+        </div>
+        <p class="tt-help">Approving means I print exactly this, so it can't be changed afterwards.</p>
+      </sc-if>
+    </section>
+  </div>
+</main>
+<dc-import name="SiteFooter" theme="{{theme}}" on-toggle-theme="{{toggleTheme}}" hint-size="100%,420px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"state":{"editor":"enum","options":["waiting","changes","invalid","approved","changesSent","superseded"],"default":"waiting"},"reduceMotion":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const st = props.state || 'waiting';
+    // Opened from the proof email or the order page link: /proof/<token>, no sign-in needed.
+    this.state = { theme: null, view: st === 'changes' || st === 'invalid' ? 'waiting' : st, open: st === 'changes' || st === 'invalid', note: '', tried: st === 'invalid', busy: false };
+  }
+  componentWillUnmount() { clearTimeout(this.t1); }
+  renderVals() {
+    const s = this.state;
+    const P = this.props;
+    const theme = s.theme || P.theme || 'dark';
+    const dark = theme !== 'light';
+    const v = s.view;
+    const noteBad = !s.note.trim();
+    const old = v === 'superseded';
+    return {
+      theme,
+      rootClass: P.reduceMotion ? 'tt tt-rm' : 'tt',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      heading: v === 'approved' ? 'Proof approved' : v === 'changesSent' ? 'Changes on the way' : 'Your proof is ready',
+      lead: v === 'waiting' ? 'Here\u2019s your custom sheet before it\u2019s printed. Approve it, or tell me what to change.' : v === 'approved' ? 'Nice one. Here\u2019s the version you approved.' : v === 'changesSent' ? 'Thanks for checking. Here\u2019s what I\u2019ll change.' : 'Here\u2019s an earlier version of your proof.',
+      isApproved: v === 'approved', isChanges: v === 'changesSent', isOld: old,
+      cells: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+      version: '1', sent: '08/11/2026',
+      canAct: v === 'waiting',
+      showChanges: s.open, notShowChanges: !s.open,
+      changesCls: s.open ? 'tt-btn tt-btn--primary' : 'tt-btn tt-btn--secondary',
+      changesText: s.open ? 'Send my changes' : 'Ask for changes',
+      note: s.note, onNote: (e) => this.setState({ note: e.target.value, tried: false }),
+      noteErr: s.tried && noteBad, noteOk: !(s.tried && noteBad), noteInv: s.tried && noteBad ? 'true' : 'false', noteCls: s.tried && noteBad ? 'tt-input is-error' : 'tt-input',
+      busy: s.busy, notBusy: !s.busy, busyStr: s.busy ? 'true' : 'false',
+      // Both are server actions that check the token, record the answer with a timestamp and email Tommy.
+      approve: () => { if (s.busy) return; this.setState({ busy: true }); this.t1 = setTimeout(() => this.setState({ busy: false, view: 'approved' }), 800); },
+      changes: () => { if (!s.open) return this.setState({ open: true }); if (noteBad) return this.setState({ tried: true }); this.setState({ view: 'changesSent', open: false }); },
+      cancelChanges: () => this.setState({ open: false, tried: false, note: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>
