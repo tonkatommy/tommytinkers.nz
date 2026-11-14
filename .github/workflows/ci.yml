@@ -3,9 +3,9 @@ name: CI
 on:
   pull_request:
   push:
-    # feature/new-site-v2.0 is where v2 phases merge (and what staging runs),
-    # so it gets checked on every push too.
-    branches: [main, feature/new-site-v2.0]
+    # development is where v2 phases merge (and what staging runs), so it
+    # gets checked on every push too.
+    branches: [main, development]
 
 permissions:
   contents: read

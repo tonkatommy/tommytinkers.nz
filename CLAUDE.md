@@ -100,7 +100,7 @@ age -d -i backup_age.key tommytinkers-<stamp>.dump.age > restore.dump
 docker compose -f deploy/compose.yaml exec -T db pg_restore -U tommytinkers -d tommytinkers --clean --if-exists < restore.dump
 ```
 
-**CI** (`.github/workflows/ci.yml`) runs on every PR and on pushes to `main` and `feature/new-site-v2.0`. The `v2` job runs lint, typecheck and build on Node 26, applies every migration to an empty Postgres 18.6, and fails if `schema.prisma` and the migrations disagree (`prisma migrate diff --exit-code`, using `SHADOW_DATABASE_URL`). The `v2-docker` job builds the images, starts `db`, `migrate` and `app`, and checks `/api/health`.
+**CI** (`.github/workflows/ci.yml`) runs on every PR and on pushes to `main` and `development`. The `v2` job runs lint, typecheck and build on Node 26, applies every migration to an empty Postgres 18.6, and fails if `schema.prisma` and the migrations disagree (`prisma migrate diff --exit-code`, using `SHADOW_DATABASE_URL`). The `v2-docker` job builds the images, starts `db`, `migrate` and `app`, and checks `/api/health`.
 
 ## Architecture rules
 
@@ -128,7 +128,7 @@ docker compose -f deploy/compose.yaml exec -T db pg_restore -U tommytinkers -d t
 - **Pinboard** is public to read; posting and reacting need a free account. A new account's first 3 posts go to moderation. Limits: 500 characters and one image of up to 5 MB per post, 5 posts an hour per account, and Cloudflare Turnstile on sign-up.
 - **Shipping** (changed 02/11/2026) is free anywhere in New Zealand, with no minimum spend, NZ addresses only. Admin has a toggle to turn free shipping off; when it's off, a single flat rate set in admin applies to every order. Weight-band pricing is dropped. Every product still has a weight in grams, but it's admin only (packing and postage) and never shown to customers. The "Free ship club" badge stays gone (19 badges remain).
 - **RBAC**: `Role.permissions` is a string array. Keys: `access_admin`, `manage_inventory`, `manage_orders`, `manage_discounts`, `manage_users`, `moderate_community`, `manage_content`. The Shopkeeper role has `manage_discounts`. New permission = new string, no migration. Permissions are read from the database per request, so changes apply immediately.
-- **Staging** is a second Compose project (`tt-staging`) on the same host at `staging.tommytinkers.nz`, behind its own tunnel and Cloudflare Access, with Stripe test keys and seed data only. Every merge to `feature/new-site-v2.0` deploys to staging; production deploys only from a tagged release.
+- **Staging** is a second Compose project (`tt-staging`) on the same host at `staging.tommytinkers.nz`, behind its own tunnel and Cloudflare Access, with Stripe test keys and seed data only. Every merge to `development` deploys to staging; production deploys only from a tagged release (see Branches).
 - **Product photos** aren't ready. Build with the placeholder (brand gradient, logo icon centred); photos get added through admin later.
 - **Codebench case studies**: the prototype's examples (e.g. "Bookkit") are filler. Never present them as real client work. Ask Tommy for real ones.
 
@@ -192,7 +192,20 @@ Also modelled: `StockMovement` (every stock change, tracked products only), `Aud
 | 5. Codebench, contact and Stripe checkout | |
 | 6. Hardening and cutover | |
 
-Each phase is a `feat/v2-…` branch with a PR into `feature/new-site-v2.0`. That branch reaches `main` in one final PR at cutover.
+## Branches (changed 15/11/2026)
+
+Code moves one way: work branch → `development` → `main` → `production`.
+
+| Branch | What it is |
+|---|---|
+| `feat/v2-…`, `fix/…`, `chore/…` | One phase or one fix. Cut from `development`, with a PR back into it. |
+| `development` | Where v2 work comes together. Every merge deploys to staging. |
+| `main` | Release-ready code, and the repo's default branch. Takes PRs from `development` only. Until cutover it still holds v1. |
+| `production` | What the live server runs. Takes PRs from `main` only. A production deploy needs a tagged release. |
+
+- `main`, `development` and `production` are protected by a GitHub ruleset: no direct pushes, no force pushes, no deleting. Every change arrives by PR, so don't try to push to them.
+- `feature/new-site-v2.0` is retired (15/11/2026). It was the v2 integration branch until PR 22 merged it into `development`. It was deleted the same day, once everything on it was in `development`.
+- v2 reaches `main` in one PR from `development` at cutover.
 
 ## Design rules (summary; the DS files have the detail)
 
@@ -223,7 +236,7 @@ Each phase is a `feat/v2-…` branch with a PR into `feature/new-site-v2.0`. Tha
 - TypeScript, 2-space indent, functional components with hooks, descriptive names. Validate every server action and API input with zod.
 - Prefer editing existing files over creating new ones; match existing patterns.
 - Debug by reproducing, isolating, diagnosing, then fixing. Don't guess.
-- **Git:** never commit to `main`. Branch first (`feat/…`, `fix/…`, `chore/…`), then open a PR. Run `pnpm lint` and `pnpm build` before every PR.
+- **Git:** never commit to `main`, `development` or `production`. Branch from `development` first (`feat/…`, `fix/…`, `chore/…`), then open a PR into `development` (see Branches). Run `pnpm lint` and `pnpm build` before every PR.
 - Never print or commit secrets. Real values live in `deploy/.env` and `deploy/secrets/` (both gitignored); `.env.example` files document the keys.
 - When porting a prototype page, read the matching prototype file and the shared files it uses first, then rebuild it idiomatically. Ask before guessing on anything ambiguous.
 - Keep answers concise: summary first, then detail. Call out flawed assumptions, including his.
