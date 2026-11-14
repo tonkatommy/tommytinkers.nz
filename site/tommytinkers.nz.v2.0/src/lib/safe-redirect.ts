@@ -6,13 +6,35 @@
  */
 export function safeNextPath(next: string | null | undefined, fallback = "/"): string {
   if (!next) return fallback;
-  // Must be a plain path: "/account". Not "//evil.com" or "/\evil.com", which
-  // browsers treat as another site, and nothing with a scheme.
-  if (!next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return fallback;
+  // Must be a plain path: "/account". Not "//evil.com", and nothing with a
+  // scheme.
+  if (!next.startsWith("/") || next.startsWith("//")) return fallback;
+  // Browsers tidy a URL before reading it: tabs and newlines are deleted and
+  // "\" counts as "/". So "/<tab>/evil.com" and "/\evil.com" both end up as
+  // "//evil.com", another site. Neither character belongs in a real path.
+  if (/[\u0000-\u001f\u007f\\]/.test(next)) return fallback;
+
+  // Then ask the same question the browser will: resolved against a made-up
+  // site, does this still point at that site? Checking the answer, not the
+  // spelling, covers tricks the checks above didn't think of.
+  let url: URL;
+  try {
+    url = new URL(next, PLACEHOLDER_ORIGIN);
+  } catch {
+    return fallback;
+  }
+  if (url.origin !== PLACEHOLDER_ORIGIN) return fallback;
+
+  // The parser has also resolved any "..", so "/shop/../login" is "/login"
+  // by now and can't slip past the next check.
+  const path = url.pathname + url.search + url.hash;
   // No sending people back into the sign-in screens.
-  if (/^\/(login|signup|welcome|verify-email|forgot-password|reset-password)(\/|\?|$)/.test(next)) return fallback;
-  return next;
+  if (/^\/(login|signup|welcome|verify-email|forgot-password|reset-password)(\/|\?|#|$)/.test(path)) return fallback;
+  return path;
 }
+
+// Only used to resolve a path against. ".invalid" can never be a real site.
+const PLACEHOLDER_ORIGIN = "https://tt.invalid";
 
 /** "sam@example.co.nz" -> "s•••@example.co.nz", for "I've sent a link to..." */
 export function maskEmail(email: string): string {

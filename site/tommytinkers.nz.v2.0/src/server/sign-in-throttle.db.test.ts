@@ -4,9 +4,10 @@ import { beginSignInAttempt, clearSignInAttempts, getSignInStatus } from "@/serv
 
 // A made-up address per run, so repeat runs never collide.
 const email = `throttle-${Date.now()}@example.test`;
+const racedEmail = `throttle-race-${Date.now()}@example.test`;
 
 afterAll(async () => {
-  await db.signInThrottle.deleteMany({ where: { email } });
+  await db.signInThrottle.deleteMany({ where: { email: { in: [email, racedEmail] } } });
   await db.$disconnect();
 });
 
@@ -35,6 +36,14 @@ describe("sign-in throttle (database)", () => {
     await beginSignInAttempt(email);
     const after = await db.signInThrottle.findUniqueOrThrow({ where: { email } });
     expect(after.lockedUntil).toEqual(before.lockedUntil);
+  });
+
+  it("lets only 5 through when 20 attempts arrive at once", async () => {
+    const results = await Promise.all(Array.from({ length: 20 }, () => beginSignInAttempt(racedEmail)));
+    expect(results.filter(Boolean)).toHaveLength(5);
+    const row = await db.signInThrottle.findUniqueOrThrow({ where: { email: racedEmail } });
+    expect(row.failures).toBe(5);
+    expect((await getSignInStatus(racedEmail)).locked).toBe(true);
   });
 
   it("clearing (a correct password) wipes the slate", async () => {

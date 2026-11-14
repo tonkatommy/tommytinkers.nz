@@ -124,6 +124,21 @@ describe("safeNextPath", () => {
     expect(safeNextPath("javascript:alert(1)")).toBe("/");
   });
 
+  it("refuses tabs, newlines and backslashes, which browsers strip or swap", () => {
+    // Each of these reads as "//evil.example" once a browser has tidied it.
+    expect(safeNextPath("/\t/evil.example")).toBe("/");
+    expect(safeNextPath("/\n/evil.example")).toBe("/");
+    expect(safeNextPath("/\r/evil.example")).toBe("/");
+    expect(safeNextPath("/\t\\evil.example")).toBe("/");
+    expect(safeNextPath("/shop\\..\\evil.example")).toBe("/");
+  });
+
+  it("resolves .. before checking for a sign-in screen", () => {
+    expect(safeNextPath("/shop/../login")).toBe("/");
+    expect(safeNextPath("/shop/../account")).toBe("/account");
+    expect(safeNextPath("/login#top")).toBe("/");
+  });
+
   it("falls back when there is nothing, or it points at a sign-in screen", () => {
     expect(safeNextPath(undefined)).toBe("/");
     expect(safeNextPath("", "/shed")).toBe("/shed");

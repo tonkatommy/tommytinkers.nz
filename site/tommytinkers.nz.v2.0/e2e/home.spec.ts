@@ -135,6 +135,37 @@ test.describe("shell", () => {
     await expect(menu).toBeHidden();
   });
 
+  test("mobile: the open menu switches off the page under it, and Esc hands focus back", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, "mobile layout only");
+    await page.goto("/");
+
+    const toggle = page.getByRole("button", { name: "Open menu" });
+    await toggle.click();
+    // Covered by the panel, so it must be out of reach of Tab and screen readers.
+    await expect(page.locator("main")).toHaveAttribute("inert", "");
+    await expect(page.locator("footer")).toHaveAttribute("inert", "");
+
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Contact" }).focus();
+    await page.keyboard.press("Escape");
+    await expect(toggle).toBeFocused();
+    await expect(page.locator("main")).not.toHaveAttribute("inert");
+  });
+
+  test("mobile: widening to desktop closes the menu and unlocks scrolling", async ({ page, isMobile }) => {
+    test.skip(!isMobile, "mobile layout only");
+    await page.goto("/");
+
+    await page.getByRole("button", { name: "Open menu" }).click();
+    await expect(page.locator("body")).toHaveCSS("overflow", "hidden");
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
+    await expect(page.locator("main")).not.toHaveAttribute("inert");
+  });
+
   test("the nav turns into an overlay once the page is scrolled", async ({ page }) => {
     await page.goto("/");
     const header = page.getByRole("banner");

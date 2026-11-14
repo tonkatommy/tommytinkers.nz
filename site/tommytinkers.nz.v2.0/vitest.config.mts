@@ -6,7 +6,13 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: {
     // Same "@/..." shortcut the app uses (tsconfig.json "paths").
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // The real "server-only" throws outside a Next server build. This
+      // empty stand-in lets a server file with no database (email.ts) be
+      // unit tested; see test/server-only-stub.ts.
+      "server-only": fileURLToPath(new URL("./test/server-only-stub.ts", import.meta.url)),
+    },
   },
   test: {
     include: ["src/**/*.test.ts"],

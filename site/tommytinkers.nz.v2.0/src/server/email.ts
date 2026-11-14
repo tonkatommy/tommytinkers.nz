@@ -6,6 +6,7 @@
 //   instead (EMAIL_FILE_DIR, default .tmp/emails). That lets local dev and
 //   the browser tests "receive" a verification link with no email account.
 // - In production with no key it throws, so a missing key is noticed.
+// - EMAIL_TO_FILE=1 forces the folder whatever else is set. Tests only.
 import "server-only";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -42,8 +43,11 @@ function toHtml({ text, action }: Email): string {
 export async function sendEmail(email: Email): Promise<void> {
   const text = email.action ? `${email.text}\n\n${email.action.label}: ${email.action.url}` : email.text;
   const apiKey = process.env.RESEND_API_KEY;
+  // Checked before the key, not after: the browser tests set this, and they
+  // must never send real email even on a machine that has a real key.
+  const toFile = process.env.EMAIL_TO_FILE === "1";
 
-  if (apiKey) {
+  if (apiKey && !toFile) {
     const { error } = await new Resend(apiKey).emails.send({
       from: FROM,
       to: email.to,
@@ -56,7 +60,7 @@ export async function sendEmail(email: Email): Promise<void> {
     return;
   }
 
-  if (process.env.NODE_ENV === "production" && process.env.EMAIL_TO_FILE !== "1") {
+  if (process.env.NODE_ENV === "production" && !toFile) {
     throw new Error("RESEND_API_KEY is not set, so email can't be sent.");
   }
 

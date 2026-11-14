@@ -38,20 +38,35 @@ export async function getSignInStatus(rawEmail: string): Promise<SignInStatus> {
  * Called before every password check. Returns false when sign-in is paused
  * for this address (the attempt must be refused, and isn't counted).
  * Otherwise counts the attempt and returns true.
+ *
+ * Read, decide and write happen one address at a time. Without that, twenty
+ * requests sent at the same instant would all read "0 failures" and all be
+ * let through, which is twenty guesses instead of five.
  */
 export async function beginSignInAttempt(rawEmail: string): Promise<boolean> {
   const email = normalise(rawEmail);
-  const now = new Date();
-  const state = await readState(email);
-  if (isLocked(state, now)) return false;
 
-  const next = countAttempt(state, now);
-  await db.signInThrottle.upsert({
-    where: { email },
-    create: { email, ...next },
-    update: next,
+  return db.$transaction(async (tx) => {
+    // A Postgres advisory lock: a named lock that isn't tied to a row, so it
+    // works even before this address has a row to lock. Requests for the
+    // same address queue here; other addresses aren't held up. The "xact"
+    // kind lets go by itself when the transaction ends, error or not.
+    // hashtextextended turns the address into the number the lock is named by.
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${email}, 0))`;
+
+    // Taken after the wait, so a queued request sees the real time.
+    const now = new Date();
+    const state = (await tx.signInThrottle.findUnique({ where: { email } })) ?? NO_ATTEMPTS;
+    if (isLocked(state, now)) return false;
+
+    const next = countAttempt(state, now);
+    await tx.signInThrottle.upsert({
+      where: { email },
+      create: { email, ...next },
+      update: next,
+    });
+    return true;
   });
-  return true;
 }
 
 /** Called after a correct password: the slate is wiped. */
