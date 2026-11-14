@@ -19,7 +19,11 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm prisma generate && pnpm build
+# Better Auth refuses to load without a secret, and the build loads it while
+# prerendering. These are throwaway build-time values on this one command:
+# they aren't saved in the image, and the real ones come from deploy/.env
+# when the container starts.
+RUN pnpm prisma generate \n && BETTER_AUTH_SECRET=build-time-placeholder-not-a-secret BETTER_AUTH_URL=http://localhost:3000 pnpm build
 
 # ---- migrate: full dev dependencies (Prisma CLI) + migrations, nothing else
 FROM base AS migrate
@@ -27,6 +31,8 @@ COPY --from=deps /app/node_modules ./node_modules
 # The generated Prisma client (made by `pnpm install` in the deps stage).
 # Migrations don't need it, but the seed script does.
 COPY --from=deps /app/src/generated ./src/generated
+# The seed takes its role list from here, so the roles are defined once.
+COPY src/lib/permissions.ts ./src/lib/permissions.ts
 COPY package.json prisma.config.ts docker-entrypoint.sh ./
 COPY prisma ./prisma
 USER node

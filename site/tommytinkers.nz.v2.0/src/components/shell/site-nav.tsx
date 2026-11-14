@@ -1,13 +1,13 @@
-import { CaretRightIcon, SignInIcon } from "@phosphor-icons/react/ssr";
+import { CaretRightIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
-import { AccountMenu } from "@/components/shell/account-menu";
+import { Suspense } from "react";
+import { AccountMenuFallback, AccountMenuSlot, MobileAccountSlot } from "@/components/shell/account-slots";
 import { Brand } from "@/components/shell/brand";
 import { CartButton } from "@/components/shell/cart-button";
 import { MobileMenu } from "@/components/shell/mobile-menu";
 import { NavLink } from "@/components/shell/nav-link";
 import { NavShell } from "@/components/shell/nav-shell";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
-import { LinkButton } from "@/components/ui/button";
 
 const mobileLink =
   "flex min-h-14 items-center justify-between border-b border-line-subtle px-1 text-xl font-semibold text-ink no-underline hover:text-ink";
@@ -36,7 +36,10 @@ export function SiteNav() {
         <div className="ml-auto flex items-center gap-1">
           <div className="hidden items-center gap-1 lg:flex">
             <ThemeToggle variant="icon" />
-            <AccountMenu />
+            {/* Needs the session, so it streams in; see account-slots.tsx. */}
+            <Suspense fallback={<AccountMenuFallback />}>
+              <AccountMenuSlot />
+            </Suspense>
           </div>
           <CartButton />
           <MobileMenu>
@@ -68,15 +71,9 @@ export function SiteNav() {
               <ThemeToggle variant="labelled" look="secondary" />
             </div>
 
-            <div className="mt-2 flex flex-col gap-3">
-              <LinkButton href="/login" variant="primary" block>
-                <SignInIcon size={20} aria-hidden />
-                Sign in
-              </LinkButton>
-              <LinkButton href="/signup" variant="secondary" block>
-                Create a free account
-              </LinkButton>
-            </div>
+            <Suspense fallback={null}>
+              <MobileAccountSlot />
+            </Suspense>
           </MobileMenu>
         </div>
       </div>

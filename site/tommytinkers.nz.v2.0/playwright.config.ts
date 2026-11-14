@@ -1,3 +1,4 @@
+import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
 // End-to-end tests: a real browser against the real production build and a
@@ -38,5 +39,15 @@ export default defineConfig({
     url: "http://localhost:3000/api/health",
     reuseExistingServer: !isCI,
     timeout: 60_000,
+    // Test-only settings. None of these are real secrets.
+    env: {
+      BETTER_AUTH_SECRET: "e2e-only-secret-not-used-anywhere-real",
+      BETTER_AUTH_URL: "http://localhost:3000",
+      // Write emails to a folder instead of sending them, so tests can
+      // follow the links (see e2e/helpers.ts and src/server/email.ts).
+      EMAIL_TO_FILE: "1",
+      // Absolute, because the standalone server changes its working folder.
+      EMAIL_FILE_DIR: path.join(process.cwd(), ".tmp", "e2e-emails"),
+    },
   },
 });

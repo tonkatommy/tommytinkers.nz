@@ -76,6 +76,9 @@ jobs:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       # Separate database that `migrate diff` is allowed to wipe.
       SHADOW_DATABASE_URL: postgresql://ci:ci@localhost:5432/ci_shadow
+      # Better Auth won't load without these. Placeholders: CI has no real users.
+      BETTER_AUTH_SECRET: ci-placeholder-not-a-real-secret
+      BETTER_AUTH_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v7
 
@@ -101,6 +104,10 @@ jobs:
       # way the migrate container does on deploy.
       - name: Apply migrations to an empty database
         run: pnpm prisma migrate deploy
+
+      # Database tests (Vitest): rules that live in the data layer, like the
+      # sign-in lockout, against the real Postgres.
+      - run: pnpm test:db
 
       # The browser tests expect the seeded catalogue. Running the seed
       # twice also proves it is safe to re-run.
@@ -146,6 +153,14 @@ jobs:
       - name: Make a throwaway database password
         run: openssl rand -hex 32 > deploy/secrets/db_password.txt
 
+      # The app reads its settings from deploy/.env, as it does on the server.
+      - name: Make a throwaway app config
+        run: |
+          {
+            echo "BETTER_AUTH_SECRET=$(openssl rand -hex 32)"
+            echo "BETTER_AUTH_URL=http://localhost:3000"
+          } > deploy/.env
+
       # The backup image isn't started (it needs the age key), but building it
       # catches a broken Dockerfile before it reaches the server.
       - name: Build images
@@ -159,6 +174,11 @@ jobs:
           body="$($COMPOSE exec -T app wget -qO- http://127.0.0.1:3000/api/health)"
           echo "$body"
           test "$body" = '{"status":"ok"}'
+
+      # The sign-in page loads Better Auth and reads the session, so a 200
+      # here proves accounts start up inside the real image.
+      - name: Check the sign-in page
+        run: $COMPOSE exec -T app wget -qO /dev/null http://127.0.0.1:3000/login
 
       - name: Show logs
         if: failure()

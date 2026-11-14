@@ -1,8 +1,11 @@
 // v2 schema.
 //
-// Better Auth owns the User, Session, Account and Verification tables. They are
-// generated in Phase 2 with the Better Auth CLI, so until then any "userId"
-// column below is a plain string with no relation. Phase 2 adds the relations.
+// Better Auth owns the User, Session, Account and Verification tables (see the
+// Accounts section). Their core columns must keep the names Better Auth
+// expects; extra columns on User are declared in src/server/auth.ts too.
+//
+// "actorId" style columns (AuditLog, StockMovement, InvoicePayment) stay plain
+// strings on purpose: history must survive the admin's account being deleted.
 //
 // Conventions:
 // - Money is integer cents (NZD). Never store a float price.
@@ -67,6 +70,99 @@ model Role {
   isSystem    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  users       User[]
+}
+
+// ---------------------------------------------------------------------------
+// Accounts (Better Auth)
+// ---------------------------------------------------------------------------
+
+model User {
+  id               String               @id
+  // The display name other members see.
+  name             String
+  email            String               @unique
+  emailVerified    Boolean              @default(false)
+  image            String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  // --- tommy tinkers fields (not Better Auth's) ---
+  // No role means a plain member with no permissions.
+  roleId           String?
+  role             Role?                @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  // When they ticked "I'm 13 or older, and I've read the house rules and the
+  // privacy policy". Null until ticked (a new Google sign-up finishes this on
+  // /welcome). Always the server's clock, never a time sent by the browser.
+  ageConfirmedAt   DateTime?
+  town             String?
+  bio              String? // 160 characters at most
+  // Shed emails (sent from Phase 4). News consent lives in MarketingContact.
+  emailOnReply     Boolean              @default(true)
+  emailOnApproved  Boolean              @default(true)
+  sessions         Session[]
+  accounts         Account[]
+  orders           Order[]
+  redemptions      DiscountRedemption[]
+  dataExports      DataExport[]
+  marketingContact MarketingContact?
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// One way of signing in: "credential" (email and password, hash in `password`)
+// or "google".
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// Short-lived tokens for email verification and password reset.
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+// Failed sign-ins, counted per email address typed, whether or not an account
+// exists for it. Counting on User instead would leak who has an account: a
+// real address would lock after 5 tries and a made-up one never would.
+model SignInThrottle {
+  email       String    @id // lower-cased
+  failures    Int       @default(0)
+  lastFailure DateTime?
+  lockedUntil DateTime?
+  updatedAt   DateTime  @updatedAt
 }
 
 // ---------------------------------------------------------------------------
@@ -227,6 +323,8 @@ model Order {
   externalRef             String?
   status                  OrderStatus          @default(PENDING)
   userId                  String? // null for guest checkout
+  // SetNull: deleting an account keeps the order (tax records) but unlinks it.
+  user                    User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
   email                   String
   // Stored as given; admin lists show first name plus last initial.
   customerName            String
@@ -388,6 +486,7 @@ model DiscountRedemption {
   orderId     String
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   // Lower-cased; used for "one per customer" on guest orders.
   email       String
   amountCents Int
@@ -696,7 +795,8 @@ model StockAlert {
 model MarketingContact {
   id               String    @id @default(cuid())
   email            String    @unique // lower-cased
-  userId           String?
+  userId           String?   @unique
+  user             User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   consentAt        DateTime
   consentSource    String // "checkout", "account_settings"
   unsubscribeToken String    @unique
@@ -713,6 +813,7 @@ model MarketingContact {
 model DataExport {
   id          String    @id @default(cuid())
   userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   status      String    @default("BUILDING") // BUILDING, READY, FAILED
   storageKey  String?
   requestedAt DateTime  @default(now())
